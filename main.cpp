@@ -171,11 +171,11 @@ int main(void)
   glfwSetKeyCallback(window, key_callback);
 
   std::cout << GLUtil::getOpenGLInfo() << std::endl;std::cout.flush();
-  program1.loadShaders("vertShader.glsl","fragShader.glsl","");
+  program1.loadShaders("shaders/vertShader.glsl","shaders/fragShader.glsl","");
   loadTriangle();
 
   ShaderSource ss;
-  ss.parseFile("SinglePassRayMarch.glsl", "-- ");
+  ss.parseFile("shaders/SinglePassRayMarch.glsl", "--");
   std::cout << ss.getShader("VS") << std::endl;
   std::cout << ss.getShader("GS") << std::endl;
   std::cout << ss.getShader("FS") << std::endl;

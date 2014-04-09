@@ -21,6 +21,13 @@ set(HEADERS
   renderlib/glm/glm.hpp
 )
 
+set(SHADERS
+  shaders/vertShader.glsl
+  shaders/fragShader.glsl
+  shaders/SinglePassRayMarch.glsl
+)
+
+
 # -g adds debugging symbols
 # -Wall turns on all warnings
 # -Wextra turns on a lot of warnings (but not too pedantic)
@@ -60,5 +67,5 @@ ENDIF(APPLE)
 
 
 
-add_executable(VolumeRenderer ${SOURCES} ${HEADERS})
+add_executable(VolumeRenderer ${SOURCES} ${HEADERS} ${SHADERS})
 target_link_libraries(VolumeRenderer ${EXTRA_LIBS})
