@@ -176,6 +176,9 @@ int main(void)
 
   ShaderSource ss;
   ss.parseFile("SinglePassRayMarch.glsl", "-- ");
+  std::cout << ss.getShader("VS") << std::endl;
+  std::cout << ss.getShader("GS") << std::endl;
+  std::cout << ss.getShader("FS") << std::endl;
 
   glm::mat4 identityMatrix = glm::mat4(1.0);//Identity matrix
 

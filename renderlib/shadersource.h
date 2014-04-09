@@ -12,7 +12,7 @@ public:
   ShaderSource();
 
   void parseFile(const std::string filename, const std::string delimeter);
-
+  std::string getShader(const std::string id);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ShaderSource);
