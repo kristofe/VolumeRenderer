@@ -13,10 +13,11 @@
 #include "test.h"
 #include "glutil.h"
 #include "glprogram.h"
+#include "renderlib/shadersource.h"
 #include "renderlib/glm/glm.hpp"
 #include "renderlib/glm/gtc/matrix_transform.hpp"
 
-using namespace kdslib;
+using namespace renderlib;
 
 
 //TODO: Move this kind of stuff into a renderer
@@ -172,6 +173,9 @@ int main(void)
   std::cout << GLUtil::getOpenGLInfo() << std::endl;std::cout.flush();
   program1.loadShaders("vertShader.glsl","fragShader.glsl","");
   loadTriangle();
+
+  ShaderSource ss;
+  ss.parseFile("SinglePassRayMarch.glsl", "-- ");
 
   glm::mat4 identityMatrix = glm::mat4(1.0);//Identity matrix
 

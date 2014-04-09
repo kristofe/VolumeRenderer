@@ -7,7 +7,7 @@
 #include <vector>
 
 
-namespace kdslib{
+namespace renderlib{
 
 struct UniformInfo
 {

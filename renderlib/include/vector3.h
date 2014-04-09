@@ -2,7 +2,7 @@
 #define VECTOR3_H
 #include "utils.h"
 
-namespace kdslib{
+namespace renderlib{
 
 struct Vector3
 {

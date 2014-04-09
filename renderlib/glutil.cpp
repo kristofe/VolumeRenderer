@@ -3,12 +3,21 @@
 #include "include/glutil.h"
 #include "glm/glm.hpp"
 
-namespace kdslib{
+namespace renderlib{
 
 
 GLUtil::GLUtil()
 {
 }
+
+/*
+GLuint GLUtil::loadShaders(const std::string& fileName)
+{
+    std::string source = getShaderSource(vsFileName);
+
+    return buildProgram(vsSource,fsSource,NULL);
+}
+*/
 
 GLuint GLUtil::loadShaders(const std::string& vsFileName,
                    const std::string& fsFileName,

@@ -19,7 +19,7 @@
 #include "vector2.h"
 #include "color.h"
 
-namespace kdslib
+namespace renderlib
 {
   struct ShaderUniformData
   {

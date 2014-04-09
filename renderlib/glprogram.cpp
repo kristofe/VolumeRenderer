@@ -1,7 +1,7 @@
 #include "glprogram.h"
 
 
-namespace kdslib{
+namespace renderlib{
 
 
 }

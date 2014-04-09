@@ -5,6 +5,7 @@ set(SOURCES
    main.cpp
    renderlib/glutil.cpp
    renderlib/glprogram.cpp
+   renderlib/shadersource.cpp
 )
 
 set(HEADERS
@@ -16,6 +17,7 @@ set(HEADERS
   renderlib/include/vector3.h
   renderlib/include/vertex.h
   renderlib/include/color.h
+  renderlib/shadersource.h
   renderlib/glm/glm.hpp
 )
 
