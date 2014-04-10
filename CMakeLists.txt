@@ -7,7 +7,6 @@ set(SOURCES
    renderlib/glprogram.cpp
    renderlib/shadersource.cpp
    renderlib/perlin.c
-#   renderlib/trackball.cpp
 )
 
 set(HEADERS

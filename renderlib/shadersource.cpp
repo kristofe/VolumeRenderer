@@ -30,7 +30,6 @@ void ShaderSource::parseFile(const std::string filename, const std::string delim
      }
      else{
        currentShader += line;
-       currentShader += "\n";
      }
   }
   _shaders[currentShaderName] = currentShader;
@@ -39,7 +38,7 @@ void ShaderSource::parseFile(const std::string filename, const std::string delim
   for(map<string, string>::iterator it = _shaders.begin();
       it != _shaders.end(); ++it)
   {
-      std::cout << it->first <<"\n";// " " << it->second << "\n";
+      std::cout << it->first <<"\n" << it->second << "\n";
   }
 }
 

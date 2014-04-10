@@ -24,14 +24,8 @@ GLuint GLUtil::loadProgram(
     std::string vsSource = ss.getShader(vsKey);
     std::string fsSource = ss.getShader(fsKey);
     std::string gsSource = ss.getShader(gsKey);
-    if(gsSource.length() == 0)
-    {
-       return buildProgram(vsSource,fsSource, gsSource);
-    }
-    else
-    {
-       return buildProgram(vsSource,fsSource,NULL);
-    }
+
+    return buildProgram(vsSource,fsSource, gsSource);
 }
 
 
@@ -431,6 +425,125 @@ std::string GLUtil::glEnumToString(GLenum e)
       case GL_OUT_OF_MEMORY:
         str =  "GL_OUT_OF_MEMORY";
         break;
+
+
+    case GL_SAMPLER_1D:
+      str = "GL_SAMPLER_1D";
+      break;
+
+    case GL_SAMPLER_2D:
+      str = "GL_SAMPLER_2D";
+      break;
+
+    case GL_SAMPLER_3D:
+      str = "GL_SAMPLER_3D";
+      break;
+
+    case GL_SAMPLER_CUBE:
+      str = "GL_SAMPLER_CUBE";
+      break;
+
+    case GL_SAMPLER_1D_SHADOW:
+      str = "GL_SAMPLER_1D_SHADOW";
+      break;
+
+    case GL_SAMPLER_2D_SHADOW:
+      str = "GL_SAMPLER_2D_SHADOW";
+      break;
+
+    case GL_SAMPLER_1D_ARRAY:
+      str = "GL_SAMPLER_1D_ARRAY";
+      break;
+
+    case GL_SAMPLER_2D_ARRAY:
+          str = "GL_SAMPLER_2D_ARRAY";
+      break;
+
+    case GL_SAMPLER_1D_ARRAY_SHADOW:
+      str = "GL_SAMPLER_1D_ARRAY_SHADOW";
+      break;
+
+    case GL_SAMPLER_2D_ARRAY_SHADOW:
+      str = "GL_SAMPLER_2D_ARRAY_SHADOW";
+      break;
+
+    case GL_SAMPLER_2D_MULTISAMPLE:
+      str = "GL_SAMPLER_2D_MULTISAMPLE";
+      break;
+
+    case GL_SAMPLER_2D_MULTISAMPLE_ARRAY:
+      str = "GL_SAMPLER_2D_MULTISAMPLE_ARRAY";
+      break;
+
+    case GL_SAMPLER_CUBE_SHADOW:
+      str = "GL_SAMPLER_CUBE_SHADOW";
+    case GL_SAMPLER_BUFFER:
+      str = "GL_SAMPLER_BUFFER";
+        break;
+
+    case GL_SAMPLER_2D_RECT:
+      str = "GL_SAMPLER_2D_RECT";
+      break;
+
+    case GL_SAMPLER_2D_RECT_SHADOW:
+      str = "GL_SAMPLER_2D_RECT_SHADOW";
+      break;
+
+    case GL_INT_SAMPLER_1D:
+      str = "GL_INT_SAMPLER_1D";
+      break;
+
+    case GL_INT_SAMPLER_2D:
+      str = "GL_INT_SAMPLER_2D";
+      break;
+
+    case GL_INT_SAMPLER_3D:
+      str = "GL_INT_SAMPLER_3D";
+      break;
+
+    case GL_INT_SAMPLER_CUBE:
+      str = "GL_INT_SAMPLER_CUBE";
+      break;
+
+    case GL_INT_SAMPLER_1D_ARRAY:
+      str = "GL_INT_SAMPLER_1D_ARRAY";
+      break;
+
+    case GL_INT_SAMPLER_2D_ARRAY:
+      str = "GL_INT_SAMPLER_2D_ARRAY";
+      break;
+
+    case GL_INT_SAMPLER_2D_MULTISAMPLE:
+      str = "GL_INT_SAMPLER_2D_MULTISAMPLE";
+      break;
+
+    case GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:
+      str = "GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY";
+      break;
+
+    case GL_INT_SAMPLER_BUFFER:
+          str = "GL_INT_SAMPLER_BUFFER";
+        break;
+
+    case GL_INT_SAMPLER_2D_RECT:
+      str = "GL_INT_SAMPLER_2D_RECT";
+      break;
+
+    case GL_UNSIGNED_INT_SAMPLER_1D:
+      str = "GL_UNSIGNED_INT_SAMPLER_1D";
+      break;
+
+    case GL_UNSIGNED_INT_SAMPLER_2D:
+      str = "GL_UNSIGNED_INT_SAMPLER_2D";
+      break;
+
+    case GL_UNSIGNED_INT_SAMPLER_3D:
+      str = "GL_UNSIGNED_INT_SAMPLER_3D";
+      break;
+
+    case GL_UNSIGNED_INT_SAMPLER_CUBE:
+          str = "GL_UNSIGNED_INT_SAMPLER_CUBE";
+      break;
 
 
         /* GL 4 enums?

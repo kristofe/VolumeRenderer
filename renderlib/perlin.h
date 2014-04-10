@@ -1,3 +1,6 @@
+#ifndef PERLIN_H
+#define PERLIN_H
+
 #define B 0x100
 #define BM 0xff
 #define N 0x1000
@@ -26,3 +29,4 @@ double PerlinNoise1D(double,double,double,int);
 double PerlinNoise2D(double,double,double,double,int);
 double PerlinNoise3D(double,double,double,double,double,int);
 
+#endif //PERLIN_H

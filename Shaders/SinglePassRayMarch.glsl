@@ -1,5 +1,7 @@
 -- VS
 
+#version 150
+
 in vec4 Position;
 out vec4 vPosition;
 uniform mat4 ModelviewProjection;
@@ -11,6 +13,8 @@ void main()
 }
 
 -- GS
+
+#version 150
 
 layout(points) in;
 layout(triangle_strip, max_vertices = 24) out;
@@ -66,6 +70,8 @@ void main()
 
 -- FS
 
+#version 150
+
 out vec4 FragColor;
 
 uniform sampler3D Density;
@@ -110,6 +116,8 @@ bool IntersectBox(Ray r, AABB aabb, out float t0, out float t1)
 
 void main()
 {
+    FragColor = vec4(1.0);
+    /*
     vec3 rayDirection;
     rayDirection.xy = 2.0 * gl_FragCoord.xy / WindowSize - 1.0;
     rayDirection.z = -FocalLength;
@@ -150,7 +158,7 @@ void main()
         for (int s=0; s < numLightSamples; ++s) {
             float ld = texture(Density, lpos).x;
             Tl *= 1.0-Absorption*stepSize*ld;
-            if (Tl <= 0.01) 
+            if (Tl <= 0.01)
             lpos += lightDir;
         }
 
@@ -160,4 +168,5 @@ void main()
 
     FragColor.rgb = Lo;
     FragColor.a = 1-T;
+    */
 }
