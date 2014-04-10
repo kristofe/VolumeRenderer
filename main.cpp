@@ -14,10 +14,29 @@
 #include "glutil.h"
 #include "glprogram.h"
 #include "renderlib/shadersource.h"
+#include "renderlib/perlin.h"
 #include "renderlib/glm/glm.hpp"
 #include "renderlib/glm/gtc/matrix_transform.hpp"
 
 using namespace renderlib;
+
+struct ProgramHandles {
+    GLuint SinglePass;
+};
+//Prototypes
+static ProgramHandles Programs;
+static GLuint CreatePyroclasticVolume(int n, float r);
+//static ITrackball* Trackball;
+static GLuint CubeCenterVbo;
+static glm::mat4 ProjectionMatrix;
+static glm::mat4 ModelviewMatrix;
+static glm::mat4 ViewMatrix;
+static glm::mat4 ModelviewProjection;
+static glm::vec3 EyePosition;
+static GLuint CloudTexture;
+static SurfacePod IntervalsFbo[2];
+static bool SinglePass = true;
+static float FieldOfView = 0.7f;
 
 
 //TODO: Move this kind of stuff into a renderer
@@ -198,4 +217,56 @@ int main(void)
   glfwDestroyWindow(window);
   glfwTerminate();
   exit(EXIT_SUCCESS);
+}
+
+
+static GLuint CreatePyroclasticVolume(int n, float r)
+{
+    GLuint handle;
+    glGenTextures(1, &handle);
+    glBindTexture(GL_TEXTURE_3D, handle);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    unsigned char *data = new unsigned char[n*n*n];
+    unsigned char *ptr = data;
+
+    float frequency = 3.0f / n;
+    float center = n / 2.0f + 0.5f;
+
+    for(int x=0; x < n; ++x) {
+        for (int y=0; y < n; ++y) {
+            for (int z=0; z < n; ++z) {
+                float dx = center-x;
+                float dy = center-y;
+                float dz = center-z;
+
+                float off = fabsf((float) PerlinNoise3D(
+                    x*frequency,
+                    y*frequency,
+                    z*frequency,
+                    5,
+                    6, 3));
+
+                float d = sqrtf(dx*dx+dy*dy+dz*dz)/(n);
+                bool isFilled = (d-off) < r;
+                *ptr++ = isFilled ? 255 : 0;
+            }
+        }
+        fprintf(stdout,"Slice %d of %d\n", x, n);
+    }
+
+    glTexImage3D(GL_TEXTURE_3D, 0,
+                 GL_RED,
+                 n, n, n, 0,
+                 GL_RED,
+                 GL_UNSIGNED_BYTE,
+                 data);
+
+    delete[] data;
+    return handle;
 }

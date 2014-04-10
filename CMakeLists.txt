@@ -6,6 +6,8 @@ set(SOURCES
    renderlib/glutil.cpp
    renderlib/glprogram.cpp
    renderlib/shadersource.cpp
+   renderlib/perlin.c
+#   renderlib/trackball.cpp
 )
 
 set(HEADERS
@@ -19,6 +21,7 @@ set(HEADERS
   renderlib/include/color.h
   renderlib/shadersource.h
   renderlib/glm/glm.hpp
+  renderlib/perlin.h
 )
 
 set(SHADERS

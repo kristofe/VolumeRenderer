@@ -2,22 +2,38 @@
 #include <stdio.h>
 #include "include/glutil.h"
 #include "glm/glm.hpp"
+#include "shadersource.h"
 
 namespace renderlib{
-
+using namespace glm;
 
 GLUtil::GLUtil()
 {
 }
 
-/*
-GLuint GLUtil::loadShaders(const std::string& fileName)
+GLuint GLUtil::loadProgram(
+                   const std::string& fileName,
+                   const std::string& vsKey,
+                   const std::string& fsKey,
+                   const std::string& gsKey)
 {
-    std::string source = getShaderSource(vsFileName);
 
-    return buildProgram(vsSource,fsSource,NULL);
+    ShaderSource ss;
+    ss.parseFile(fileName, "--");
+
+    std::string vsSource = ss.getShader(vsKey);
+    std::string fsSource = ss.getShader(fsKey);
+    std::string gsSource = ss.getShader(gsKey);
+    if(gsSource.length() == 0)
+    {
+       return buildProgram(vsSource,fsSource, gsSource);
+    }
+    else
+    {
+       return buildProgram(vsSource,fsSource,NULL);
+    }
 }
-*/
+
 
 GLuint GLUtil::loadShaders(const std::string& vsFileName,
                    const std::string& fsFileName,
@@ -470,191 +486,523 @@ std::string GLUtil::glEnumToString(GLenum e)
     return str;
 }
 
-}
 
-
-/*s
-typedef unsigned int GLenum;
-typedef unsigned char GLboolean;
-typedef unsigned int GLbitfield;
-typedef signed char GLbyte;
-typedef short GLshort;
-typedef int GLint;
-typedef int GLsizei;
-typedef unsigned char GLubyte;
-typedef unsigned short GLushort;
-typedef unsigned int GLuint;
-typedef float GLfloat;
-typedef float GLclampf;
-typedef double GLdouble;
-typedef double GLclampd;
-typedef void GLvoid;
-*/
+struct ProgramsRec {
+    GLuint Advect;
+    GLuint Jacobi;
+    GLuint SubtractGradient;
+    GLuint ComputeDivergence;
+    GLuint ApplyImpulse;
+    GLuint ApplyBuoyancy;
+} Programs;
 
 /*
-
-void drawQuadVBO() {
-    glUniform1f(blendSlot, blendStrength);
-    glEnableVertexAttribArray(positionSlot);
-    glEnableVertexAttribArray(uvSlot);
-    glUniform1i(samplerSlot,0);
-
-    glUniform1iv(redMapSlot,sizeof(mapR),mapR);
-    glUniform1iv(greenMapSlot,sizeof(mapG),mapG);
-    glUniform1iv(blueMapSlot,sizeof(mapB),mapB);
-
-    glUniform4fv(flareColor1Slot,1,flareColor1);
-    glUniform2fv(dxdy1Slot,1,dxdy1);
-    glUniform3fv(scale1Slot,1,scale1);
-
-    glUniform4fv(flareColor2Slot,1,flareColor2);
-    glUniform2fv(dxdy2Slot,1,dxdy2);
-    glUniform3fv(scale2Slot,1,scale2);
-
-    printf("imageDims(%3.2f,%3.2f)\n", imageDims[0],imageDims[1]);
-    glUniform2fv(imageDimensionsSlot,1,imageDims);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vboQuad);
-
-    glUniformMatrix4fv(projectionUniformSlot, 1, 0, projectionMatrix);
-    glUniformMatrix4fv(modelViewUniformSlot, 1, 0, modelviewMatrix);
-    glVertexAttribPointer(positionSlot, 2, GL_FLOAT, GL_FALSE, sizeof(V2fT2f),
-                          BUFFER_OFFSET(0));
-    glVertexAttribPointer(uvSlot, 2, GL_FLOAT, GL_FALSE, sizeof(V2fT2f),
-                          BUFFER_OFFSET(sizeof(float)*2));
-
-
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboQuadIndices);
-    glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_BYTE, 0);
-
-    glDisableVertexAttribArray(positionSlot);
-    glDisableVertexAttribArray(uvSlot);
-
-}
-*/
-
-/*
-    // New Stuff
-
-    // Load shader and setup its parameters
-    firstPassShaderProgram = loadShaders();
-    glUseProgram(firstPassShaderProgram);
-
-    positionSlot = glGetAttribLocation(firstPassShaderProgram, "Position");
-    uvSlot = glGetAttribLocation(firstPassShaderProgram, "uv0");
-
-    glEnableVertexAttribArray(positionSlot);
-    glEnableVertexAttribArray(uvSlot);
-
-    projectionUniformSlot = glGetUniformLocation(firstPassShaderProgram, "Projection");
-    modelViewUniformSlot = glGetUniformLocation(firstPassShaderProgram, "Modelview");
-    samplerSlot = glGetUniformLocation(firstPassShaderProgram, "s_texture");
-    imageDimensionsSlot = glGetUniformLocation(firstPassShaderProgram, "u_imageDimensions");
-    redMapSlot = glGetUniformLocation(firstPassShaderProgram, "u_redmap");
-    greenMapSlot = glGetUniformLocation(firstPassShaderProgram, "u_greenmap");
-    blueMapSlot = glGetUniformLocation(firstPassShaderProgram, "u_bluemap");
-    flareColor1Slot = glGetUniformLocation(firstPassShaderProgram, "u_flareColor1");
-    dxdy1Slot = glGetUniformLocation(firstPassShaderProgram, "u_dxdy1");
-    scale1Slot = glGetUniformLocation(firstPassShaderProgram, "u_scale1");
-
-    flareColor2Slot = glGetUniformLocation(firstPassShaderProgram, "u_flareColor2");
-    dxdy2Slot = glGetUniformLocation(firstPassShaderProgram, "u_dxdy2");
-    scale2Slot = glGetUniformLocation(firstPassShaderProgram, "u_scale2");
-
-    blendSlot = glGetUniformLocation(firstPassShaderProgram, "u_blend");
-
-    // Generate VBO
-    glGenBuffers(1,&vboQuad);
-    glBindBuffer(GL_ARRAY_BUFFER, vboQuad);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(flipquad),&flipquad[0].x,GL_STATIC_DRAW);
-
-    glGenBuffers(1, &vboQuadIndices);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboQuadIndices);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
-
-    Ortho(projectionMatrix,0, 1, 0, 1, -1, 1);
-    Scaling(modelviewMatrix,1, 1, 1);
- */
-
-
-/*
-void bindFBO(GLuint fboID,Image* fboImage) {
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, fboID);
-    glViewport(0, 0, fboImage->wide*fboImage->s, fboImage->high*fboImage->t);
-    // The entire framebuffer won't be written to if the image was padded to POT.
-    // In this case, clearing is a performance win on TBDR systems.
+void CreateObstacles(SurfacePod dest, int width, int height)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
+    glViewport(0, 0, width, height);
+    glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    GLuint program = LoadProgram("Fluid.Vertex", 0, "Fluid.Fill");
+    glUseProgram(program);
+
+    const int DrawBorder = 1;
+    if (DrawBorder) {
+        #define T 0.9999f
+        float positions[] = { -T, -T, T, -T, T,  T, -T,  T, -T, -T };
+        #undef T
+        GLuint vbo;
+        GLsizeiptr size = sizeof(positions);
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, size, positions, GL_STATIC_DRAW);
+        GLsizeiptr stride = 2 * sizeof(positions[0]);
+        glEnableVertexAttribArray(SlotPosition);
+        glVertexAttribPointer(SlotPosition, 2, GL_FLOAT, GL_FALSE, stride, 0);
+        glDrawArrays(GL_LINE_STRIP, 0, 5);
+        glDeleteBuffers(1, &vbo);
+    }
+
+    const int DrawCircle = 1;
+    if (DrawCircle) {
+        const int slices = 64;
+        float positions[slices*2*3];
+        float twopi = 8*atan(1.0f);
+        float theta = 0;
+        float dtheta = twopi / (float) (slices - 1);
+        float* pPositions = &positions[0];
+        for (int i = 0; i < slices; i++) {
+            *pPositions++ = 0;
+            *pPositions++ = 0;
+
+            *pPositions++ = 0.25f * cos(theta) * height / width;
+            *pPositions++ = 0.25f * sin(theta);
+            theta += dtheta;
+
+            *pPositions++ = 0.25f * cos(theta) * height / width;
+            *pPositions++ = 0.25f * sin(theta);
+        }
+        GLuint vbo;
+        GLsizeiptr size = sizeof(positions);
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, size, positions, GL_STATIC_DRAW);
+        GLsizeiptr stride = 2 * sizeof(positions[0]);
+        glEnableVertexAttribArray(SlotPosition);
+        glVertexAttribPointer(SlotPosition, 2, GL_FLOAT, GL_FALSE, stride, 0);
+        glDrawArrays(GL_TRIANGLES, 0, slices * 3);
+        glDeleteBuffers(1, &vbo);
+    }
+
+    // Cleanup
+    glDeleteProgram(program);
+    glDeleteVertexArrays(1, &vao);
+
+}
+*/
+void fatalError(const char* pStr, va_list a)
+{
+    char msg[1024] = {0};
+    va_list copy;
+    va_copy(copy, a);
+    size_t length = vsnprintf(NULL, 0, pStr, copy);
+    va_end(copy);
+
+    vsnprintf(msg, length - 1, pStr, a);
+    fputs(msg, stderr);
+    __builtin_trap();
+    exit(1);
+}
+
+void checkCondition(int condition, ...)
+{
+    va_list a;
+    const char* pStr;
+
+    if (condition)
+        return;
+
+    va_start(a, condition);
+    pStr = va_arg(a, const char*);
+    fatalError(pStr, a);
+}
+
+SlabPod CreateSlab(GLsizei width, GLsizei height)
+{
+    SlabPod slab;
+    slab.Ping = CreateSurface(width, height);
+    slab.Pong = CreateSurface(width, height);
+    return slab;
+}
+
+SurfacePod CreateSurface(GLsizei width, GLsizei height)
+{
+    GLuint fboHandle;
+    glGenFramebuffers(1, &fboHandle);
+    glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
+
+    GLuint textureHandle;
+    glGenTextures(1, &textureHandle);
+    glBindTexture(GL_TEXTURE_2D, textureHandle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_HALF_FLOAT, 0);
+    checkCondition(GL_NO_ERROR == glGetError(), "Unable to create normals texture");
+
+    GLuint colorbuffer;
+    glGenRenderbuffers(1, &colorbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureHandle, 0);
+    checkCondition(GL_NO_ERROR == glGetError(), "Unable to attach color buffer");
+
+    checkCondition(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER), "Unable to create FBO.");
+    SurfacePod surface = { fboHandle, textureHandle };
+
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    return surface;
+}
+
+static void ResetState()
+{
+    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDisable(GL_BLEND);
-    glViewport(0, 0, fboImage->wide, fboImage->high);
 }
 
-void restoreSystemFBO() {
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, SystemFBO);
-}
-
-void drawQuadArray() {
-    // Unbind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glUniform1f(blendSlot, blendStrength);
-    glUniformMatrix4fv(projectionUniformSlot, 1, 0, projectionMatrix);
-    glUniformMatrix4fv(modelViewUniformSlot, 1, 0, modelviewMatrix);
-    glVertexAttribPointer(positionSlot, 2, GL_FLOAT, GL_FALSE, sizeof(V2fT2f),  &flipquad[0].x);
-    glVertexAttribPointer(uvSlot, 2, GL_FLOAT, GL_FALSE, sizeof(V2fT2f),  &flipquad[0].s);
-    glUniform1i(samplerSlot,0);
-    glUniform1iv(redMapSlot,sizeof(mapR),mapR);
-    glUniform1iv(greenMapSlot,sizeof(mapG),mapG);
-    glUniform1iv(blueMapSlot,sizeof(mapB),mapB);
-
-    glUniform4fv(flareColor1Slot,1,flareColor1);
-    glUniform2fv(dxdy1Slot,1,dxdy1);
-    glUniform3fv(scale1Slot,1,scale1);
-
-    glUniform4fv(flareColor2Slot,1,flareColor2);
-    glUniform2fv(dxdy2Slot,1,dxdy2);
-    glUniform3fv(scale2Slot,1,scale2);
-
-    glUniform2fv(imageDimensionsSlot,1,imageDims);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-}
-*/
 /*
-//////////////////////////////
-inline void drawCube(Vector3f &p1, Vector3f &p2) {
+void InitSlabOps()
+{
+    Programs.Advect = LoadProgram("Fluid.Vertex", 0, "Fluid.Advect");
+    Programs.Jacobi = LoadProgram("Fluid.Vertex", 0, "Fluid.Jacobi");
+    Programs.SubtractGradient = LoadProgram("Fluid.Vertex", 0, "Fluid.SubtractGradient");
+    Programs.ComputeDivergence = LoadProgram("Fluid.Vertex", 0, "Fluid.ComputeDivergence");
+    Programs.ApplyImpulse = LoadProgram("Fluid.Vertex", 0, "Fluid.Splat");
+    Programs.ApplyBuoyancy = LoadProgram("Fluid.Vertex", 0, "Fluid.Buoyancy");
+}
+*/
 
-glBegin(GL_QUADS);
-		// Front Face
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(p1.x, p1.y,  p2.z);	// Bottom Left Of The Texture and Quad
-		glTexCoord2f(1.0f, 0.0f); glVertex3f( p2.x, p1.y,  p2.z);	// Bottom Right Of The Texture and Quad
-		glTexCoord2f(1.0f, 1.0f); glVertex3f( p2.x,  p2.y,  p2.z);	// Top Right Of The Texture and Quad
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(p1.x,  p2.y,  p2.z);	// Top Left Of The Texture and Quad
-		// Back Face
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(p1.x, p1.y, p1.z);	// Bottom Right Of The Texture and Quad
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(p1.x,  p2.y, p1.z);	// Top Right Of The Texture and Quad
-		glTexCoord2f(0.0f, 1.0f); glVertex3f( p2.x,  p2.y, p1.z);	// Top Left Of The Texture and Quad
-		glTexCoord2f(0.0f, 0.0f); glVertex3f( p2.x, p1.y, p1.z);	// Bottom Left Of The Texture and Quad
-		// Top Face
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(p1.x,  p2.y, p1.z);	// Top Left Of The Texture and Quad
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(p1.x,  p2.y,  p2.z);	// Bottom Left Of The Texture and Quad
-		glTexCoord2f(1.0f, 0.0f); glVertex3f( p2.x,  p2.y,  p2.z);	// Bottom Right Of The Texture and Quad
-		glTexCoord2f(1.0f, 1.0f); glVertex3f( p2.x,  p2.y, p1.z);	// Top Right Of The Texture and Quad
-		// Bottom Face
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(p1.x, p1.y, p1.z);	// Top Right Of The Texture and Quad
-		glTexCoord2f(0.0f, 1.0f); glVertex3f( p2.x, p1.y, p1.z);	// Top Left Of The Texture and Quad
-		glTexCoord2f(0.0f, 0.0f); glVertex3f( p2.x, p1.y,  p2.z);	// Bottom Left Of The Texture and Quad
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(p1.x, p1.y,  p2.z);	// Bottom Right Of The Texture and Quad
-		// Right face
-		glTexCoord2f(1.0f, 0.0f); glVertex3f( p2.x, p1.y, p1.z);	// Bottom Right Of The Texture and Quad
-		glTexCoord2f(1.0f, 1.0f); glVertex3f( p2.x,  p2.y, p1.z);	// Top Right Of The Texture and Quad
-		glTexCoord2f(0.0f, 1.0f); glVertex3f( p2.x,  p2.y,  p2.z);	// Top Left Of The Texture and Quad
-		glTexCoord2f(0.0f, 0.0f); glVertex3f( p2.x, p1.y,  p2.z);	// Bottom Left Of The Texture and Quad
-		// Left Face
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(p1.x, p1.y, p1.z);	// Bottom Left Of The Texture and Quad
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(p1.x, p1.y,  p2.z);	// Bottom Right Of The Texture and Quad
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(p1.x,  p2.y,  p2.z);	// Top Right Of The Texture and Quad
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(p1.x,  p2.y, p1.z);	// Top Left Of The Texture and Quad
-	glEnd();
+void SwapSurfaces(SlabPod* slab)
+{
+    SurfacePod temp = slab->Ping;
+    slab->Ping = slab->Pong;
+    slab->Pong = temp;
+}
+
+void ClearSurface(SurfacePod s, float v)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, s.FboHandle);
+    glClearColor(v, v, v, v);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+/*
+void Advect(SurfacePod velocity, SurfacePod source, SurfacePod obstacles, SurfacePod dest, float dissipation)
+{
+    GLuint p = Programs.Advect;
+    glUseProgram(p);
+
+    GLint inverseSize = glGetUniformLocation(p, "InverseSize");
+    GLint timeStep = glGetUniformLocation(p, "TimeStep");
+    GLint dissLoc = glGetUniformLocation(p, "Dissipation");
+    GLint sourceTexture = glGetUniformLocation(p, "SourceTexture");
+    GLint obstaclesTexture = glGetUniformLocation(p, "Obstacles");
+
+    glUniform2f(inverseSize, 1.0f / GridWidth, 1.0f / GridHeight);
+    glUniform1f(timeStep, TimeStep);
+    glUniform1f(dissLoc, dissipation);
+    glUniform1i(sourceTexture, 1);
+    glUniform1i(obstaclesTexture, 2);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, velocity.TextureHandle);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, source.TextureHandle);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, obstacles.TextureHandle);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    ResetState();
+}
+
+void Jacobi(SurfacePod pressure, SurfacePod divergence, SurfacePod obstacles, SurfacePod dest)
+{
+    GLuint p = Programs.Jacobi;
+    glUseProgram(p);
+
+    GLint alpha = glGetUniformLocation(p, "Alpha");
+    GLint inverseBeta = glGetUniformLocation(p, "InverseBeta");
+    GLint dSampler = glGetUniformLocation(p, "Divergence");
+    GLint oSampler = glGetUniformLocation(p, "Obstacles");
+
+    glUniform1f(alpha, -CellSize * CellSize);
+    glUniform1f(inverseBeta, 0.25f);
+    glUniform1i(dSampler, 1);
+    glUniform1i(oSampler, 2);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, pressure.TextureHandle);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, divergence.TextureHandle);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, obstacles.TextureHandle);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    ResetState();
+}
+
+void SubtractGradient(SurfacePod velocity, SurfacePod pressure, SurfacePod obstacles, SurfacePod dest)
+{
+    GLuint p = Programs.SubtractGradient;
+    glUseProgram(p);
+
+    GLint gradientScale = glGetUniformLocation(p, "GradientScale");
+    glUniform1f(gradientScale, GradientScale);
+    GLint halfCell = glGetUniformLocation(p, "HalfInverseCellSize");
+    glUniform1f(halfCell, 0.5f / CellSize);
+    GLint sampler = glGetUniformLocation(p, "Pressure");
+    glUniform1i(sampler, 1);
+    sampler = glGetUniformLocation(p, "Obstacles");
+    glUniform1i(sampler, 2);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, velocity.TextureHandle);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, pressure.TextureHandle);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, obstacles.TextureHandle);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    ResetState();
+}
+
+void ComputeDivergence(SurfacePod velocity, SurfacePod obstacles, SurfacePod dest)
+{
+    GLuint p = Programs.ComputeDivergence;
+    glUseProgram(p);
+
+    GLint halfCell = glGetUniformLocation(p, "HalfInverseCellSize");
+    glUniform1f(halfCell, 0.5f / CellSize);
+    GLint sampler = glGetUniformLocation(p, "Obstacles");
+    glUniform1i(sampler, 1);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, velocity.TextureHandle);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, obstacles.TextureHandle);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    ResetState();
+}
+
+void ApplyImpulse(SurfacePod dest, Vector2 position, float value)
+{
+    GLuint p = Programs.ApplyImpulse;
+    glUseProgram(p);
+
+    GLint pointLoc = glGetUniformLocation(p, "Point");
+    GLint radiusLoc = glGetUniformLocation(p, "Radius");
+    GLint fillColorLoc = glGetUniformLocation(p, "FillColor");
+
+    glUniform2f(pointLoc, (float) position.X, (float) position.Y);
+    glUniform1f(radiusLoc, SplatRadius);
+    glUniform3f(fillColorLoc, value, value, value);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
+    glEnable(GL_BLEND);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    ResetState();
+}
+
+void ApplyBuoyancy(SurfacePod velocity, SurfacePod temperature, SurfacePod density, SurfacePod dest)
+{
+    GLuint p = Programs.ApplyBuoyancy;
+    glUseProgram(p);
+
+    GLint tempSampler = glGetUniformLocation(p, "Temperature");
+    GLint inkSampler = glGetUniformLocation(p, "Density");
+    GLint ambTemp = glGetUniformLocation(p, "AmbientTemperature");
+    GLint timeStep = glGetUniformLocation(p, "TimeStep");
+    GLint sigma = glGetUniformLocation(p, "Sigma");
+    GLint kappa = glGetUniformLocation(p, "Kappa");
+
+    glUniform1i(tempSampler, 1);
+    glUniform1i(inkSampler, 2);
+    glUniform1f(ambTemp, AmbientTemperature);
+    glUniform1f(timeStep, TimeStep);
+    glUniform1f(sigma, SmokeBuoyancy);
+    glUniform1f(kappa, SmokeWeight);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, velocity.TextureHandle);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, temperature.TextureHandle);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, density.TextureHandle);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    ResetState();
+}
+*/
+GLuint CreatePointVbo(float x, float y, float z)
+{
+    float p[] = {x, y, z};
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(p), &p[0], GL_STATIC_DRAW);
+    return vbo;
+}
+
+void SetUniform(const char* name, int value)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniform1i(location, value);
+}
+
+void SetUniform(const char* name, float value)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniform1f(location, value);
+}
+
+void SetUniform(const char* name, glm::mat4 value)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniformMatrix4fv(location, 1, 0, (float*) &value[0][0]);
+}
+
+void SetUniform(const char* name, glm::mat3 nm)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    /*
+    float packed[9] = {
+        nm.getRow(0).getX(), nm.getRow(1).getX(), nm.getRow(2).getX(),
+        nm.getRow(0).getY(), nm.getRow(1).getY(), nm.getRow(2).getY(),
+        nm.getRow(0).getZ(), nm.getRow(1).getZ(), nm.getRow(2).getZ() };
+        */
+    glUniformMatrix3fv(location, 1, 0, &nm[0][0]);
+}
+
+void SetUniform(const char* name, glm::vec3 value)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniform3f(location, value.x, value.y, value.z);
+}
+
+void SetUniform(const char* name, float x, float y)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniform2f(location, x, y);
+}
+
+void SetUniform(const char* name, glm::vec4 value)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniform4f(location, value.x, value.y, value.z, value.w);
+}
+
+/*
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/norm.hpp>
+using namespace glm;
+
+#include "quaternion_utils.hpp"
+
+
+// Returns a quaternion such that q*start = dest
+quat RotationBetweenVectors(vec3 start, vec3 dest){
+	start = normalize(start);
+	dest = normalize(dest);
+
+	float cosTheta = dot(start, dest);
+	vec3 rotationAxis;
+
+	if (cosTheta < -1 + 0.001f){
+		// special case when vectors in opposite directions :
+		// there is no "ideal" rotation axis
+		// So guess one; any will do as long as it's perpendicular to start
+		// This implementation favors a rotation around the Up axis,
+		// since it's often what you want to do.
+		rotationAxis = cross(vec3(0.0f, 0.0f, 1.0f), start);
+		if (length2(rotationAxis) < 0.01 ) // bad luck, they were parallel, try again!
+			rotationAxis = cross(vec3(1.0f, 0.0f, 0.0f), start);
+
+		rotationAxis = normalize(rotationAxis);
+		return angleAxis(180.0f, rotationAxis);
+	}
+
+	// Implementation from Stan Melax's Game Programming Gems 1 article
+	rotationAxis = cross(start, dest);
+
+	float s = sqrt( (1+cosTheta)*2 );
+	float invs = 1 / s;
+
+	return quat(
+		s * 0.5f,
+		rotationAxis.x * invs,
+		rotationAxis.y * invs,
+		rotationAxis.z * invs
+	);
+
+
+}
+
+
+
+// Returns a quaternion that will make your object looking towards 'direction'.
+// Similar to RotationBetweenVectors, but also controls the vertical orientation.
+// This assumes that at rest, the object faces +Z.
+// Beware, the first parameter is a direction, not the target point !
+quat LookAt(vec3 direction, vec3 desiredUp){
+
+	if (length2(direction) < 0.0001f )
+		return quat();
+
+	// Recompute desiredUp so that it's perpendicular to the direction
+	// You can skip that part if you really want to force desiredUp
+	vec3 right = cross(direction, desiredUp);
+	desiredUp = cross(right, direction);
+
+	// Find the rotation between the front of the object (that we assume towards +Z,
+	// but this depends on your model) and the desired direction
+	quat rot1 = RotationBetweenVectors(vec3(0.0f, 0.0f, 1.0f), direction);
+	// Because of the 1rst rotation, the up is probably completely screwed up.
+	// Find the rotation between the "up" of the rotated object, and the desired up
+	vec3 newUp = rot1 * vec3(0.0f, 1.0f, 0.0f);
+	quat rot2 = RotationBetweenVectors(newUp, desiredUp);
+
+	// Apply them
+	return rot2 * rot1; // remember, in reverse order.
+}
+
+
+
+// Like SLERP, but forbids rotation greater than maxAngle (in radians)
+// In conjunction to LookAt, can make your characters
+quat RotateTowards(quat q1, quat q2, float maxAngle){
+
+	if( maxAngle < 0.001f ){
+		// No rotation allowed. Prevent dividing by 0 later.
+		return q1;
+	}
+
+	float cosTheta = dot(q1, q2);
+
+	// q1 and q2 are already equal.
+	// Force q2 just to be sure
+	if(cosTheta > 0.9999f){
+		return q2;
+	}
+
+	// Avoid taking the long path around the sphere
+	if (cosTheta < 0){
+		q1 = q1*-1.0f;
+		cosTheta *= -1.0f;
+	}
+
+	float angle = acos(cosTheta);
+
+	// If there is only a 2° difference, and we are allowed 5°,
+	// then we arrived.
+	if (angle < maxAngle){
+		return q2;
+	}
+
+	// This is just like slerp(), but with a custom t
+	float t = maxAngle / angle;
+	angle = maxAngle;
+
+	quat res = (sin((1.0f - t) * angle) * q1 + sin(t * angle) * q2) / sin(angle);
+	res = normalize(res);
+	return res;
 
 }
 */
+
+} //namespace renderlib

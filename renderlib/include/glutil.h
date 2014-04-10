@@ -12,15 +12,27 @@
 #include <fstream>
 #include <map>
 #include "utils.h"
+#include "../glm/glm.hpp"
+#include "../glm/gtc/quaternion.hpp"
+#include "../glm/gtx/quaternion.hpp"
 
 //These have to be included after utils.h because of the
 // MACRO DISALLOW_COPY_AND_ASSIGN
-#include "vector3.h"
-#include "vector2.h"
-#include "color.h"
 
 namespace renderlib
 {
+  struct RenderConfig
+  {
+    std::string title;
+    int width;
+    int height;
+    int multisample;
+    int verticalSync;
+
+    RenderConfig():title("Renderer"),width(800),height(800),multisample(0),
+                   verticalSync(0) {};
+  };
+
   struct ShaderUniformData
   {
     public:
@@ -98,6 +110,11 @@ namespace renderlib
 
      static std::string getShaderSource(const std::string& filename);
 
+     static GLuint loadProgram(const std::string& fileName,
+                               const std::string& vsKey,
+                               const std::string& fsKey,
+                               const std::string& gsKey);
+
      static GLuint loadShaders(const std::string& vsFileName,
                                const std::string& fsFileName,
                                const std::string& gsFileName);
@@ -125,7 +142,51 @@ namespace renderlib
    };
 
 
+   enum AttributeSlot {
+       SlotPosition,
+       SlotTexCoord,
+   };
 
+   struct ITrackball {
+       virtual void MouseDown(int x, int y) = 0;
+       virtual void MouseUp(int x, int y) = 0;
+       virtual void MouseMove(int x, int y) = 0;
+       virtual void ReturnHome() = 0;
+       virtual glm::mat3 GetRotation() const = 0;
+       virtual float GetZoom() const = 0;
+       virtual void Update(unsigned int microseconds) = 0;
+   };
+
+   struct TexturePod {
+       GLuint Handle;
+       GLsizei Width;
+       GLsizei Height;
+   };
+
+   struct SurfacePod {
+       GLuint FboHandle;
+       GLuint ColorTexture;
+   };
+
+   struct SlabPod {
+       SurfacePod Ping;
+       SurfacePod Pong;
+   };
+
+   void fatalError(const char* pStr, va_list a);
+   void checkCondition(int condition, ...);
+
+   ITrackball* CreateTrackball(float width, float height, float radius);
+   void SetUniform(const char* name, int value);
+   void SetUniform(const char* name, float value);
+   void SetUniform(const char* name, float x, float y);
+   void SetUniform(const char* name, glm::mat4x4 value);
+   void SetUniform(const char* name, glm::mat3x3 value);
+   void SetUniform(const char* name, glm::vec4 value);
+   void SetUniform(const char* name, glm::vec3 value);
+   //TexturePod LoadTexture(const char* path);
+   SurfacePod CreateSurface(int width, int height);
+   GLuint CreatePointVbo(float x, float y, float z);
 
 }
 
