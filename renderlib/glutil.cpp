@@ -4,6 +4,7 @@
 #include <varargs.h>
 #include "include/glutil.h"
 #include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "shadersource.h"
 
 namespace renderlib{
@@ -38,14 +39,14 @@ GLuint GLUtil::loadShaders(const std::string& vsFileName,
 
     std::string vsSource = getShaderSource(vsFileName);
     std::string fsSource = getShaderSource(fsFileName);
-    if(gsFileName.length() == 0)
+    if(gsFileName.length() > 0)
     {
        std::string gsSource = getShaderSource(gsFileName);
        return buildProgram(vsSource,fsSource, gsSource);
     }
     else
     {
-       return buildProgram(vsSource,fsSource,NULL);
+       return buildProgram(vsSource,fsSource,"");
     }
 
 
@@ -91,6 +92,13 @@ GLuint GLUtil::buildProgram(const std::string& vsSource,
     GLuint programHandle = glCreateProgram();
     glAttachShader(programHandle, vertexShader);
     glAttachShader(programHandle, fragmentShader);
+
+	if(gsSource.length() > 0)
+	{
+		GLuint geometryShader = buildShader("geometry shader",gsSource,
+										   GL_GEOMETRY_SHADER);
+		glAttachShader(programHandle, geometryShader);
+	}
     glLinkProgram(programHandle);
 
     GLint linkSuccess;
@@ -955,7 +963,7 @@ void SetUniform(const char* name, glm::mat4 value)
     GLuint program;
     glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
     GLint location = glGetUniformLocation(program, name);
-    glUniformMatrix4fv(location, 1, 0, (float*) &value[0][0]);
+	glUniformMatrix4fv(location, 1, 0, glm::value_ptr(value));
 }
 
 void SetUniform(const char* name, glm::mat3 nm)
@@ -969,7 +977,7 @@ void SetUniform(const char* name, glm::mat3 nm)
         nm.getRow(0).getY(), nm.getRow(1).getY(), nm.getRow(2).getY(),
         nm.getRow(0).getZ(), nm.getRow(1).getZ(), nm.getRow(2).getZ() };
         */
-    glUniformMatrix3fv(location, 1, 0, &nm[0][0]);
+	glUniformMatrix3fv(location, 1, 0, glm::value_ptr(nm));
 }
 
 void SetUniform(const char* name, glm::vec3 value)

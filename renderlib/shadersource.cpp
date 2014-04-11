@@ -30,6 +30,7 @@ void ShaderSource::parseFile(const std::string filename, const std::string delim
      }
      else{
        currentShader += line;
+	   currentShader += "\r\n";
      }
   }
   _shaders[currentShaderName] = currentShader;
