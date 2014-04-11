@@ -33,8 +33,15 @@ set(SHADERS
 # -g adds debugging symbols
 # -Wall turns on all warnings
 # -Wextra turns on a lot of warnings (but not too pedantic)
+if(APPLE)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter -std=c++11")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter")
+ENDIF(APPLE)
+
+if(WIN32)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ")
+ENDIF(WIN32)
 
 #SET(CMAKE_OSX_ARCHITECTURES "i386")
 
@@ -67,7 +74,15 @@ if(APPLE)
    SET(EXTRA_LIBS ${IOKIT_LIBRARY} ${COCOA_LIBRARY} ${OPENGL_LIBRARY} libglfw3.a )
 ENDIF(APPLE)
 
-
+if(WIN32)
+	find_package(OpenGL REQUIRED)
+	include_directories(${OpenGL_INCLUDE_DIRS})
+	link_directories(${OpenGL_LIBRARY_DIRS})
+	add_definitions(${OpenGL_DEFINITIONS})
+	if(NOT OPENGL_FOUND)
+	    message(ERROR " OPENGL not found!")
+	endif(NOT OPENGL_FOUND)
+ENDIF(WIN32)
 
 add_executable(VolumeRenderer ${SOURCES} ${HEADERS} ${SHADERS})
 target_link_libraries(VolumeRenderer ${EXTRA_LIBS})
