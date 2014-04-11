@@ -1,5 +1,7 @@
 #include <vector>
 #include <stdio.h>
+#include <stdarg.h>
+#include <varargs.h>
 #include "include/glutil.h"
 #include "glm/glm.hpp"
 #include "shadersource.h"
@@ -680,14 +682,10 @@ void CreateObstacles(SurfacePod dest, int width, int height)
 void fatalError(const char* pStr, va_list a)
 {
     char msg[1024] = {0};
-    va_list copy;
-    va_copy(copy, a);
-    size_t length = vsnprintf(NULL, 0, pStr, copy);
-    va_end(copy);
 
-    vsnprintf(msg, length - 1, pStr, a);
+    vsnprintf(msg, _countof(msg), pStr, a);
     fputs(msg, stderr);
-    __builtin_trap();
+    //__builtin_trap();
     exit(1);
 }
 

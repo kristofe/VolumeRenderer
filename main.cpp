@@ -5,7 +5,14 @@
 //  Created by Kristofer Schlachter on 7/8/13.
 //  Copyright (c) 2013 Kristofer Schlachter. All rights reserved.
 //
-#define GLFW_INCLUDE_GLCOREARB
+#ifdef __APPLE__
+	#define GLFW_INCLUDE_GLCOREARB
+#elif WIN32
+	#pragma comment(lib, "GLFW/glfw3dll.lib")
+	#pragma comment(lib, "opengl32.lib")
+	#include <GL/glew.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
@@ -251,6 +258,9 @@ int main(void)
   if (!glfwInit())
     exit(EXIT_FAILURE);
 
+
+
+
   hintOpenGL32CoreProfile();
   RenderConfig cfg = getConfig();
   window = glfwCreateWindow(cfg.width, cfg.height, cfg.title.c_str(), NULL, NULL);
@@ -259,10 +269,19 @@ int main(void)
     glfwTerminate();
     exit(EXIT_FAILURE);
   }
+
+
+
   glfwMakeContextCurrent(window);
   glfwSetKeyCallback(window, keyHandler);
   glfwSetCursorPosCallback(window, mousePositionHandler);
   glfwSetMouseButtonCallback(window, mouseButtonHandler);
+
+
+       // initialise GLEW
+	glewExperimental = GL_TRUE; //stops glew crashing on OSX :-/
+	if(glewInit() != GLEW_OK)
+		throw std::runtime_error("glewInit failed");
 
   std::cout << GLUtil::getOpenGLInfo() << std::endl;std::cout.flush();
   initialize();

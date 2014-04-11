@@ -7,6 +7,7 @@ set(SOURCES
    renderlib/glprogram.cpp
    renderlib/shadersource.cpp
    renderlib/perlin.c
+   glew/src/glew.c
 )
 
 set(HEADERS
@@ -39,14 +40,11 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -g -Wextra -Wno-ignored-qualifiers -Wno-unu
 ENDIF(APPLE)
 
 if(WIN32)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ")
+include_directories(glew/include)
 ENDIF(WIN32)
 
 #SET(CMAKE_OSX_ARCHITECTURES "i386")
 
-#SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter -std=c++11 -stdlib=libc++ -O3 -msse -msse2")
-#SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter -O3 -msse -msse2")
 
 if(CMAKE_BUILD_TYPE MATCHES DEBUG)
     message("adding debug flags")
@@ -84,5 +82,6 @@ if(WIN32)
 	endif(NOT OPENGL_FOUND)
 ENDIF(WIN32)
 
+add_definitions(-DGLEW_STATIC)
 add_executable(VolumeRenderer ${SOURCES} ${HEADERS} ${SHADERS})
 target_link_libraries(VolumeRenderer ${EXTRA_LIBS})
