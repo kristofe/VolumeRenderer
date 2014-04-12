@@ -937,6 +937,41 @@ void ApplyBuoyancy(SurfacePod velocity, SurfacePod temperature, SurfacePod densi
     ResetState();
 }
 */
+void CreatePointVbo(GLuint prog, GLuint * vbo, GLuint *vao)
+{
+    //float p[] = { 0.0, 0.0, 0.0};
+	    float p[] = {
+				 -1.0, -1.0, 0.0, 
+				 1.0, -1.0, 0.0,
+				 0.0, 1.0, 0.0
+	};
+	glGenVertexArrays(1,vao);
+	glBindVertexArray(*vao);
+		
+    glGenBuffers(1, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(p), p, GL_STATIC_DRAW);
+
+	GLint vertLoc = glGetAttribLocation(prog, "Position");
+    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+    glVertexAttribPointer(vertLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    glEnableVertexAttribArray(vertLoc);
+}
+void CreateTriangleVbo(GLuint * vbo, GLuint *vao)
+{
+    float p[] = {
+				 -1.0, -1.0, 0.0, 
+				 1.0, -1.0, 0.0,
+				 0.0, 1.0, 0.0
+	};
+	glGenVertexArrays(1,vao);
+	glBindVertexArray(*vao);
+
+    glGenBuffers(1, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(p), p, GL_STATIC_DRAW);
+}
+
 GLuint CreatePointVbo(float x, float y, float z)
 {
     float p[] = {x, y, z};

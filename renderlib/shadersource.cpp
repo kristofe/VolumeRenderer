@@ -48,7 +48,7 @@ void ShaderSource::parseFile(const std::string filename, const std::string delim
 std::string ShaderSource::getShader(const std::string id)
 {
   if(_shaders.find(id) == _shaders.end()){
-      return "//////\n";
+      return "";
   }
   return _shaders[id];
 }

@@ -39,6 +39,7 @@ static ProgramHandles Programs;
 static GLuint CreatePyroclasticVolume(int n, float r);
 //static ITrackball* Trackball;
 static GLuint CubeCenterVbo;
+static GLuint CubeCenterVao;
 static glm::mat4 ProjectionMatrix;
 static glm::mat4 ModelviewMatrix;
 static glm::mat4 ViewMatrix;
@@ -47,7 +48,7 @@ static glm::vec3 EyePosition;
 static GLuint CloudTexture;
 static SurfacePod IntervalsFbo[2];
 static bool SinglePass = true;
-static float fieldOfView = 0.7f;
+static float fieldOfView = 45.0f;
 
 
 void hintOpenGL32CoreProfile(){
@@ -149,7 +150,7 @@ static GLuint CreatePyroclasticVolume(int n, float r)
                 *ptr++ = isFilled ? 255 : 0;
             }
         }
-        fprintf(stdout,"Slice %d of %d\n", x, n);
+        //fprintf(stdout,"Slice %d of %d\n", x, n);
     }
 
     glTexImage3D(GL_TEXTURE_3D, 0,
@@ -168,15 +169,19 @@ void initialize()
     RenderConfig cfg = getConfig();
 
     //Trackball = createTrackball(cfg.Width * 1.0f, cfg.Height * 1.0f, cfg.Width * 0.5f);
-    Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "GS");
+    //Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "GS");
+    Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "");
+    ///Programs.SinglePass = GLUtil::loadShaders("Shaders/vertShader.glsl", "Shaders/fragShader.glsl", "");
     
-    CubeCenterVbo = CreatePointVbo(0, 0, 0);
-    CloudTexture = CreatePyroclasticVolume(128, 0.025f);
+    //CubeCenterVbo = CreatePointVbo(0, 0, 0);
+	CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
+
+    CloudTexture = CreatePyroclasticVolume(32, 0.025f);
 
     glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glEnable(GL_CULL_FACE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glEnable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
@@ -204,16 +209,32 @@ static void loadUniforms()
 
 void render()
 {
+	/*
     glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
     glVertexAttribPointer(SlotPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glEnableVertexAttribArray(SlotPosition);
     glBindTexture(GL_TEXTURE_3D, CloudTexture);
+	*/
+
+
+	/*
+	glBindVertexArray(CubeCenterVao);
+	GLint vertLoc = glGetAttribLocation(Programs.SinglePass, "vert");
+    glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
+    glVertexAttribPointer(vertLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    glEnableVertexAttribArray(vertLoc);
+	*/
 
     glClearColor(0.2f, 0.2f, 0.2f, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(Programs.SinglePass);
+
+	glBindVertexArray(CubeCenterVao);
+    glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
+
     loadUniforms();
-    glDrawArrays(GL_POINTS, 0, 1);
+    //glDrawArrays(GL_POINTS, 0, 1);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 static void update(unsigned int microseconds)
@@ -236,18 +257,19 @@ static void update(unsigned int microseconds)
     ProjectionMatrix = Matrix4::perspective(fieldOfView, 1, n, f);
     ModelviewProjection = ProjectionMatrix * ModelviewMatrix;
     */
-    EyePosition = glm::vec3(0, 0, 5);
+    EyePosition = glm::vec3(0, 0, -5);
 
     glm::vec3 up(0, 1, 0); glm::vec3 target(0);
     ViewMatrix = glm::lookAt(EyePosition, target, up);
 
-    glm::mat4 modelMatrix;
+    glm::mat4 modelMatrix(1);
     ModelviewMatrix = ViewMatrix * modelMatrix;
 
-    float n = 1.0f;
+    float n = 0.1f;
     float f = 100.0f;
 
-    ProjectionMatrix = glm::perspective(fieldOfView, 1.0f, n, f);
+    //ProjectionMatrix = glm::perspective(fieldOfView, 1.0f, n, f);
+    ProjectionMatrix = glm::ortho(0.0,1.0,0.0,1.0);
     ModelviewProjection = ProjectionMatrix * ModelviewMatrix;
 }
 

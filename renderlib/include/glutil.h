@@ -186,6 +186,8 @@ namespace renderlib
    void SetUniform(const char* name, glm::vec3 value);
    //TexturePod LoadTexture(const char* path);
    SurfacePod CreateSurface(int width, int height);
+   void CreateTriangleVbo(GLuint * vbo, GLuint * vao);
+   void CreatePointVbo(GLuint prog, GLuint * vbo, GLuint * vao);
    GLuint CreatePointVbo(float x, float y, float z);
 
 }
