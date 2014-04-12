@@ -1,7 +1,10 @@
 #include <vector>
 #include <stdio.h>
+#if WIN32
 #include <stdarg.h>
 #include <varargs.h>
+#endif
+
 #include "include/glutil.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -689,13 +692,15 @@ void CreateObstacles(SurfacePod dest, int width, int height)
 */
 void fatalError(const char* pStr, va_list a)
 {
+#if WIN32
     char msg[1024] = {0};
-
     vsnprintf(msg, _countof(msg), pStr, a);
     fputs(msg, stderr);
+#endif
     //__builtin_trap();
     exit(1);
 }
+
 
 void checkCondition(int condition, ...)
 {

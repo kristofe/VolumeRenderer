@@ -15,6 +15,7 @@ public:
   GLProgram(std::string& vsFileName, std::string& fsFileName)
   {
       _programID =  GLUtil::loadShaders(vsFileName, fsFileName, "");
+      enableVertexAttributes();
   }
 
   GLProgram(const std::string& vsFileName,
@@ -22,11 +23,14 @@ public:
             const std::string& gsFileName)
   {
       _programID =  GLUtil::loadShaders(vsFileName, fsFileName, gsFileName);
+      enableVertexAttributes();
+
   }
 
   void loadShaders(const std::string& vsFileName, const std::string& fsFileName)
   {
       _programID =  GLUtil::loadShaders(vsFileName, fsFileName, "");
+      enableVertexAttributes();
   }
 
   void loadShaders(const std::string& vsFileName,
@@ -34,6 +38,7 @@ public:
                    const std::string& gsFileName)
   {
       _programID =  GLUtil::loadShaders(vsFileName, fsFileName, gsFileName);
+      enableVertexAttributes();
   }
 
   GLint getAttributeLocation(const std::string& name)
