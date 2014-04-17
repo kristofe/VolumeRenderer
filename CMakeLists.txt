@@ -7,6 +7,7 @@ set(SOURCES
    renderlib/glprogram.cpp
    renderlib/shadersource.cpp
    renderlib/perlin.c
+   renderlib/trackball.cpp
    glew/src/glew.c
 )
 
@@ -19,6 +20,7 @@ set(HEADERS
   renderlib/include/vector3.h
   renderlib/include/vertex.h
   renderlib/include/color.h
+  renderlib/include/trackball.h
   renderlib/shadersource.h
   renderlib/glm/glm.hpp
   renderlib/perlin.h

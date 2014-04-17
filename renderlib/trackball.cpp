@@ -1,51 +1,48 @@
-#include "glutil.h"
+#include "include/trackball.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
+#include "glm/gtx/euler_angles.hpp"
+#include "glm/gtx/norm.hpp"
 
 using namespace renderlib;
 using namespace glm;
 
-class Trackball : public ITrackball {
-    public:
-        Trackball(float width, float height, float radius);
-        void MouseDown(int x, int y);
-        void MouseUp(int x, int y);
-        void MouseMove(int x, int y);
-        void ReturnHome();
-        mat3 GetRotation() const;
-        void Update(unsigned int microseconds);
-        float GetZoom() const;
-    private:
-        vec3 MapToSphere(int x, int y);
-        vec3 m_startPos;
-        vec3 m_currentPos;
-        vec3 m_previousPos;
-        vec3 m_axis;
-        quat m_quat;
-        bool m_active;
-        float m_radius;
-        float m_radiansPerSecond;
-        float m_distancePerSecond;
-        float m_width;
-        float m_height;
-        float m_zoom;
-        float m_startZoom;
-        int m_startY;
-        unsigned int m_currentTime;
-        unsigned int m_previousTime;
 
-        struct VoyageHome {
-            bool Active;
-            quat DepartureQuat;
-            float DepartureZoom;
-            unsigned int microseconds;
-        } m_voyageHome;
-
-        struct Inertia {
-            bool Active;
-            vec3 Axis;
-            float RadiansPerSecond;
-            float DistancePerSecond;
-        } m_inertia;
-};
+quat Trackball::RotationBetweenVectors(vec3 start, vec3 dest) const
+{
+    start = normalize(start);
+    dest = normalize(dest);
+ 
+    float cosTheta = dot(start, dest);
+    vec3 rotationAxis;
+ 
+    if (cosTheta < -1 + 0.001f){
+        // special case when vectors in opposite directions:
+        // there is no "ideal" rotation axis
+        // So guess one; any will do as long as it's perpendicular to start
+        rotationAxis = cross(vec3(0.0f, 0.0f, 1.0f), start);
+        if (glm::length2(rotationAxis) < 0.01 ) // bad luck, they were parallel, try again!
+            rotationAxis = cross(vec3(1.0f, 0.0f, 0.0f), start);
+ 
+        rotationAxis = normalize(rotationAxis);
+        return glm::angleAxis(180.0f, rotationAxis);
+    }
+ 
+    rotationAxis = cross(start, dest);
+ 
+    float s = sqrt( (1+cosTheta)*2 );
+    float invs = 1 / s;
+ 
+    return quat(
+        s * 0.5f, 
+        rotationAxis.x * invs,
+        rotationAxis.y * invs,
+        rotationAxis.z * invs
+    );
+ 
+}
 
 Trackball::Trackball(float width, float height, float radius)
 {
@@ -71,6 +68,7 @@ void Trackball::MouseDown(int x, int y)
     m_startY = y;
 }
 
+
 void Trackball::MouseUp(int x, int y)
 {
     if (m_active) {
@@ -81,8 +79,9 @@ void Trackball::MouseUp(int x, int y)
         m_active = false;
     }
 
-    quat q = Quat::rotation(m_startPos, m_currentPos);
-    m_quat = rotate(q, m_quat);
+    quat q =RotationBetweenVectors(m_startPos, m_currentPos);
+    //m_quat = rotate(q, m_quat);
+    m_quat = q * m_quat;
 
     if (m_radiansPerSecond > 0 || m_distancePerSecond != 0) {
         m_inertia.Active = true;
@@ -127,10 +126,11 @@ void Trackball::MouseMove(int x, int y)
 mat3 Trackball::GetRotation() const
 {
     if (!m_active)
-        return mat3(m_quat);
+        return toMat3(m_quat);
 
-    Quat q = Quat::rotation(m_startPos, m_currentPos);
-    return Matrix3(rotate(q, m_quat));
+	quat q = RotationBetweenVectors(m_startPos, m_currentPos);
+    //Quat q = Quat::rotation(m_startPos, m_currentPos);
+    return toMat3(q * m_quat);
 }
 
 vec3 Trackball::MapToSphere(int x, int y)
@@ -150,7 +150,7 @@ vec3 Trackball::MapToSphere(int x, int y)
 
     lenSqr = fx*fx+fy*fy;
     float z = sqrt(m_radius*m_radius - lenSqr);
-    return Vector3(fx, fy, z) / m_radius;
+    return glm::vec3(fx, fy, z) / m_radius;
 }
 
 void Trackball::Update(unsigned int microseconds)
@@ -162,13 +162,15 @@ void Trackball::Update(unsigned int microseconds)
         float t = m_voyageHome.microseconds / 200000.0f;
 
         if (t > 1) {
-            m_quat = Quat::identity();
+            //m_quat = Quat::identity();
+            m_quat = quat();
             m_startZoom = m_zoom = 0;
             m_voyageHome.Active = false;
             return;
         }
 
-        m_quat = slerp(t, m_voyageHome.DepartureQuat, Quat::identity());
+        //m_quat = slerp(t, m_voyageHome.DepartureQuat, Quat::identity());
+		m_quat = glm::slerp( m_voyageHome.DepartureQuat, quat(),t);
         m_startZoom = m_zoom = m_voyageHome.DepartureZoom * (1-t);
         m_inertia.Active = false;
     }
@@ -179,8 +181,8 @@ void Trackball::Update(unsigned int microseconds)
         if (m_inertia.RadiansPerSecond < 0) {
             m_radiansPerSecond = 0;
         } else {
-            Quat q = Quat::rotation(m_inertia.RadiansPerSecond * microseconds * 0.000001f, m_inertia.Axis);
-            m_quat = rotate(q, m_quat);
+            quat q = rotate(q,m_inertia.RadiansPerSecond * microseconds * 0.000001f, m_inertia.Axis);
+            m_quat = q * m_quat;
         }
 
         m_inertia.DistancePerSecond *= 0.75f;
@@ -221,7 +223,4 @@ float Trackball::GetZoom() const
     return m_zoom;
 }
 
-ITrackball* CreateTrackball(float width, float height, float radius)
-{
-    return new Trackball(width, height, radius);
-}
+

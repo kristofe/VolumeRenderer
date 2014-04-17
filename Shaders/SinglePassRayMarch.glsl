@@ -8,8 +8,7 @@ uniform mat4 ModelviewProjection;
 
 void main()
 {
-    //gl_Position = ModelviewProjection * Position;
-    gl_Position = Position;
+    gl_Position = ModelviewProjection * Position;
     vPosition = Position;
 }
 
@@ -117,8 +116,8 @@ bool IntersectBox(Ray r, AABB aabb, out float t0, out float t1)
 
 void main()
 {
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    /*
+    //FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    
     vec3 rayDirection;
     rayDirection.xy = 2.0 * gl_FragCoord.xy / WindowSize - 1.0;
     rayDirection.z = -FocalLength;
@@ -169,5 +168,5 @@ void main()
 
     FragColor.rgb = Lo;
     FragColor.a = 1-T;
-    */
+    
 }

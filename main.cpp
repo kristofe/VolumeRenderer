@@ -20,6 +20,7 @@
 #include "test.h"
 #include "glutil.h"
 #include "glprogram.h"
+#include "renderlib/include/trackball.h"
 #include "renderlib/shadersource.h"
 #include "renderlib/glm/glm.hpp"
 #include "renderlib/glm/gtc/matrix_transform.hpp"
@@ -49,6 +50,8 @@ static GLuint CloudTexture;
 static SurfacePod IntervalsFbo[2];
 static bool SinglePass = true;
 static float fieldOfView = 45.0f;
+static Trackball* trackball;
+int mouseX, mouseY;
 
 
 void hintOpenGL32CoreProfile(){
@@ -78,19 +81,19 @@ static void keyHandler(GLFWwindow* window, int key, int scancode, int action, in
 
 static void mouseButtonHandler(GLFWwindow* window, int button, int action, int mods)
 {
-  /*
   if (button = GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
-      Trackball->MouseDown(x, y);
+      trackball->MouseDown(mouseX, mouseY);
   else if (button = GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
-    Trackball->MouseUp(x, y);
+	  trackball->MouseUp(mouseX, mouseY);
   else if (button = GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS)
-      Trackball->ReturnHome();
-  */
+      trackball->ReturnHome();
 }
 
 static void mousePositionHandler(GLFWwindow* window, double x, double y)
 {
-      //Trackball->MouseMove(x, y);
+	  mouseX = (int)x;
+	  mouseY = (int)y;
+      trackball->MouseMove(x, y);
 }
 RenderConfig getConfig()
 {
@@ -168,20 +171,20 @@ void initialize()
 {
     RenderConfig cfg = getConfig();
 
-    //Trackball = createTrackball(cfg.Width * 1.0f, cfg.Height * 1.0f, cfg.Width * 0.5f);
-    //Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "GS");
-    Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "");
+    trackball = new Trackball(cfg.width * 1.0f, cfg.height * 1.0f, cfg.width * 0.5f);
+    Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "GS");
+    //Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "");
     ///Programs.SinglePass = GLUtil::loadShaders("Shaders/vertShader.glsl", "Shaders/fragShader.glsl", "");
     
     //CubeCenterVbo = CreatePointVbo(0, 0, 0);
 	CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
 
-    CloudTexture = CreatePyroclasticVolume(32, 0.025f);
+    CloudTexture = CreatePyroclasticVolume(128, 0.025f);
 
     glDisable(GL_DEPTH_TEST);
-    //glEnable(GL_BLEND);
+    glEnable(GL_BLEND);
     glDisable(GL_CULL_FACE);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
@@ -228,36 +231,36 @@ void render()
     glClearColor(0.2f, 0.2f, 0.2f, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(Programs.SinglePass);
-
+    glBindTexture(GL_TEXTURE_3D, CloudTexture);
 	glBindVertexArray(CubeCenterVao);
     glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
 
     loadUniforms();
-    //glDrawArrays(GL_POINTS, 0, 1);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_POINTS, 0, 1);
+    //glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 static void update(unsigned int microseconds)
 {
     float dt = microseconds * 0.000001f;
 
-    /*
-    Trackball->Update(microseconds);
-    EyePosition = Point3(0, 0, 5 + Trackball->GetZoom());
+    trackball->Update(microseconds);
+	EyePosition = glm::vec3(0, 0, 5 + trackball->GetZoom());
 
-    Vector3 up(0, 1, 0); Point3 target(0);
-    ViewMatrix = Matrix4::lookAt(EyePosition, target, up);
+    glm::vec3 up(0, 1, 0); glm::vec3 target(0);
+    ViewMatrix = glm::lookAt(EyePosition, target, up);
 
-    Matrix4 modelMatrix(transpose(Trackball->GetRotation()), Vector3(0));
+	//glm::mat4 modelMatrix(glm::transpose(trackball->GetRotation()), glm::vec3(0));
+	glm::mat4 modelMatrix(glm::transpose(trackball->GetRotation()));
     ModelviewMatrix = ViewMatrix * modelMatrix;
 
     float n = 1.0f;
     float f = 100.0f;
 
-    ProjectionMatrix = Matrix4::perspective(fieldOfView, 1, n, f);
+    ProjectionMatrix = glm::perspective(fieldOfView, 1.0f, n, f);
     ModelviewProjection = ProjectionMatrix * ModelviewMatrix;
-    */
-    EyePosition = glm::vec3(0, 0, -5);
+	/*
+    EyePosition = glm::vec3(0, 0, 5);
 
     glm::vec3 up(0, 1, 0); glm::vec3 target(0);
     ViewMatrix = glm::lookAt(EyePosition, target, up);
@@ -268,9 +271,10 @@ static void update(unsigned int microseconds)
     float n = 0.1f;
     float f = 100.0f;
 
-    //ProjectionMatrix = glm::perspective(fieldOfView, 1.0f, n, f);
-    ProjectionMatrix = glm::ortho(0.0,1.0,0.0,1.0);
+    ProjectionMatrix = glm::perspective(fieldOfView, 1.0f, n, f);
+    //ProjectionMatrix = glm::ortho(0.0,1.0,0.0,1.0);
     ModelviewProjection = ProjectionMatrix * ModelviewMatrix;
+	*/
 }
 
 int main(void)
@@ -328,7 +332,7 @@ int main(void)
 
     //drawTriangle(rotMat);
     
-	update(glfwGetTime());
+	update(glfwGetTime() *1000 * 1000);
     render();
 
     glfwSwapBuffers(window);

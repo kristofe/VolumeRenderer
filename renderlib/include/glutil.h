@@ -176,7 +176,6 @@ namespace renderlib
    void fatalError(const char* pStr, va_list a);
    void checkCondition(int condition, ...);
 
-   ITrackball* CreateTrackball(float width, float height, float radius);
    void SetUniform(const char* name, int value);
    void SetUniform(const char* name, float value);
    void SetUniform(const char* name, float x, float y);
@@ -189,7 +188,6 @@ namespace renderlib
    void CreateTriangleVbo(GLuint * vbo, GLuint * vao);
    void CreatePointVbo(GLuint prog, GLuint * vbo, GLuint * vao);
    GLuint CreatePointVbo(float x, float y, float z);
-
 }
 
 #endif // KDSLIB_GLUTIL_H

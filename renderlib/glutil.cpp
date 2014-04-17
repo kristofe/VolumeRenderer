@@ -8,6 +8,10 @@
 #include "include/glutil.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
+#include "glm/gtx/euler_angles.hpp"
+#include "glm/gtx/norm.hpp"
 #include "shadersource.h"
 
 namespace renderlib{
@@ -939,12 +943,15 @@ void ApplyBuoyancy(SurfacePod velocity, SurfacePod temperature, SurfacePod densi
 */
 void CreatePointVbo(GLuint prog, GLuint * vbo, GLuint *vao)
 {
-    //float p[] = { 0.0, 0.0, 0.0};
-	    float p[] = {
+    float p[] = { 0.0, 0.0, 0.0};
+	/*
+	   float p[] = {
 				 -1.0, -1.0, 0.0, 
 				 1.0, -1.0, 0.0,
 				 0.0, 1.0, 0.0
 	};
+	*/
+	
 	glGenVertexArrays(1,vao);
 	glBindVertexArray(*vao);
 		
@@ -1043,6 +1050,7 @@ void SetUniform(const char* name, glm::vec4 value)
     GLint location = glGetUniformLocation(program, name);
     glUniform4f(location, value.x, value.y, value.z, value.w);
 }
+
 
 /*
 #include <glm/gtc/quaternion.hpp>
