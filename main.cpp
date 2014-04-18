@@ -91,9 +91,11 @@ static void mouseButtonHandler(GLFWwindow* window, int button, int action, int m
 
 static void mousePositionHandler(GLFWwindow* window, double x, double y)
 {
+	if(mouseX != (int)x || mouseY != (int)y){
 	  mouseX = (int)x;
 	  mouseY = (int)y;
       trackball->MouseMove(x, y);
+	}
 }
 RenderConfig getConfig()
 {
@@ -324,6 +326,7 @@ int main(void)
   program1.enableVertexAttributes();
   */
 
+  mouseX = mouseY = 100;
 
   while (!glfwWindowShouldClose(window))
   {

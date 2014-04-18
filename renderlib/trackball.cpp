@@ -100,7 +100,10 @@ void Trackball::MouseMove(int x, int y)
 
     if (radians > 0.01f && microseconds > 0) {
         m_radiansPerSecond = 1000000.0f * radians / microseconds;
-        m_axis = normalize(cross(m_previousPos, m_currentPos));
+		vec3 tmp = cross(m_previousPos, m_currentPos);
+		if(length(tmp) > 0.0f){
+			m_axis = normalize(cross(m_previousPos, m_currentPos));
+		}
     } else {
         m_radiansPerSecond = 0;
     }
