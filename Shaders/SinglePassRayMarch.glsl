@@ -86,7 +86,7 @@ uniform vec3 RayOrigin;
 const float maxDist = sqrt(2.0);
 const int numSamples = 128;
 const float stepSize = maxDist/float(numSamples);
-const int numLightSamples = 32;
+const int numLightSamples = 16;
 const float lscale = maxDist / float(numLightSamples);
 const float densityFactor = 5.0; 
 

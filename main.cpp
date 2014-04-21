@@ -97,17 +97,17 @@ static void keyHandler(GLFWwindow* window, int key, int scancode, int action, in
 
 static void mouseButtonHandler(GLFWwindow* window, int button, int action, int mods)
 {
-  if (button = GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
+  if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
   {
 	  mouseDown = true;
     trackball->MouseDown(mouseX, mouseY);
   }
-  else if (button = GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
+  else if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
   {
 	  mouseDown = false;
 	  trackball->MouseUp(mouseX, mouseY);
   }
-  else if (button = GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS)
+  else if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS)
   {
     trackball->ReturnHome();
   }
@@ -269,7 +269,7 @@ void render()
     glEnableVertexAttribArray(vertLoc);
 	*/
 
-    glClearColor(0.2f, 0.2f, 0.2f, 0);
+    glClearColor(0.1f, 0.2f, 0.4f, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(Programs.SinglePass);
     glBindTexture(GL_TEXTURE_3D, CloudTexture);
@@ -295,10 +295,10 @@ static void update(double seconds)
     Vector3 up(0, 1, 0); Point3 target(0);
     ViewMatrix = Matrix4::lookAt(EyePosition, target, up);
 
-    //Matrix4 modelMatrix(transpose(trackball->GetRotation()), Vector3(0));
-    Quat q = Quat::identity();
-    q = q.rotationY(dt);
-    Matrix4 modelMatrix(transpose(Matrix3(q)), Vector3(0));
+    Matrix4 modelMatrix(transpose(trackball->GetRotation()), Vector3(0));
+    //Quat q = Quat::identity();
+    //q = q.rotationY(dt);
+    //Matrix4 modelMatrix(transpose(Matrix3(q)), Vector3(0));
     ModelviewMatrix = ViewMatrix * modelMatrix;
 
     float n = 1.0f;
