@@ -22,15 +22,20 @@
 #include "glprogram.h"
 #include "renderlib/include/trackball.h"
 #include "renderlib/shadersource.h"
+/*
 #include "renderlib/glm/glm.hpp"
 #include "renderlib/glm/gtc/matrix_transform.hpp"
 #include "renderlib/glm/gtc/type_ptr.hpp"
+*/
+
+#include "renderlib/vmath.hpp"
 
 extern "C" {
 #include "renderlib/perlin.h"
 }
 
 using namespace renderlib;
+using namespace vmath;
 
 struct ProgramHandles {
     GLuint SinglePass;
@@ -41,17 +46,28 @@ static GLuint CreatePyroclasticVolume(int n, float r);
 //static ITrackball* Trackball;
 static GLuint CubeCenterVbo;
 static GLuint CubeCenterVao;
+/*
 static glm::mat4 ProjectionMatrix;
 static glm::mat4 ModelviewMatrix;
 static glm::mat4 ViewMatrix;
 static glm::mat4 ModelviewProjection;
 static glm::vec3 EyePosition;
+*/
+static Matrix4 ProjectionMatrix;
+static Matrix4 ModelviewMatrix;
+static Matrix4 ViewMatrix;
+static Matrix4 ModelviewProjection;
+static Point3 EyePosition;
+
+
 static GLuint CloudTexture;
 static SurfacePod IntervalsFbo[2];
 static bool SinglePass = true;
-static float fieldOfView = 45.0f;
+static float fieldOfView = 0.7f;
 static Trackball* trackball;
-int mouseX, mouseY;
+static int mouseX, mouseY;
+static bool mouseDown = false;
+//static glm::mat4 modelMatrix;
 
 
 void hintOpenGL32CoreProfile(){
@@ -82,11 +98,19 @@ static void keyHandler(GLFWwindow* window, int key, int scancode, int action, in
 static void mouseButtonHandler(GLFWwindow* window, int button, int action, int mods)
 {
   if (button = GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
-      trackball->MouseDown(mouseX, mouseY);
+  {
+	  mouseDown = true;
+    trackball->MouseDown(mouseX, mouseY);
+  }
   else if (button = GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
+  {
+	  mouseDown = false;
 	  trackball->MouseUp(mouseX, mouseY);
+  }
   else if (button = GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS)
-      trackball->ReturnHome();
+  {
+    trackball->ReturnHome();
+  }
 }
 
 static void mousePositionHandler(GLFWwindow* window, double x, double y)
@@ -94,7 +118,8 @@ static void mousePositionHandler(GLFWwindow* window, double x, double y)
 	if(mouseX != (int)x || mouseY != (int)y){
 	  mouseX = (int)x;
 	  mouseY = (int)y;
-      trackball->MouseMove(x, y);
+	  if(mouseDown)
+		  trackball->MouseMove(x, y);
 	}
 }
 RenderConfig getConfig()
@@ -172,7 +197,7 @@ static GLuint CreatePyroclasticVolume(int n, float r)
 void initialize()
 {
     RenderConfig cfg = getConfig();
-
+	  //modelMatrix = glm::mat4();
     trackball = new Trackball(cfg.width * 1.0f, cfg.height * 1.0f, cfg.width * 0.5f);
     Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "GS");
     //Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "");
@@ -192,6 +217,20 @@ void initialize()
 
 static void loadUniforms()
 {
+	SetUniform("ModelviewProjection", ModelviewProjection);
+    SetUniform("Modelview", ModelviewMatrix);
+    SetUniform("ViewMatrix", ViewMatrix);
+    SetUniform("ProjectionMatrix", ProjectionMatrix);
+    SetUniform("RayStartPoints", 1);
+    SetUniform("RayStopPoints", 2);
+    SetUniform("EyePosition", EyePosition);
+
+    Vector4 rayOrigin(transpose(ModelviewMatrix) * EyePosition);
+    SetUniform("RayOrigin", rayOrigin.getXYZ());
+
+    float focalLength = 1.0f / std::tan(fieldOfView / 2);
+    SetUniform("FocalLength", focalLength);
+	/*
     SetUniform("ModelviewProjection", ModelviewProjection);
     SetUniform("Modelview", ModelviewMatrix);
     SetUniform("ViewMatrix", ViewMatrix);
@@ -205,9 +244,9 @@ static void loadUniforms()
     glm::vec4 rayOrigin(glm::transpose(ModelviewMatrix) * eye);
     SetUniform("RayOrigin", rayOrigin);
 
-    float focalLength = 1.0f / std::tan(fieldOfView / 2);
+    float focalLength = 1.0f / std::tan(fieldOfView / 2.0f);
     SetUniform("FocalLength", focalLength);
-
+	*/
     RenderConfig cfg = getConfig();
     SetUniform("WindowSize", float(cfg.width), float(cfg.height));
 }
@@ -242,10 +281,33 @@ void render()
     //glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-static void update(unsigned int microseconds)
+static void update(double seconds)
 {
-    float dt = microseconds * 0.000001f;
+    float dt = seconds;
+	  unsigned int microseconds = seconds * 1000 * 1000;
+    
 
+	/////////
+    //Trackball->Update(microseconds);
+
+    EyePosition = Point3(0, 0, 5 + trackball->GetZoom());
+    
+    Vector3 up(0, 1, 0); Point3 target(0);
+    ViewMatrix = Matrix4::lookAt(EyePosition, target, up);
+
+    //Matrix4 modelMatrix(transpose(trackball->GetRotation()), Vector3(0));
+    Quat q = Quat::identity();
+    q = q.rotationY(dt);
+    Matrix4 modelMatrix(transpose(Matrix3(q)), Vector3(0));
+    ModelviewMatrix = ViewMatrix * modelMatrix;
+
+    float n = 1.0f;
+    float f = 100.0f;
+
+    ProjectionMatrix = Matrix4::perspective(fieldOfView, 1, n, f);
+    ModelviewProjection = ProjectionMatrix * ModelviewMatrix;
+
+	/*
     trackball->Update(microseconds);
 	EyePosition = glm::vec3(0, 0, 5 + trackball->GetZoom());
 
@@ -253,28 +315,17 @@ static void update(unsigned int microseconds)
     ViewMatrix = glm::lookAt(EyePosition, target, up);
 
 	//glm::mat4 modelMatrix(glm::transpose(trackball->GetRotation()), glm::vec3(0));
-	glm::mat4 modelMatrix(glm::transpose(trackball->GetRotation()));
-    ModelviewMatrix = ViewMatrix * modelMatrix;
+	//glm::mat4 modelMatrix(glm::transpose(trackball->GetRotation()));
+	modelMatrix = glm::rotate(glm::mat4(),(float)seconds* 20.0f,glm::normalize(glm::vec3(0,1,0)));
+    //ModelviewMatrix = ViewMatrix * glm::transpose(modelMatrix);
+    ModelviewMatrix = ViewMatrix * glm::transpose(glm::mat4());
 
     float n = 1.0f;
     float f = 100.0f;
-
-    ProjectionMatrix = glm::perspective(fieldOfView, 1.0f, n, f);
-    ModelviewProjection = ProjectionMatrix * ModelviewMatrix;
-	/*
-    EyePosition = glm::vec3(0, 0, 5);
-
-    glm::vec3 up(0, 1, 0); glm::vec3 target(0);
-    ViewMatrix = glm::lookAt(EyePosition, target, up);
-
-    glm::mat4 modelMatrix(1);
-    ModelviewMatrix = ViewMatrix * modelMatrix;
-
-    float n = 0.1f;
-    float f = 100.0f;
-
-    ProjectionMatrix = glm::perspective(fieldOfView, 1.0f, n, f);
-    //ProjectionMatrix = glm::ortho(0.0,1.0,0.0,1.0);
+	RenderConfig cfg = getConfig();
+	float aspect = cfg.height/(float)cfg.width;
+	const float radToDeg = 57.2957795f;
+    ProjectionMatrix = glm::perspective(fieldOfView * radToDeg, aspect, n, f);
     ModelviewProjection = ProjectionMatrix * ModelviewMatrix;
 	*/
 }
@@ -335,7 +386,7 @@ int main(void)
 
     //drawTriangle(rotMat);
     
-	update(glfwGetTime() *1000 * 1000);
+	update(glfwGetTime());
     render();
 
     glfwSwapBuffers(window);

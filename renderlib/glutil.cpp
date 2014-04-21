@@ -13,9 +13,11 @@
 #include "glm/gtx/euler_angles.hpp"
 #include "glm/gtx/norm.hpp"
 #include "shadersource.h"
+#include "vmath.hpp"
 
 namespace renderlib{
 using namespace glm;
+using namespace vmath;
 
 GLUtil::GLUtil()
 {
@@ -1051,6 +1053,49 @@ void SetUniform(const char* name, glm::vec4 value)
     glUniform4f(location, value.x, value.y, value.z, value.w);
 }
 
+void SetUniform(const char* name, Matrix4 value)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniformMatrix4fv(location, 1, 0, (float*) &value);
+}
+
+void SetUniform(const char* name, Matrix3 nm)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    float packed[9] = {
+        nm.getRow(0).getX(), nm.getRow(1).getX(), nm.getRow(2).getX(),
+        nm.getRow(0).getY(), nm.getRow(1).getY(), nm.getRow(2).getY(),
+        nm.getRow(0).getZ(), nm.getRow(1).getZ(), nm.getRow(2).getZ() };
+    glUniformMatrix3fv(location, 1, 0, &packed[0]);
+}
+
+void SetUniform(const char* name, Vector3 value)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniform3f(location, value.getX(), value.getY(), value.getZ());
+}
+
+void SetUniform(const char* name, Vector4 value)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniform4f(location, value.getX(), value.getY(), value.getZ(), value.getW());
+}
+
+void SetUniform(const char* name, Point3 value)
+{
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLint location = glGetUniformLocation(program, name);
+    glUniform3f(location, value.getX(), value.getY(), value.getZ());
+}
 
 /*
 #include <glm/gtc/quaternion.hpp>

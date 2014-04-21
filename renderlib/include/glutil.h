@@ -16,11 +16,14 @@
 #include "../glm/gtc/quaternion.hpp"
 #include "../glm/gtx/quaternion.hpp"
 
+#include "../vmath.hpp"
+
 //These have to be included after utils.h because of the
 // MACRO DISALLOW_COPY_AND_ASSIGN
 
 namespace renderlib
 {
+  using namespace vmath;
   struct RenderConfig
   {
     std::string title;
@@ -183,6 +186,11 @@ namespace renderlib
    void SetUniform(const char* name, glm::mat3x3 value);
    void SetUniform(const char* name, glm::vec4 value);
    void SetUniform(const char* name, glm::vec3 value);
+   void SetUniform(const char* name, vmath::Matrix4 value);
+	void SetUniform(const char* name, vmath::Matrix3 value);
+	void SetUniform(const char* name, vmath::Vector3 value);
+	void SetUniform(const char* name, vmath::Point3 value);
+	void SetUniform(const char* name, vmath::Vector4 value);
    //TexturePod LoadTexture(const char* path);
    SurfacePod CreateSurface(int width, int height);
    void CreateTriangleVbo(GLuint * vbo, GLuint * vao);

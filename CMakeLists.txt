@@ -23,6 +23,7 @@ set(HEADERS
   renderlib/include/trackball.h
   renderlib/shadersource.h
   renderlib/glm/glm.hpp
+  renderlib/vmath.hpp
   renderlib/perlin.h
 )
 

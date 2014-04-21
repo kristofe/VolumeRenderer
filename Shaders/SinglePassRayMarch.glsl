@@ -88,7 +88,7 @@ const int numSamples = 128;
 const float stepSize = maxDist/float(numSamples);
 const int numLightSamples = 32;
 const float lscale = maxDist / float(numLightSamples);
-const float densityFactor = 5;
+const float densityFactor = 5.0; 
 
 struct Ray {
     vec3 Origin;
