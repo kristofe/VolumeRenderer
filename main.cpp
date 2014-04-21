@@ -143,6 +143,54 @@ void resizeViewport(GLFWwindow* window){
   glViewport(0, 0, cfg.width, cfg.height);
   glClear(GL_COLOR_BUFFER_BIT);
 }
+
+#include <iostream>
+#include <fstream>
+static GLuint load3DScan()//EVERYTHING IS HARDCODED FOR NOW
+{
+    GLuint handle;
+    glGenTextures(1, &handle);
+    glBindTexture(GL_TEXTURE_3D, handle);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+
+    const unsigned int DIM = 512;
+    //int array_size = DIM*DIM*DIM*2;
+    int array_size = DIM*DIM*1*2;
+    char *data = new char[array_size];//2 bytes per uint16
+
+    int position = 0;
+
+    //std::ifstream fin("Data/512x512x512x_uint16.raw");
+    std::ifstream fin("Data/512x512x1x_uint16.raw");
+    if(fin.is_open())
+    {
+    //file opened successfully so we are here
+      std::cout << "File Opened successfully!!!. Reading data from file into array" << std::endl;
+      //this loop run until end of file (eof) does not occur
+      while(!fin.eof() && position < array_size)
+      {
+        fin.get(data[position]); //reading one character from file to array
+        position++;
+      }
+      
+    }
+    glTexImage3D(GL_TEXTURE_3D, 0,
+                 GL_RED,
+                // DIM, DIM, DIM, 0,
+                 DIM, DIM, 1, 0,
+                 GL_RED,
+                 GL_UNSIGNED_SHORT,
+                 data);
+
+    delete[] data;
+    return handle;
+}
 static GLuint CreatePyroclasticVolume(int n, float r)
 {
     GLuint handle;
@@ -199,14 +247,15 @@ void initialize()
     RenderConfig cfg = getConfig();
 	  //modelMatrix = glm::mat4();
     trackball = new Trackball(cfg.width * 1.0f, cfg.height * 1.0f, cfg.width * 0.5f);
-    Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "GS");
+    Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_CTSCAN", "GS");
     //Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "");
     ///Programs.SinglePass = GLUtil::loadShaders("Shaders/vertShader.glsl", "Shaders/fragShader.glsl", "");
     
     //CubeCenterVbo = CreatePointVbo(0, 0, 0);
-	CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
+    CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
 
-    CloudTexture = CreatePyroclasticVolume(128, 0.025f);
+    //CloudTexture = CreatePyroclasticVolume(128, 0.025f);
+    CloudTexture = load3DScan();
 
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
