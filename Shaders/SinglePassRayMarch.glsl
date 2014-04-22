@@ -186,11 +186,11 @@ uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
 
 const float maxDist = sqrt(2.0);
-const int numSamples = 512;
+const int numSamples = 96;
 const float stepSize = maxDist/float(numSamples);
-const int numLightSamples = 16;
+const int numLightSamples = 4;
 const float lscale = maxDist / float(numLightSamples);
-const float densityFactor = 1.0; 
+const float densityFactor = 1.5; 
 
 struct Ray {
     vec3 Origin;

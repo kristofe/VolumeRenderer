@@ -160,30 +160,31 @@ static GLuint load3DScan()//EVERYTHING IS HARDCODED FOR NOW
 
 
     const unsigned int DIM = 512;
-    //int array_size = DIM*DIM*DIM*2;
-    int array_size = DIM*DIM*1*2;
-    char *data = new char[array_size];//2 bytes per uint16
+    int array_size = DIM*DIM*DIM*2;
+    //int array_size = DIM*DIM*1*2;
+    unsigned short *data = new unsigned short[array_size];//2 bytes per uint16
+	memset(data,0,array_size);
 
     int position = 0;
 
-    //std::ifstream fin("Data/512x512x512x_uint16.raw");
-    std::ifstream fin("Data/512x512x1x_uint16.raw");
-    if(fin.is_open())
+    //std::ifstream fin("Data/512x512x1x_uint16.raw");
+	std::ifstream fin("Data/512x512x512x_uint16.raw", std::ios::in|std::ios::binary);
+    unsigned short val;
+
+    while(fin.read((char *)&val,sizeof(unsigned short)))
     {
-    //file opened successfully so we are here
-      std::cout << "File Opened successfully!!!. Reading data from file into array" << std::endl;
-      //this loop run until end of file (eof) does not occur
-      while(!fin.eof() && position < array_size)
-      {
-        fin.get(data[position]); //reading one character from file to array
-        position++;
-      }
-      
+        data[position++] = val;
     }
+	fin.close();
+
+	printf("--------------------------------------------------------\r\n");
+	printf("%d vs %d\r\n",position, array_size);
+	printf("--------------------------------------------------------\r\n");
+
     glTexImage3D(GL_TEXTURE_3D, 0,
                  GL_RED,
-                // DIM, DIM, DIM, 0,
-                 DIM, DIM, 1, 0,
+                 DIM, DIM, DIM, 0,
+                 //DIM, DIM, 1, 0,
                  GL_RED,
                  GL_UNSIGNED_SHORT,
                  data);
