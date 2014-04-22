@@ -146,7 +146,7 @@ void resizeViewport(GLFWwindow* window){
 
 #include <iostream>
 #include <fstream>
-static GLuint load3DScan()//EVERYTHING IS HARDCODED FOR NOW
+static GLuint load3DScan(const std::string& filename,int dx, int dy, int dz)
 {
     GLuint handle;
     glGenTextures(1, &handle);
@@ -159,32 +159,21 @@ static GLuint load3DScan()//EVERYTHING IS HARDCODED FOR NOW
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 
-    const unsigned int DIM = 512;
-    int array_size = DIM*DIM*DIM*2;
-    //int array_size = DIM*DIM*1*2;
-    unsigned short *data = new unsigned short[array_size];//2 bytes per uint16
-	memset(data,0,array_size);
+    int array_size = dx*dy*dz;
+    unsigned short *data = new unsigned short[array_size];
 
     int position = 0;
+	size_t chunkSize = sizeof(unsigned short)*512;
 
-    //std::ifstream fin("Data/512x512x1x_uint16.raw");
-	std::ifstream fin("Data/512x512x512x_uint16.raw", std::ios::in|std::ios::binary);
-    unsigned short val;
+	std::ifstream fin(filename.c_str(), std::ios::in|std::ios::binary);
+    while(fin.read((char*)&data[position],chunkSize))
+		position += 512;
 
-    while(fin.read((char *)&val,sizeof(unsigned short)))
-    {
-        data[position++] = val;
-    }
 	fin.close();
-
-	printf("--------------------------------------------------------\r\n");
-	printf("%d vs %d\r\n",position, array_size);
-	printf("--------------------------------------------------------\r\n");
 
     glTexImage3D(GL_TEXTURE_3D, 0,
                  GL_RED,
-                 DIM, DIM, DIM, 0,
-                 //DIM, DIM, 1, 0,
+                 dx, dy, dz, 0,
                  GL_RED,
                  GL_UNSIGNED_SHORT,
                  data);
@@ -256,7 +245,7 @@ void initialize()
     CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
 
     //CloudTexture = CreatePyroclasticVolume(128, 0.025f);
-    CloudTexture = load3DScan();
+    CloudTexture = load3DScan("Data/512x512x512x_uint16.raw", 512,512,512);
 
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
