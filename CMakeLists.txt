@@ -8,7 +8,7 @@ set(SOURCES
    renderlib/shadersource.cpp
    renderlib/perlin.c
    renderlib/trackball.cpp
-   glew/src/glew.c
+#   glew/src/glew.c
 )
 
 set(HEADERS
@@ -44,6 +44,7 @@ ENDIF(APPLE)
 
 if(WIN32)
 include_directories(glew/include)
+LIST(APPEND SOURCES glew/src/glew.c)
 ENDIF(WIN32)
 
 #SET(CMAKE_OSX_ARCHITECTURES "i386")
@@ -76,13 +77,13 @@ if(APPLE)
 ENDIF(APPLE)
 
 if(WIN32)
-	find_package(OpenGL REQUIRED)
-	include_directories(${OpenGL_INCLUDE_DIRS})
-	link_directories(${OpenGL_LIBRARY_DIRS})
-	add_definitions(${OpenGL_DEFINITIONS})
-	if(NOT OPENGL_FOUND)
-	    message(ERROR " OPENGL not found!")
-	endif(NOT OPENGL_FOUND)
+  find_package(OpenGL REQUIRED)
+  include_directories(${OpenGL_INCLUDE_DIRS})
+  link_directories(${OpenGL_LIBRARY_DIRS})
+  add_definitions(${OpenGL_DEFINITIONS})
+  if(NOT OPENGL_FOUND)
+      message(ERROR " OPENGL not found!")
+  endif(NOT OPENGL_FOUND)
 ENDIF(WIN32)
 
 add_definitions(-DGLEW_STATIC)
