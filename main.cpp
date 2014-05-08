@@ -1,6 +1,5 @@
 //
 //  main.cpp
-//  Texture3DExperiments
 //
 //  Created by Kristofer Schlachter on 7/8/13.
 //  Copyright (c) 2013 Kristofer Schlachter. All rights reserved.
@@ -22,11 +21,6 @@
 #include "glprogram.h"
 #include "renderlib/include/trackball.h"
 #include "renderlib/shadersource.h"
-/*
-#include "renderlib/glm/glm.hpp"
-#include "renderlib/glm/gtc/matrix_transform.hpp"
-#include "renderlib/glm/gtc/type_ptr.hpp"
-*/
 
 #include "renderlib/vmath.hpp"
 
@@ -43,22 +37,16 @@ struct ProgramHandles {
 //Prototypes
 static ProgramHandles Programs;
 static GLuint CreatePyroclasticVolume(int n, float r);
-//static ITrackball* Trackball;
 static GLuint CubeCenterVbo;
 static GLuint CubeCenterVao;
-/*
-static glm::mat4 ProjectionMatrix;
-static glm::mat4 ModelviewMatrix;
-static glm::mat4 ViewMatrix;
-static glm::mat4 ModelviewProjection;
-static glm::vec3 EyePosition;
-*/
 static Matrix4 ProjectionMatrix;
 static Matrix4 ModelviewMatrix;
 static Matrix4 ViewMatrix;
 static Matrix4 ModelviewProjection;
 static Point3 EyePosition;
 
+static int winWidth = 500;
+static int winHeight = 500;
 
 static GLuint CloudTexture;
 static SurfacePod IntervalsFbo[2];
@@ -91,8 +79,8 @@ static void keyHandler(GLFWwindow* window, int key, int scancode, int action, in
     glfwSetWindowShouldClose(window, GL_TRUE);
   }
 
-  if (key == '1') fieldOfView += 0.05f;
-  if (key == '2') fieldOfView -= 0.05f;
+  if (key == '1' && action == GLFW_PRESS) fieldOfView += 0.05f;
+  if (key == '2' && action == GLFW_PRESS) fieldOfView -= 0.05f;
 }
 
 static void mouseButtonHandler(GLFWwindow* window, int button, int action, int mods)
@@ -122,25 +110,10 @@ static void mousePositionHandler(GLFWwindow* window, double x, double y)
 		  trackball->MouseMove(x, y);
 	}
 }
-RenderConfig getConfig()
-{
-    RenderConfig config;
-    config.title = "Raycast";
-    config.width = 800;
-    config.height = 800;
-    config.multisample = 0;
-    config.verticalSync = 0;
-    return config;
-}
+
 void resizeViewport(GLFWwindow* window){
-  RenderConfig cfg = getConfig();
-  /*
-  float ratio;
-  int width, height;
-  glfwGetFramebufferSize(window, &width, &height);
-  ratio = width / (float) height;
-  */
-  glViewport(0, 0, cfg.width, cfg.height);
+  glfwGetFramebufferSize(window, &winWidth, &winHeight);
+  glViewport(0, 0, winWidth, winHeight);
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -234,14 +207,8 @@ static GLuint CreatePyroclasticVolume(int n, float r)
 
 void initialize()
 {
-    RenderConfig cfg = getConfig();
-	  //modelMatrix = glm::mat4();
-    trackball = new Trackball(cfg.width * 1.0f, cfg.height * 1.0f, cfg.width * 0.5f);
+    trackball = new Trackball(winWidth * 1.0f, winHeight * 1.0f, winWidth * 0.5f);
     Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_CTSCAN", "GS");
-    //Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS", "");
-    ///Programs.SinglePass = GLUtil::loadShaders("Shaders/vertShader.glsl", "Shaders/fragShader.glsl", "");
-    
-    //CubeCenterVbo = CreatePointVbo(0, 0, 0);
     CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
 
     //CloudTexture = CreatePyroclasticVolume(128, 0.025f);
@@ -269,45 +236,11 @@ static void loadUniforms()
 
     float focalLength = 1.0f / std::tan(fieldOfView / 2);
     SetUniform("FocalLength", focalLength);
-	/*
-    SetUniform("ModelviewProjection", ModelviewProjection);
-    SetUniform("Modelview", ModelviewMatrix);
-    SetUniform("ViewMatrix", ViewMatrix);
-    SetUniform("ProjectionMatrix", ProjectionMatrix);
-    SetUniform("RayStartPoints", 1);
-    SetUniform("RayStopPoints", 2);
-    SetUniform("EyePosition", EyePosition);
-
-
-    glm::vec4 eye(EyePosition.x,EyePosition.y, EyePosition.z,0);
-    glm::vec4 rayOrigin(glm::transpose(ModelviewMatrix) * eye);
-    SetUniform("RayOrigin", rayOrigin);
-
-    float focalLength = 1.0f / std::tan(fieldOfView / 2.0f);
-    SetUniform("FocalLength", focalLength);
-	*/
-    RenderConfig cfg = getConfig();
-    SetUniform("WindowSize", float(cfg.width), float(cfg.height));
+    SetUniform("WindowSize", float(winWidth), float(winHeight));
 }
 
 void render()
 {
-	/*
-    glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
-    glVertexAttribPointer(SlotPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-    glEnableVertexAttribArray(SlotPosition);
-    glBindTexture(GL_TEXTURE_3D, CloudTexture);
-	*/
-
-
-	/*
-	glBindVertexArray(CubeCenterVao);
-	GLint vertLoc = glGetAttribLocation(Programs.SinglePass, "vert");
-    glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
-    glVertexAttribPointer(vertLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-    glEnableVertexAttribArray(vertLoc);
-	*/
-
     glClearColor(0.1f, 0.2f, 0.4f, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(Programs.SinglePass);
@@ -327,7 +260,7 @@ static void update(double seconds)
     
 
 	/////////
-    //Trackball->Update(microseconds);
+    trackball->Update(microseconds);
 
     EyePosition = Point3(0, 0, 5 + trackball->GetZoom());
     
@@ -335,9 +268,6 @@ static void update(double seconds)
     ViewMatrix = Matrix4::lookAt(EyePosition, target, up);
 
     Matrix4 modelMatrix(transpose(trackball->GetRotation()), Vector3(0));
-    //Quat q = Quat::identity();
-    //q = q.rotationY(dt);
-    //Matrix4 modelMatrix(transpose(Matrix3(q)), Vector3(0));
     ModelviewMatrix = ViewMatrix * modelMatrix;
 
     float n = 1.0f;
@@ -345,28 +275,6 @@ static void update(double seconds)
 
     ProjectionMatrix = Matrix4::perspective(fieldOfView, 1, n, f);
     ModelviewProjection = ProjectionMatrix * ModelviewMatrix;
-
-	/*
-    trackball->Update(microseconds);
-	EyePosition = glm::vec3(0, 0, 5 + trackball->GetZoom());
-
-    glm::vec3 up(0, 1, 0); glm::vec3 target(0);
-    ViewMatrix = glm::lookAt(EyePosition, target, up);
-
-	//glm::mat4 modelMatrix(glm::transpose(trackball->GetRotation()), glm::vec3(0));
-	//glm::mat4 modelMatrix(glm::transpose(trackball->GetRotation()));
-	modelMatrix = glm::rotate(glm::mat4(),(float)seconds* 20.0f,glm::normalize(glm::vec3(0,1,0)));
-    //ModelviewMatrix = ViewMatrix * glm::transpose(modelMatrix);
-    ModelviewMatrix = ViewMatrix * glm::transpose(glm::mat4());
-
-    float n = 1.0f;
-    float f = 100.0f;
-	RenderConfig cfg = getConfig();
-	float aspect = cfg.height/(float)cfg.width;
-	const float radToDeg = 57.2957795f;
-    ProjectionMatrix = glm::perspective(fieldOfView * radToDeg, aspect, n, f);
-    ModelviewProjection = ProjectionMatrix * ModelviewMatrix;
-	*/
 }
 
 int main(void)
@@ -381,8 +289,11 @@ int main(void)
 
 
   hintOpenGL32CoreProfile();
-  RenderConfig cfg = getConfig();
-  window = glfwCreateWindow(cfg.width, cfg.height, cfg.title.c_str(), NULL, NULL);
+  winWidth = 500;
+  winHeight = 500;
+
+  window = glfwCreateWindow(winWidth, winHeight, "Volume Renderer", NULL, NULL);
+
   if (!window)
   {
     glfwTerminate();
@@ -409,22 +320,11 @@ int main(void)
 
   std::cout << GLUtil::getOpenGLInfo() << std::endl;std::cout.flush();
   initialize();
-  /*
-    program1.loadShaders("Shaders/vertShader.glsl","Shaders/fragShader.glsl","");
-  loadTriangle();
-  glm::mat4 identityMatrix = glm::mat4(1.0);//Identity matrix
-  program1.enableVertexAttributes();
-  */
 
   mouseX = mouseY = 100;
 
   while (!glfwWindowShouldClose(window))
   {
-    //sizeViewport(window);
-	//glm::mat4 rotMat = glm::rotate(identityMatrix,(float) glfwGetTime() * 50.f, glm::vec3(0.f,0.f,1.f));
-
-    //drawTriangle(rotMat);
-    
 	update(glfwGetTime());
     render();
 

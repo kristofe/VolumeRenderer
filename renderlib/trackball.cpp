@@ -142,7 +142,7 @@ void Trackball::Update(unsigned int microseconds)
         }
 
         m_inertia.DistancePerSecond *= 0.75f;
-        /*
+
         if (m_inertia.DistancePerSecond > 0) {
             m_inertia.DistancePerSecond -= 1.0f;
             if (m_inertia.DistancePerSecond < 0)
@@ -154,7 +154,7 @@ void Trackball::Update(unsigned int microseconds)
             if (m_inertia.DistancePerSecond > 0)
                 m_inertia.DistancePerSecond = 0;
         }
-        */
+
         if (std::abs(m_inertia.DistancePerSecond) < 0.0001) {
             m_distancePerSecond = 0;
         } else {

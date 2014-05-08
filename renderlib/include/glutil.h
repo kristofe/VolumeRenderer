@@ -24,17 +24,6 @@
 namespace renderlib
 {
   using namespace vmath;
-  struct RenderConfig
-  {
-    std::string title;
-    int width;
-    int height;
-    int multisample;
-    int verticalSync;
-
-    RenderConfig():title("Renderer"),width(800),height(800),multisample(0),
-                   verticalSync(0) {};
-  };
 
   struct ShaderUniformData
   {
