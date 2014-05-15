@@ -13,7 +13,7 @@
 		3A5714C717848CE90060B117 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5714C617848CE90060B117 /* CoreGraphics.framework */; };
 		3A5714C917848D020060B117 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5714C817848D020060B117 /* QuartzCore.framework */; };
 		3A609E3C11B9DB4700AA4C48 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A609E3B11B9DB4700AA4C48 /* OpenGLES.framework */; };
-		3A609E4711B9DB6000AA4C48 /* OpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A609E3F11B9DB6000AA4C48 /* OpenGLRenderer.m */; };
+		3A609E4711B9DB6000AA4C48 /* OpenGLRenderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3A609E3F11B9DB6000AA4C48 /* OpenGLRenderer.mm */; };
 		3A609E5611B9DB7700AA4C48 /* vectorUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 3A609E4C11B9DB7700AA4C48 /* vectorUtil.c */; };
 		3A609E5811B9DB7700AA4C48 /* modelUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 3A609E5011B9DB7700AA4C48 /* modelUtil.c */; };
 		3A609E5911B9DB7700AA4C48 /* matrixUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 3A609E5211B9DB7700AA4C48 /* matrixUtil.c */; };
@@ -139,6 +139,9 @@
 		4DA558BD1925207D00089968 /* shadersource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DA5584E1925207D00089968 /* shadersource.cpp */; };
 		4DA558BE1925207D00089968 /* trackball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DA558501925207D00089968 /* trackball.cpp */; };
 		4DA558C41925299700089968 /* glutil_GLES3Plus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DA558C31925299700089968 /* glutil_GLES3Plus.cpp */; };
+		4DA558C6192535F300089968 /* character.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 4DA558C5192535F300089968 /* character.glsl */; };
+		4DA558DE1925388F00089968 /* Platform_iPhone.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4DA558CC1925388F00089968 /* Platform_iPhone.mm */; };
+		4DA558E81925399900089968 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DA558E71925399900089968 /* Globals.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -150,7 +153,7 @@
 		3A5714C817848D020060B117 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		3A609E3811B9DB3300AA4C48 /* VolumeRenderIOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VolumeRenderIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A609E3B11B9DB4700AA4C48 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		3A609E3F11B9DB6000AA4C48 /* OpenGLRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLRenderer.m; sourceTree = "<group>"; };
+		3A609E3F11B9DB6000AA4C48 /* OpenGLRenderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenGLRenderer.mm; sourceTree = "<group>"; };
 		3A609E4011B9DB6000AA4C48 /* OpenGLRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLRenderer.h; sourceTree = "<group>"; };
 		3A609E4B11B9DB7700AA4C48 /* vectorUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vectorUtil.h; path = UtilSrc/vectorUtil.h; sourceTree = "<group>"; };
 		3A609E4C11B9DB7700AA4C48 /* vectorUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vectorUtil.c; path = UtilSrc/vectorUtil.c; sourceTree = "<group>"; };
@@ -423,6 +426,11 @@
 		4DA558C11925216900089968 /* OpenGLHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenGLHelper.h; sourceTree = "<group>"; };
 		4DA558C21925295F00089968 /* glutil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glutil.h; sourceTree = "<group>"; };
 		4DA558C31925299700089968 /* glutil_GLES3Plus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glutil_GLES3Plus.cpp; sourceTree = "<group>"; };
+		4DA558C5192535F300089968 /* character.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = character.glsl; path = Shaders/character.glsl; sourceTree = "<group>"; };
+		4DA558C71925388500089968 /* Platform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Platform.h; sourceTree = "<group>"; };
+		4DA558CB1925388F00089968 /* Platform_iPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Platform_iPhone.h; sourceTree = "<group>"; };
+		4DA558CC1925388F00089968 /* Platform_iPhone.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Platform_iPhone.mm; sourceTree = "<group>"; };
+		4DA558E71925399900089968 /* Globals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Globals.cpp; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* VolumeRenderIOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "VolumeRenderIOS-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -450,7 +458,7 @@
 				4D2123E819240D9E003532B4 /* ES3Renderer.h */,
 				4D2123E919240D9E003532B4 /* ES3Renderer.m */,
 				3A609E4011B9DB6000AA4C48 /* OpenGLRenderer.h */,
-				3A609E3F11B9DB6000AA4C48 /* OpenGLRenderer.m */,
+				3A609E3F11B9DB6000AA4C48 /* OpenGLRenderer.mm */,
 				4D2123EA19240D9E003532B4 /* VolumeRenderIOSAppDelegate.h */,
 				4D2123EB19240D9E003532B4 /* VolumeRenderIOSAppDelegate.m */,
 				4D2123EC19240D9E003532B4 /* MainViewController.h */,
@@ -505,6 +513,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4DA558C5192535F300089968 /* character.glsl */,
 				4D2123F219240DE5003532B4 /* MainWindow-iPad.xib */,
 				4D2123F319240DE5003532B4 /* MainWindow.xib */,
 				3A609E6511B9DBE600AA4C48 /* demon.png */,
@@ -540,6 +549,9 @@
 		4DA557581925207D00089968 /* renderlib */ = {
 			isa = PBXGroup;
 			children = (
+				4DA558E71925399900089968 /* Globals.cpp */,
+				4DA558C81925388F00089968 /* PlatformClasses */,
+				4DA558C71925388500089968 /* Platform.h */,
 				4DA557591925207D00089968 /* glm */,
 				4DA5583F1925207D00089968 /* glprogram.cpp */,
 				4DA558C31925299700089968 /* glutil_GLES3Plus.cpp */,
@@ -835,6 +847,31 @@
 			path = include;
 			sourceTree = "<group>";
 		};
+		4DA558C81925388F00089968 /* PlatformClasses */ = {
+			isa = PBXGroup;
+			children = (
+				4DA558C91925388F00089968 /* Apple */,
+			);
+			path = PlatformClasses;
+			sourceTree = "<group>";
+		};
+		4DA558C91925388F00089968 /* Apple */ = {
+			isa = PBXGroup;
+			children = (
+				4DA558CA1925388F00089968 /* iPhoneClasses */,
+			);
+			path = Apple;
+			sourceTree = "<group>";
+		};
+		4DA558CA1925388F00089968 /* iPhoneClasses */ = {
+			isa = PBXGroup;
+			children = (
+				4DA558CB1925388F00089968 /* Platform_iPhone.h */,
+				4DA558CC1925388F00089968 /* Platform_iPhone.mm */,
+			);
+			path = iPhoneClasses;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -978,6 +1015,7 @@
 				4DA558661925207D00089968 /* type_mat.inl in Resources */,
 				4DA5588D1925207D00089968 /* extented_min_max.inl in Resources */,
 				4DA558831925207D00089968 /* associated_min_max.inl in Resources */,
+				4DA558C6192535F300089968 /* character.glsl in Resources */,
 				4DA558911925207D00089968 /* gradient_paint.inl in Resources */,
 				3A609E6311B9DB9400AA4C48 /* character.fsh in Resources */,
 				4DA5585C1925207D00089968 /* func_trigonometric.inl in Resources */,
@@ -1010,12 +1048,14 @@
 			files = (
 				4DA558BC1925207D00089968 /* perlin.c in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
-				3A609E4711B9DB6000AA4C48 /* OpenGLRenderer.m in Sources */,
+				3A609E4711B9DB6000AA4C48 /* OpenGLRenderer.mm in Sources */,
 				3A609E5611B9DB7700AA4C48 /* vectorUtil.c in Sources */,
 				3A609E5811B9DB7700AA4C48 /* modelUtil.c in Sources */,
 				3A609E5911B9DB7700AA4C48 /* matrixUtil.c in Sources */,
+				4DA558E81925399900089968 /* Globals.cpp in Sources */,
 				3A609E5A11B9DB7700AA4C48 /* imageUtil.m in Sources */,
 				3AE9119712CAF36A005ED635 /* sourceUtil.c in Sources */,
+				4DA558DE1925388F00089968 /* Platform_iPhone.mm in Sources */,
 				4D2123EF19240D9E003532B4 /* ES3Renderer.m in Sources */,
 				4DA558BD1925207D00089968 /* shadersource.cpp in Sources */,
 				4D2123F019240D9E003532B4 /* VolumeRenderIOSAppDelegate.m in Sources */,
@@ -1074,6 +1114,11 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"/Users/kristofe/Documents/Projects/VolumeRenderer/IDEs/iOS/renderlib/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				SDKROOT = iphoneos;
 			};
@@ -1088,6 +1133,11 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"/Users/kristofe/Documents/Projects/VolumeRenderer/IDEs/iOS/renderlib/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;

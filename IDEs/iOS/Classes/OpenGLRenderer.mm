@@ -4,6 +4,8 @@
 #import "modelUtil.h"
 #import "sourceUtil.h"
 
+#include "OpenGLHelper.h"
+#include "Platform.h"
 
 #define GetGLError()									\
 {														\
@@ -540,7 +542,7 @@ static GLsizei GetGLTypeSize(GLenum type)
 	//////////////////////////////////////
 	
 	// Allocate memory for the source string including the version preprocessor information
-	sourceString = malloc(vertexSource->byteSize + versionStringSize);
+	sourceString = (char *)malloc(vertexSource->byteSize + versionStringSize);
 	
 	// Prepend our vertex shader source string with the supported GLSL version so
 	//  the shader will work on ES, Legacy, and OpenGL 3.2 Core Profile contexts
@@ -581,7 +583,7 @@ static GLsizei GetGLTypeSize(GLenum type)
 	/////////////////////////////////////////
 	
 	// Allocate memory for the source string including the version preprocessor	 information
-	sourceString = malloc(fragmentSource->byteSize + versionStringSize);
+	sourceString = (char *)malloc(fragmentSource->byteSize + versionStringSize);
 	
 	// Prepend our fragment shader source string with the supported GLSL version so
 	//  the shader will work on ES, Legacy, and OpenGL 3.2 Core Profile contexts
@@ -656,6 +658,7 @@ static GLsizei GetGLTypeSize(GLenum type)
 	
 	
 	glUseProgram(prgName);
+    
 	
 	///////////////////////////////////////
 	// Setup common program input points //
@@ -739,23 +742,37 @@ static GLsizei GetGLTypeSize(GLenum type)
 		// Load and Setup shaders for character rendering //
 		////////////////////////////////////////////////////
 		
-		demoSource *vtxSource = NULL;
-		demoSource *frgSource = NULL;
-		
-		filePathName = [[NSBundle mainBundle] pathForResource:@"character" ofType:@"vsh"];
-		vtxSource = srcLoadSource([filePathName cStringUsingEncoding:NSASCIIStringEncoding]);
-		
-		filePathName = [[NSBundle mainBundle] pathForResource:@"character" ofType:@"fsh"];
-		frgSource = srcLoadSource([filePathName cStringUsingEncoding:NSASCIIStringEncoding]);
-		
-		// Build Program
-		m_characterPrgName = [self buildProgramWithVertexSource:vtxSource
-											 withFragmentSource:frgSource
-													 withNormal:NO
-												   withTexcoord:YES];
-		
-		srcDestroySource(vtxSource);
-		srcDestroySource(frgSource);
+//		demoSource *vtxSource = NULL;
+//		demoSource *frgSource = NULL;
+//		
+//		filePathName = [[NSBundle mainBundle] pathForResource:@"character" ofType:@"vsh"];
+//		vtxSource = srcLoadSource([filePathName cStringUsingEncoding:NSASCIIStringEncoding]);
+//		
+//		filePathName = [[NSBundle mainBundle] pathForResource:@"character" ofType:@"fsh"];
+//		frgSource = srcLoadSource([filePathName cStringUsingEncoding:NSASCIIStringEncoding]);
+//		
+//		// Build Program
+//		m_characterPrgName = [self buildProgramWithVertexSource:vtxSource
+//											 withFragmentSource:frgSource
+//													 withNormal:NO
+//												   withTexcoord:YES];
+//		
+//		srcDestroySource(vtxSource);
+//		srcDestroySource(frgSource);
+        
+        //THIS IS MY CODE
+        std::string path;
+        GetFullFilePathFromResource("character.glsl", path);
+        m_characterPrgName = renderlib::GLUtil::loadProgram(path, "VS", "FS",NULL);
+        
+        
+        GLint samplerLoc = glGetUniformLocation(m_characterPrgName, "diffuseTexture");
+        
+        // Indicate that the diffuse texture will be bound to texture unit 0
+        GLint unit = 0;
+        glUniform1i(samplerLoc, unit);
+        
+        
 		
 		m_characterMvpUniformIdx = glGetUniformLocation(m_characterPrgName, "modelViewProjectionMatrix");
 		

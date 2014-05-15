@@ -87,7 +87,47 @@ GLuint GLUtil::buildShader(const std::string& name,
     }
     return shaderHandle;
 }
-
+    
+GLuint GLUtil::buildProgram(const std::string& vsSource,
+                                const std::string& fsSource,
+                                const std::string& gsSource)
+    {
+        GLuint vertexShader = buildShader("vertex shader",vsSource,
+                                          GL_VERTEX_SHADER);
+        GLuint fragmentShader = buildShader("fragment shader",fsSource,
+                                            GL_FRAGMENT_SHADER);
+        
+        GLuint programHandle = glCreateProgram();
+        glAttachShader(programHandle, vertexShader);
+        glAttachShader(programHandle, fragmentShader);
+        
+//        if(gsSource.length() > 0)
+//        {
+//            GLuint geometryShader = buildShader("geometry shader",gsSource,
+//                                                GL_GEOMETRY_SHADER);
+//            glAttachShader(programHandle, geometryShader);
+//        }
+        glLinkProgram(programHandle);
+        
+        GLint linkSuccess;
+        glGetProgramiv(programHandle, GL_LINK_STATUS, &linkSuccess);
+        if(linkSuccess == GL_FALSE)
+        {
+            printf("Error(s) in program:\n");
+            GLchar messages[256];
+            glGetProgramInfoLog(programHandle, sizeof(messages), 0, &messages[0]);
+            printf("%s\n", messages);
+            //exit(1);
+        }
+        else
+        {
+            printf("Successfully created vertexprogram!\n");
+        }
+        
+        printActiveAttributes(programHandle);
+        printActiveUniforms(programHandle);
+        return programHandle;
+    }
 
 void GLUtil::printActiveUniforms(GLuint programHandle)
 {
