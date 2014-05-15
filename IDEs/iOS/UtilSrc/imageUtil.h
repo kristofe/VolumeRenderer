@@ -1,7 +1,7 @@
 #ifndef __IMAGE_UTIL_H__
 #define __IMAGE_UTIL_H__
 
-#include "glUtil.h"
+#include "glUtil_OLD.h"
 
 typedef struct demoImageRec
 {

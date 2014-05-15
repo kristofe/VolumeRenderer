@@ -5,8 +5,8 @@
  is built for iOS or OSX) and provides some API utility functions
  */
 
-#ifndef __GL_UTIL_H__
-#define __GL_UTIL_H__
+#ifndef __GL_UTIL_OLD_H__
+#define __GL_UTIL_OLD_H__
 
 
 #import <OpenGLES/ES3/gl.h>

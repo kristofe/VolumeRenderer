@@ -10,7 +10,7 @@
 #ifndef __MODEL_UTIL_H__
 #define __MODEL_UTIL_H__
 
-#include "glUtil.h"
+#include "glUtil_OLD.h"
 
 typedef struct demoModelRec
 {
