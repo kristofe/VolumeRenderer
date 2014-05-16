@@ -27,11 +27,11 @@ demoImage* imgLoadImage(const char* filepathname, int flipVertical)
 		return NULL;
 	}
 	
-	demoImage* image = malloc(sizeof(demoImage));
+	demoImage* image = (demoImage*)malloc(sizeof(demoImage));
 	image->width = CGImageGetWidth(cgImage);
 	image->height = CGImageGetHeight(cgImage);
 	image->rowByteSize = image->width * 4;
-	image->data = malloc(image->height * image->rowByteSize);
+	image->data = (unsigned char *)malloc(image->height * image->rowByteSize);
 	image->format = GL_RGBA;
 	image->type = GL_UNSIGNED_BYTE;
 	

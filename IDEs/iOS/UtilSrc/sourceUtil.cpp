@@ -35,7 +35,7 @@ demoSource* srcLoadSource(const char* filepathname)
 	source->byteSize = fileSize + 1;
 	
 	// Alloc memory for the string
-	source->string = malloc(source->byteSize);
+	source->string = (char *)malloc(source->byteSize);
 	
 	// Read entire file into the string from beginning of the file
 	fseek(curFile, 0, SEEK_SET);

@@ -29,34 +29,23 @@ GLuint GLUtil::loadProgram(
                    const std::string& fsKey,
                    const std::string& gsKey)
 {
-
-    ShaderSource ss;
-    ss.parseFile(fileName, "--");
-
-    std::string vsSource = ss.getShader(vsKey);
-    std::string fsSource = ss.getShader(fsKey);
-    std::string gsSource = ss.getShader(gsKey);
-
-    return buildProgram(vsSource,fsSource, gsSource);
+    GLint prg = compileProgram(fileName, vsKey, fsKey, gsKey);
+    linkAndVerifyProgram(prg);
+    return prg;
 }
 
 
-GLuint GLUtil::loadShaders(const std::string& vsFileName,
+GLuint GLUtil::loadProgram(const std::string& vsFileName,
                    const std::string& fsFileName,
                    const std::string& gsFileName)
 {
 
     std::string vsSource = getShaderSource(vsFileName);
     std::string fsSource = getShaderSource(fsFileName);
-    if(gsFileName.length() > 0)
-    {
-       std::string gsSource = getShaderSource(gsFileName);
-       return buildProgram(vsSource,fsSource, gsSource);
-    }
-    else
-    {
-       return buildProgram(vsSource,fsSource,"");
-    }
+    
+    GLint prg = compileProgram(vsSource, fsSource, "");
+    linkAndVerifyProgram(prg);
+    return prg;
 
 
 }
@@ -88,13 +77,108 @@ GLuint GLUtil::buildShader(const std::string& name,
     return shaderHandle;
 }
     
+GLuint GLUtil::compileProgram(
+                               const std::string& fileName,
+                               const std::string& vsKey,
+                               const std::string& fsKey,
+                               const std::string& gsKey)
+{
+    
+    ShaderSource ss;
+    ss.parseFile(fileName, "--");
+    
+    std::string vsSource = ss.getShader(vsKey);
+    std::string fsSource = ss.getShader(fsKey);
+    std::string gsSource = ss.getShader(gsKey);
+
+    
+    return compileProgram(vsSource, fsSource, gsSource);
+}
+
+GLuint GLUtil::compileProgram(const std::string& vsSource,
+                                const std::string& fsSource,
+                                const std::string& gsSource)
+{
+    //Insert the version into the source
+    std::string vsSourceVersioned = "#version 300 es\n" + vsSource;
+    std::string fsSourceVersioned = "#version 300 es\n" + fsSource;
+    
+    GLuint vertexShader = buildShader("vertex shader",vsSourceVersioned,
+                                      GL_VERTEX_SHADER);
+    GLuint fragmentShader = buildShader("fragment shader",fsSourceVersioned,
+                                        GL_FRAGMENT_SHADER);
+    
+    GLuint programHandle = glCreateProgram();
+    glAttachShader(programHandle, vertexShader);
+    glAttachShader(programHandle, fragmentShader);
+    
+    //        if(gsSource.length() > 0)
+    //        {
+    //            GLuint geometryShader = buildShader("geometry shader",gsSource,
+    //                                                GL_GEOMETRY_SHADER);
+    //            glAttachShader(programHandle, geometryShader);
+    //        }
+    
+    
+    return programHandle;
+}
+    
+GLuint GLUtil::linkAndVerifyProgram(GLuint programHandle)
+{
+    glLinkProgram(programHandle);
+    
+    GLint linkSuccess;
+    glGetProgramiv(programHandle, GL_LINK_STATUS, &linkSuccess);
+    if(linkSuccess == GL_FALSE)
+    {
+        printf("Error(s) in program:\n");
+        GLchar messages[256];
+        glGetProgramInfoLog(programHandle, sizeof(messages), 0, &messages[0]);
+        printf("%s\n", messages);
+        //exit(1);
+    }
+    else
+    {
+        printf("Successfully created vertexprogram!\n");
+    }
+    
+	glLinkProgram(programHandle);
+	
+	glValidateProgram(programHandle);
+	
+    GLint status;
+	glGetProgramiv(programHandle, GL_VALIDATE_STATUS, &status);
+	if (status == 0)
+	{
+        GLint logLength;
+		printf("Failed to validate program\n");
+        glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &logLength);
+        if (logLength > 0)
+        {
+            GLchar messages[256];
+            glGetProgramInfoLog(programHandle, sizeof(messages), 0, &messages[0]);
+            printf("%s\n", messages);
+        }
+		return 0;
+	}
+    
+    
+    printActiveAttributes(programHandle);
+    printActiveUniforms(programHandle);
+    return programHandle;
+}
+    
+    
 GLuint GLUtil::buildProgram(const std::string& vsSource,
                                 const std::string& fsSource,
                                 const std::string& gsSource)
     {
-        GLuint vertexShader = buildShader("vertex shader",vsSource,
+        //Insert the version into the source
+        std::string vsSourceVersioned = "#version 300 es\n" + vsSource;
+        std::string fsSourceVersioned = "#version 300 es\n" + fsSource;
+        GLuint vertexShader = buildShader("vertex shader",vsSourceVersioned,
                                           GL_VERTEX_SHADER);
-        GLuint fragmentShader = buildShader("fragment shader",fsSource,
+        GLuint fragmentShader = buildShader("fragment shader",fsSourceVersioned,
                                             GL_FRAGMENT_SHADER);
         
         GLuint programHandle = glCreateProgram();

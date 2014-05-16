@@ -760,11 +760,23 @@ static GLsizei GetGLTypeSize(GLenum type)
 //		srcDestroySource(vtxSource);
 //		srcDestroySource(frgSource);
         
+        
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
         //THIS IS MY CODE
         std::string path;
         GetFullFilePathFromResource("character.glsl", path);
-        m_characterPrgName = renderlib::GLUtil::loadProgram(path, "VS", "FS",NULL);
+        m_characterPrgName = renderlib::GLUtil::compileProgram(path, "VS", "FS","");
         
+        //Setup attribute locations before linking
+        
+        glBindAttribLocation(m_characterPrgName, POS_ATTRIB_IDX, "inPosition");
+        //glBindAttribLocation(m_characterPrgName, NORMAL_ATTRIB_IDX, "inNormal");
+        glBindAttribLocation(m_characterPrgName, TEXCOORD_ATTRIB_IDX, "inTexcoord");
+        
+        
+        renderlib::GLUtil::linkAndVerifyProgram(m_characterPrgName);
         
         GLint samplerLoc = glGetUniformLocation(m_characterPrgName, "diffuseTexture");
         
@@ -772,16 +784,21 @@ static GLsizei GetGLTypeSize(GLenum type)
         GLint unit = 0;
         glUniform1i(samplerLoc, unit);
         
-        
-		
 		m_characterMvpUniformIdx = glGetUniformLocation(m_characterPrgName, "modelViewProjectionMatrix");
 		
 		if(m_characterMvpUniformIdx < 0)
 		{
 			NSLog(@"No modelViewProjectionMatrix in character shader");
 		}
-		
-		
+        
+        
+        //Test volume render shaders
+        GetFullFilePathFromResource("SinglePassRayMarch.glsl", path);
+        GLint rayMarchProgram = renderlib::GLUtil::loadProgram(path, "VS", "FS_CTSCAN", "");
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 		////////////////////////////////////////////////
 		// Set up OpenGL state that will never change //
 		////////////////////////////////////////////////

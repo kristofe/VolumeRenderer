@@ -86,49 +86,62 @@ namespace renderlib
       };
 };
 
-   class GLUtil
-   {
-   public:
-     GLUtil();
-     static GLuint buildShader(const std::string& name,
-                               const std::string& source, GLenum shaderType);
-
-     static GLuint buildProgram(const std::string& vsSource,
-                                const std::string& fsSource,
-                                const std::string& gsSource);
-
-     static std::string getShaderSource(const std::string& filename);
-
-     static GLuint loadProgram(const std::string& fileName,
-                               const std::string& vsKey,
-                               const std::string& fsKey,
-                               const std::string& gsKey);
-
-     static GLuint loadShaders(const std::string& vsFileName,
-                               const std::string& fsFileName,
-                               const std::string& gsFileName);
-
-     static void printActiveUniforms(GLuint programHandle);
-     static void getActiveUniforms(
-                            GLuint programHandle,
-                            std::map<std::string, ShaderUniformData>* dict
-                            );
-
-     static void printActiveAttributes(GLuint programHandle);
-     static void getActiveAttributes(
-                            GLuint programHandle,
-                            std::map<std::string, ShaderAttributeData>* dict
-                            );
-
-
-     static std::string glEnumToString(GLenum e);
-     static std::string getOpenGLInfo();
-     static int checkGLErrors();
-
-   //private:
-   //  std::map<std::string, unsigned int>		mStringToEnumDB;
-
-   };
+    class GLUtil
+    {
+    public:
+        GLUtil();
+        static GLuint buildShader(const std::string& name,
+                                  const std::string& source, GLenum shaderType);
+        
+        static GLuint buildProgram(const std::string& vsSource,
+                                   const std::string& fsSource,
+                                   const std::string& gsSource);
+        
+        static std::string getShaderSource(const std::string& filename);
+        
+        
+         static GLuint loadProgram(const std::string& fileName,
+                                   const std::string& vsKey,
+                                   const std::string& fsKey,
+                                   const std::string& gsKey);
+         
+         static GLuint loadProgram(const std::string& vsFileName,
+                                   const std::string& fsFileName,
+                                   const std::string& gsFileName);
+         
+        
+        static GLuint compileProgram(const std::string& vsSource,
+                                     const std::string& fsSource,
+                                     const std::string& gsSource);
+        
+        static GLuint compileProgram(const std::string& fileName,
+                                     const std::string& vsKey,
+                                     const std::string& fsKey,
+                                     const std::string& gsKey);
+        
+        static GLuint linkAndVerifyProgram(GLuint programHandle);
+        
+        static void printActiveUniforms(GLuint programHandle);
+        static void getActiveUniforms(
+                                      GLuint programHandle,
+                                      std::map<std::string, ShaderUniformData>* dict
+                                      );
+        
+        static void printActiveAttributes(GLuint programHandle);
+        static void getActiveAttributes(
+                                        GLuint programHandle,
+                                        std::map<std::string, ShaderAttributeData>* dict
+                                        );
+        
+        
+        static std::string glEnumToString(GLenum e);
+        static std::string getOpenGLInfo();
+        static int checkGLErrors();
+        
+        //private:
+        //  std::map<std::string, unsigned int>		mStringToEnumDB;
+        
+    };
 
 
    enum AttributeSlot {

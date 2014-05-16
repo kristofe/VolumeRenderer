@@ -99,15 +99,28 @@ namespace renderlib
 
      static std::string getShaderSource(const std::string& filename);
 
+    
      static GLuint loadProgram(const std::string& fileName,
                                const std::string& vsKey,
                                const std::string& fsKey,
                                const std::string& gsKey);
 
-     static GLuint loadShaders(const std::string& vsFileName,
+     static GLuint loadProgram(const std::string& vsFileName,
                                const std::string& fsFileName,
                                const std::string& gsFileName);
+     
 
+    static GLuint compileProgram(const std::string& vsSource,
+                                 const std::string& fsSource,
+                                 const std::string& gsSource);
+       
+    static GLuint compileProgram(const std::string& fileName,
+                                 const std::string& vsKey,
+                                 const std::string& fsKey,
+                                 const std::string& gsKey);
+       
+    static GLuint linkAndVerifyProgram(GLuint programHandle);
+   
      static void printActiveUniforms(GLuint programHandle);
      static void getActiveUniforms(
                             GLuint programHandle,
