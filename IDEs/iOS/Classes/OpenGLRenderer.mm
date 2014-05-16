@@ -6,6 +6,7 @@
 
 #include "OpenGLHelper.h"
 #include "Platform.h"
+#include "Test3DTexture.h"
 
 #define GetGLError()									\
 {														\
@@ -791,10 +792,10 @@ static GLsizei GetGLTypeSize(GLenum type)
 			NSLog(@"No modelViewProjectionMatrix in character shader");
 		}
         
+        //From VolumeRender
+        initialize();
         
-        //Test volume render shaders
-        GetFullFilePathFromResource("SinglePassRayMarch.glsl", path);
-        GLint rayMarchProgram = renderlib::GLUtil::loadProgram(path, "VS", "FS_CTSCAN", "");
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -845,3 +846,5 @@ static GLsizei GetGLTypeSize(GLenum type)
 }
 
 @end
+
+

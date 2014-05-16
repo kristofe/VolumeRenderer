@@ -23,24 +23,28 @@ void ShaderSource::parseFile(const std::string filename, const std::string delim
          _shaders[currentShaderName] = currentShader;
          currentShader = "";
        }
-       std::cout << line << std::endl;
+       //std::cout << line << std::endl;
        currentShaderName = line.substr(delimeter.size(), line.size());
        currentShaderName = trim(currentShaderName);
 
      }
      else{
        currentShader += line;
+#ifdef  WIN32
 	   currentShader += "\r\n";
+#else
+   	   currentShader += "\n";
+#endif
      }
   }
   _shaders[currentShaderName] = currentShader;
 
-  using namespace std;
-  for(map<string, string>::iterator it = _shaders.begin();
-      it != _shaders.end(); ++it)
-  {
-      std::cout << it->first <<"\n" << it->second << "\n";
-  }
+//  using namespace std;
+//  for(map<string, string>::iterator it = _shaders.begin();
+//      it != _shaders.end(); ++it)
+//  {
+//      std::cout << it->first <<"\n" << it->second << "\n";
+//  }
 }
 
 

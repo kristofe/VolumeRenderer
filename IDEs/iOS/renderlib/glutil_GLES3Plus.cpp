@@ -22,8 +22,26 @@ using namespace vmath;
 GLUtil::GLUtil()
 {
 }
+    
+std::string GLUtil::getVersionString()
+{
+    float  glLanguageVersion;
+    
+    sscanf((char *)glGetString(GL_SHADING_LANGUAGE_VERSION), "OpenGL ES GLSL ES %f", &glLanguageVersion);
+    
+    // GL_SHADING_LANGUAGE_VERSION returns the version standard version form
+    //  with decimals, but the GLSL version preprocessor directive simply
+    //  uses integers (thus 1.10 should 110 and 1.40 should be 140, etc.)
+    //  We multiply the floating point number by 100 to get a proper
+    //  number for the GLSL preprocessor directive
+    GLuint version = 100 * glLanguageVersion;
+    std::ostringstream s;
+    s << "#version " << version << " es" << std::endl;
+    
+    return s.str();
+}
 
-GLuint GLUtil::loadProgram(
+GLuint GLUtil::complileAndLinkProgram(
                    const std::string& fileName,
                    const std::string& vsKey,
                    const std::string& fsKey,
@@ -35,7 +53,7 @@ GLuint GLUtil::loadProgram(
 }
 
 
-GLuint GLUtil::loadProgram(const std::string& vsFileName,
+GLuint GLUtil::complileAndLinkProgram(const std::string& vsFileName,
                    const std::string& fsFileName,
                    const std::string& gsFileName)
 {
@@ -50,7 +68,7 @@ GLuint GLUtil::loadProgram(const std::string& vsFileName,
 
 }
 
-GLuint GLUtil::buildShader(const std::string& name,
+GLuint GLUtil::compileShader(const std::string& name,
                    const std::string& source,
                    GLenum shaderType)
 {
@@ -99,13 +117,14 @@ GLuint GLUtil::compileProgram(const std::string& vsSource,
                                 const std::string& fsSource,
                                 const std::string& gsSource)
 {
+    std::string verString = getVersionString();
     //Insert the version into the source
-    std::string vsSourceVersioned = "#version 300 es\n" + vsSource;
-    std::string fsSourceVersioned = "#version 300 es\n" + fsSource;
+    std::string vsSourceVersioned = verString + vsSource;
+    std::string fsSourceVersioned = verString + fsSource;
     
-    GLuint vertexShader = buildShader("vertex shader",vsSourceVersioned,
+    GLuint vertexShader = compileShader("vertex shader",vsSourceVersioned,
                                       GL_VERTEX_SHADER);
-    GLuint fragmentShader = buildShader("fragment shader",fsSourceVersioned,
+    GLuint fragmentShader = compileShader("fragment shader",fsSourceVersioned,
                                         GL_FRAGMENT_SHADER);
     
     GLuint programHandle = glCreateProgram();
@@ -169,50 +188,6 @@ GLuint GLUtil::linkAndVerifyProgram(GLuint programHandle)
 }
     
     
-GLuint GLUtil::buildProgram(const std::string& vsSource,
-                                const std::string& fsSource,
-                                const std::string& gsSource)
-    {
-        //Insert the version into the source
-        std::string vsSourceVersioned = "#version 300 es\n" + vsSource;
-        std::string fsSourceVersioned = "#version 300 es\n" + fsSource;
-        GLuint vertexShader = buildShader("vertex shader",vsSourceVersioned,
-                                          GL_VERTEX_SHADER);
-        GLuint fragmentShader = buildShader("fragment shader",fsSourceVersioned,
-                                            GL_FRAGMENT_SHADER);
-        
-        GLuint programHandle = glCreateProgram();
-        glAttachShader(programHandle, vertexShader);
-        glAttachShader(programHandle, fragmentShader);
-        
-//        if(gsSource.length() > 0)
-//        {
-//            GLuint geometryShader = buildShader("geometry shader",gsSource,
-//                                                GL_GEOMETRY_SHADER);
-//            glAttachShader(programHandle, geometryShader);
-//        }
-        glLinkProgram(programHandle);
-        
-        GLint linkSuccess;
-        glGetProgramiv(programHandle, GL_LINK_STATUS, &linkSuccess);
-        if(linkSuccess == GL_FALSE)
-        {
-            printf("Error(s) in program:\n");
-            GLchar messages[256];
-            glGetProgramInfoLog(programHandle, sizeof(messages), 0, &messages[0]);
-            printf("%s\n", messages);
-            //exit(1);
-        }
-        else
-        {
-            printf("Successfully created vertexprogram!\n");
-        }
-        
-        printActiveAttributes(programHandle);
-        printActiveUniforms(programHandle);
-        return programHandle;
-    }
-
 void GLUtil::printActiveUniforms(GLuint programHandle)
 {
   GLint uniformCount;

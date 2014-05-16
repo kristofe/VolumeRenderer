@@ -90,22 +90,21 @@ namespace renderlib
    {
    public:
      GLUtil();
-     static GLuint buildShader(const std::string& name,
+     static std::string getVersionString();
+ 
+     static GLuint compileShader(const std::string& name,
                                const std::string& source, GLenum shaderType);
 
-     static GLuint buildProgram(const std::string& vsSource,
-                                const std::string& fsSource,
-                                const std::string& gsSource);
 
      static std::string getShaderSource(const std::string& filename);
 
     
-     static GLuint loadProgram(const std::string& fileName,
+     static GLuint complileAndLinkProgram(const std::string& fileName,
                                const std::string& vsKey,
                                const std::string& fsKey,
                                const std::string& gsKey);
 
-     static GLuint loadProgram(const std::string& vsFileName,
+     static GLuint complileAndLinkProgram(const std::string& vsFileName,
                                const std::string& fsFileName,
                                const std::string& gsFileName);
      

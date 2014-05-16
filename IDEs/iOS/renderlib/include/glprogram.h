@@ -14,7 +14,7 @@ public:
 
   GLProgram(std::string& vsFileName, std::string& fsFileName)
   {
-      _programID =  GLUtil::loadProgram(vsFileName, fsFileName, "");
+      _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, "");
       enableVertexAttributes();
   }
 
@@ -22,14 +22,14 @@ public:
             const std::string& fsFileName,
             const std::string& gsFileName)
   {
-      _programID =  GLUtil::loadProgram(vsFileName, fsFileName, gsFileName);
+      _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, gsFileName);
       enableVertexAttributes();
 
   }
 
   void loadShaders(const std::string& vsFileName, const std::string& fsFileName)
   {
-      _programID =  GLUtil::loadProgram(vsFileName, fsFileName, "");
+      _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, "");
       enableVertexAttributes();
   }
 
@@ -37,7 +37,7 @@ public:
                    const std::string& fsFileName,
                    const std::string& gsFileName)
   {
-      _programID =  GLUtil::loadProgram(vsFileName, fsFileName, gsFileName);
+      _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, gsFileName);
       enableVertexAttributes();
   }
 
