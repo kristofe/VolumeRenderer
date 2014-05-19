@@ -21,6 +21,62 @@ extern "C" {
 #include "perlin.h"
 }
 
+static inline const char * GetGLErrorString(GLenum error)
+{
+	const char *str;
+	switch( error )
+	{
+		case GL_NO_ERROR:
+			str = "GL_NO_ERROR";
+			break;
+		case GL_INVALID_ENUM:
+			str = "GL_INVALID_ENUM";
+			break;
+		case GL_INVALID_VALUE:
+			str = "GL_INVALID_VALUE";
+			break;
+		case GL_INVALID_OPERATION:
+			str = "GL_INVALID_OPERATION";
+			break;
+#if defined __gl_h_ || defined __gl3_h_
+		case GL_OUT_OF_MEMORY:
+			str = "GL_OUT_OF_MEMORY";
+			break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+			str = "GL_INVALID_FRAMEBUFFER_OPERATION";
+			break;
+#endif
+#if defined __gl_h_
+		case GL_STACK_OVERFLOW:
+			str = "GL_STACK_OVERFLOW";
+			break;
+		case GL_STACK_UNDERFLOW:
+			str = "GL_STACK_UNDERFLOW";
+			break;
+		case GL_TABLE_TOO_LARGE:
+			str = "GL_TABLE_TOO_LARGE";
+			break;
+#endif
+		default:
+			str = "(ERROR: Unknown Error Enum)";
+			break;
+	}
+	return str;
+}
+
+#define GetGLError()									\
+{														\
+GLenum err = glGetError();							\
+while (err != GL_NO_ERROR) {						\
+printf("GLError %s set in File:%s Line:%d\n",	\
+GetGLErrorString(err),					\
+__FILE__,								\
+__LINE__);								\
+err = glGetError();								\
+}													\
+}
+
+
 using namespace renderlib;
 using namespace vmath;
 
@@ -28,9 +84,11 @@ struct ProgramHandles {
     GLuint SinglePass;
 };
 //Prototypes
-static ProgramHandles Programs;
-static GLuint CubeCenterVbo;
-static GLuint CubeCenterVao;
+//static ProgramHandles Programs;
+//static GLuint TriangleVbo;
+//static GLuint TriangleVao;
+//static GLuint CubeVbo;
+//static GLuint CubeVao;
 static Matrix4 ProjectionMatrix;
 static Matrix4 ModelviewMatrix;
 static Matrix4 ViewMatrix;
@@ -40,15 +98,119 @@ static Point3 EyePosition;
 static int winWidth = 500;
 static int winHeight = 500;
 
-static GLuint CloudTexture;
-static SurfacePod IntervalsFbo[2];
-static bool SinglePass = true;
+//static GLuint CloudTexture;
 static float fieldOfView = 0.7f;
 static Trackball* trackball;
 static int mouseX, mouseY;
 static bool mouseDown = false;
 
+#include "glprogram.h"
+typedef struct {
+  GLfloat x, y, z, r, g, b;
+} Triangle;
 
+Triangle triangle[3] = {
+  {-0.6f, -0.4f, 0.f, 1.f, 0.f, 0.f},
+  {0.6f, -0.4f, 0.f,0.f, 1.f, 0.f},
+  {0.f, 0.6f, 0.f,0.f, 0.f, 1.f}
+};
+
+GLubyte indices[3] = {
+  0, 1, 2
+};
+
+GLuint gVAO = 0;
+GLuint gVBO = 0;
+GLProgram program1;
+
+void loadTriangleAndProgram()
+{
+  //Load Program
+  std::string path;
+  GetFullFilePathFromResource("triangleShaders.glsl", path);
+  
+  program1.loadShaders(path, "VS", "FS", "");
+  
+  GetGLError();
+  // make and bind the VAO
+  glGenVertexArrays(1, &gVAO);
+  glBindVertexArray(gVAO);
+  
+  // make and bind the VBO
+  glGenBuffers(1, &gVBO);
+  glBindBuffer(GL_ARRAY_BUFFER, gVBO);
+  
+  glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
+  
+  // connect the xyz to the "vert" attribute of the vertex shader
+  GLint vertSlot = program1.getAttributeLocation("vert");
+  glEnableVertexAttribArray(vertSlot);
+  glVertexAttribPointer(vertSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle),
+                        BUFFER_OFFSET(0));
+  
+  GetGLError();
+  std::cout << "Setup Vert Slot = " << vertSlot << std::endl; std::cout.flush();
+  GetGLError();
+  
+  GLint colorSlot = program1.getAttributeLocation("color");
+  GetGLError();
+  glEnableVertexAttribArray(colorSlot);
+  glVertexAttribPointer(colorSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle),
+                        BUFFER_OFFSET(sizeof(GLfloat)*3));
+  GetGLError();
+  
+  std::cout << "Setup Color Slot = " << colorSlot << std::endl; std::cout.flush();
+  GetGLError();
+  
+  
+  //    GLint modelViewSlot = program1.getUniformLocation("modelview");
+  //    std::cout << "Setup modelViewl Uniform Slot = " << modelViewSlot << std::endl; std::cout.flush();
+  std::cout << "Done setting up triangle" << std::endl; std::cout.flush();
+  
+  
+  GetGLError();
+}
+
+void drawTriangle()
+{
+  float secs = GetTicks() * 0.001f;
+  glClearColor(0.1f, 0.2f, 0.4f, 0);
+//  glClearColor(sinf(secs / 1.0f) * 0.5f + 0.5f, 0.2f, 0.4f, 0);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_CULL_FACE);
+  
+  // BUG: THERE IS AN OPENGL GL_ERROR 1282 if glEnableVertexAttribArray is
+  // called in this function
+  Matrix4 rotMat = Matrix4::rotation(secs, Vector3(0,0,1));
+  
+  
+  // bind the program (the shaders)
+  glUseProgram(program1.getID());
+  GetGLError();
+  
+  SetUniform("modelview", rotMat);
+  GetGLError();
+  
+  // bind the VAO (the triangle)
+  glBindVertexArray(gVAO);
+  GetGLError();
+  
+  
+  // draw the VAO
+  glDrawArrays(GL_TRIANGLES, 0, sizeof(triangle)/sizeof(Triangle));
+  
+  GetGLError();
+  
+  // unbind the VAO
+  glBindVertexArray(0);
+  
+  
+  // unbind the program
+  glUseProgram(0);
+  GetGLError();
+//  GLUtil::checkGLErrors();
+}
 
 
 
@@ -109,27 +271,56 @@ static GLuint load3DScan(const std::string& filename,int dx, int dy, int dz)
     
     
     int array_size = dx*dy*dz;
-    unsigned short *data = new unsigned short[array_size];
+    //unsigned short *data = new unsigned short[array_size];
+    unsigned char *char_data = new unsigned char[array_size];
     
     int position = 0;
 	size_t chunkSize = sizeof(unsigned short)*512;
-    
+    float scale = 255.0f/65535.0f;
 	std::ifstream fin(filename.c_str(), std::ios::in|std::ios::binary);
-    while(fin.read((char*)&data[position],chunkSize)){
-		position += 512;
-        std::cout << position << std::endl;
+    std::cout << " good()=" << fin.good();
+    std::cout << " eof()=" << fin.eof();
+    std::cout << " fail()=" << fin.fail();
+    std::cout << " bad()=" << fin.bad();
+    
+    unsigned short buff[chunkSize];
+    
+    //This copies the data straight into the array
+    //while(fin.read((char*)data[position],chunkSize)){
+//     position += 512;
+//    }
+    
+    //Convert the data from unsigned short to unsigned byte.
+    while(fin.read((char*)buff,chunkSize)){
+        int count = fin.gcount() * 0.5;//Multiplied by half because unsigned short is two bytes
+        for(int i = 0; i < count; i++)
+        {
+            char_data[position + i] = buff[i] * scale;
+        }
+        position += 512;
     }
     
 	fin.close();
     
 #if TARGETIPHONE
+    GLint size;
+    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &size);
+    printf("GL_MAX_3D_TEXTURE_SIZE: %d\n", size);
+    
+//    glTexImage3D(GL_TEXTURE_3D, 0,
+//                 GL_R16UI,
+//                 dx, dy, dz, 0,
+//                 GL_RED_INTEGER,
+//                 GL_UNSIGNED_SHORT,
+//                 data);
+    
     
     glTexImage3D(GL_TEXTURE_3D, 0,
-                 GL_R16UI,
+                 GL_LUMINANCE,
                  dx, dy, dz, 0,
-                 GL_RED,
-                 GL_UNSIGNED_SHORT,
-                 data);
+                 GL_LUMINANCE,
+                 GL_UNSIGNED_BYTE,
+                 char_data);
 #else
     glTexImage3D(GL_TEXTURE_3D, 0,
                  GL_RED,
@@ -138,17 +329,22 @@ static GLuint load3DScan(const std::string& filename,int dx, int dy, int dz)
                  GL_UNSIGNED_BYTE,
                  data);
 #endif
-    
-    delete[] data;
+    GetGLError();
+    //delete[] data;
+    delete[] char_data;
+
     return handle;
 }
 static GLuint CreatePyroclasticVolume(int n, float r)
 {
     GLuint handle;
+    GetGLError();
     glGenTextures(1, &handle);
     glBindTexture(GL_TEXTURE_3D, handle);
+    GetGLError();
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    GetGLError();
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -173,12 +369,12 @@ static GLuint CreatePyroclasticVolume(int n, float r)
                                                         z*frequency,
                                                         5,
                                                         6, 3));
-                std::cout << off << " ";
+                //std::cout << off << " ";
                 float d = sqrtf(dx*dx+dy*dy+dz*dz)/(n);
                 bool isFilled = (d-off) < r;
                 *ptr++ = isFilled ? 255 : 0;
             }
-            std::cout << std::endl;
+            //std::cout << std::endl;
         }
         fprintf(stdout,"Slice %d of %d\n", x, n);
     }
@@ -186,11 +382,12 @@ static GLuint CreatePyroclasticVolume(int n, float r)
 #if TARGETIPHONE
     
     glTexImage3D(GL_TEXTURE_3D, 0,
-                 GL_R16UI,
+                 GL_LUMINANCE,
                  n, n, n, 0,
-                 GL_RED,
-                 GL_UNSIGNED_SHORT,
+                 GL_LUMINANCE,
+                 GL_UNSIGNED_BYTE,
                  data);
+    GetGLError();
 #else
     glTexImage3D(GL_TEXTURE_3D, 0,
                  GL_RED,
@@ -205,22 +402,28 @@ static GLuint CreatePyroclasticVolume(int n, float r)
 
 void initialize()
 {
-    trackball = new Trackball(winWidth * 1.0f, winHeight * 1.0f, winWidth * 0.5f);
+    loadTriangleAndProgram();
     
-    //Test volume render shaders
-    std::string path;
-    GetFullFilePathFromResource("SinglePassRayMarch.glsl", path);
-    Programs.SinglePass = GLUtil::complileAndLinkProgram(path, "VS", "FS_CTSCAN", "");
-    CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
-    
-    CloudTexture = CreatePyroclasticVolume(8, 0.025f);
-    //GetFullFilePathFromResource("512x512x512x_uint16.raw", path);
-    //CloudTexture = load3DScan(path, 512,512,512);
-    
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    trackball = new Trackball(winWidth * 1.0f, winHeight * 1.0f, winWidth * 0.5f);
+//  
+//    //Test volume render shaders
+//    std::string path;
+//    GetFullFilePathFromResource("SinglePassRayMarch.glsl", path);
+//    GetGLError();
+//    Programs.SinglePass = GLUtil::complileAndLinkProgram(path, "VS", "FS_CTSCAN", "");
+//    //CreateCubeVbo(Programs.SinglePass, &CubeVbo, &CubeVao);
+//
+//    GetGLError();
+//    
+//    CloudTexture = CreatePyroclasticVolume(128, 0.025f);
+//    //GetFullFilePathFromResource("volume_texture_uint16.raw", path);
+//    //CloudTexture = load3DScan(path, 512,512,512);
+//    GetGLError();
+//    
+//    glDisable(GL_DEPTH_TEST);
+//    glEnable(GL_BLEND);
+//    glDisable(GL_CULL_FACE);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
@@ -237,28 +440,33 @@ static void loadUniforms()
     Vector4 rayOrigin(transpose(ModelviewMatrix) * EyePosition);
     SetUniform("RayOrigin", rayOrigin.getXYZ());
     
-    float focalLength = 1.0f / std::tan(fieldOfView / 2);
+    float focalLength = 1.0f / tan(fieldOfView / 2);
     SetUniform("FocalLength", focalLength);
     SetUniform("WindowSize", float(winWidth), float(winHeight));
 }
 
+
+
+
 void render()
 {
-    glClearColor(0.1f, 0.2f, 0.4f, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(Programs.SinglePass);
-    glBindTexture(GL_TEXTURE_3D, CloudTexture);
-	glBindVertexArray(CubeCenterVao);
-    glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
-    
-    loadUniforms();
-    glDrawArrays(GL_POINTS, 0, 1);
-    //glDrawArrays(GL_TRIANGLES, 0, 3);
+  drawTriangle();
+//    glClearColor(0.1f, 0.2f, 0.4f, 0);
+//    glClear(GL_COLOR_BUFFER_BIT);
+//    glUseProgram(Programs.SinglePass);
+//    glBindTexture(GL_TEXTURE_3D, CloudTexture);
+//    glBindVertexArray(CubeCenterVao);
+//    glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
+//  
+//    loadUniforms();
+//    glDrawArrays(GL_POINTS, 0, 1);
+//    GetGLError();
 }
 
 void update(double seconds)
 {
-    float dt = seconds;
+  return;
+//    float dt = seconds;
     unsigned int microseconds = seconds * 1000 * 1000;
     
     

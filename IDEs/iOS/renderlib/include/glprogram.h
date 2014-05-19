@@ -11,7 +11,17 @@ class GLProgram
 //Methods
 public:
   GLProgram(){};
-
+    
+  GLProgram(const std::string& fileName,
+            const std::string& vsKey,
+            const std::string& fsKey,
+            const std::string& gsKey)
+  {
+    _programID = GLUtil::compileProgram(fileName, vsKey, fsKey, gsKey);
+    GLUtil::linkAndVerifyProgram(_programID);
+    enableVertexAttributes();
+  }
+  
   GLProgram(std::string& vsFileName, std::string& fsFileName)
   {
       _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, "");
@@ -25,6 +35,16 @@ public:
       _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, gsFileName);
       enableVertexAttributes();
 
+  }
+  void loadShaders(
+            const std::string& fileName,
+            const std::string& vsKey,
+            const std::string& fsKey,
+            const std::string& gsKey)
+  {
+    _programID = GLUtil::compileProgram(fileName, vsKey, fsKey, gsKey);
+    GLUtil::linkAndVerifyProgram(_programID);
+    enableVertexAttributes();
   }
 
   void loadShaders(const std::string& vsFileName, const std::string& fsFileName)

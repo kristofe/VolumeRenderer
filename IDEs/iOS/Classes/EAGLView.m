@@ -1,10 +1,10 @@
 #import "EAGLView.h"
 
-#import "ES3Renderer.h"
+#import "OpenGLRenderer.h"
 
 @implementation EAGLView
 
-@dynamic animationFrameInterval;
+//@dynamic animationFrameInterval;
 
 // You must implement this method
 + (Class) layerClass
@@ -25,7 +25,6 @@
                                         [NSNumber numberWithBool:FALSE], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
 		
 		
-		//m_context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
         m_context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
         
         if (!m_context || ![EAGLContext setCurrentContext:m_context])
@@ -34,7 +33,7 @@
 			return nil;
 		}
 		
-		m_renderer = [[ES3Renderer alloc] initWithContext:m_context AndDrawable:(id<EAGLDrawable>)self.layer];
+		m_renderer = [[OpenGLRenderer alloc] initWithContext:m_context AndDrawable:(id<EAGLDrawable>)self.layer];
 		
 		if (!m_renderer)
 		{

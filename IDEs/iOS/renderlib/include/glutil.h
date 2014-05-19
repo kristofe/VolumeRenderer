@@ -9,9 +9,9 @@
 #include <map>
 #include "OpenGLHelper.h"
 #include "utils.h"
-#include "../glm/glm.hpp"
-#include "../glm/gtc/quaternion.hpp"
-#include "../glm/gtx/quaternion.hpp"
+//#include "../glm/glm.hpp"
+//#include "../glm/gtc/quaternion.hpp"
+//#include "../glm/gtx/quaternion.hpp"
 
 #include "../vmath.hpp"
 
@@ -148,15 +148,15 @@ namespace renderlib
        SlotTexCoord,
    };
 
-   struct ITrackball {
-       virtual void MouseDown(int x, int y) = 0;
-       virtual void MouseUp(int x, int y) = 0;
-       virtual void MouseMove(int x, int y) = 0;
-       virtual void ReturnHome() = 0;
-       virtual glm::mat3 GetRotation() const = 0;
-       virtual float GetZoom() const = 0;
-       virtual void Update(unsigned int microseconds) = 0;
-   };
+//   struct ITrackball {
+//       virtual void MouseDown(int x, int y) = 0;
+//       virtual void MouseUp(int x, int y) = 0;
+//       virtual void MouseMove(int x, int y) = 0;
+//       virtual void ReturnHome() = 0;
+//       virtual glm::mat3 GetRotation() const = 0;
+//       virtual float GetZoom() const = 0;
+//       virtual void Update(unsigned int microseconds) = 0;
+//   };
 
    struct TexturePod {
        GLuint Handle;
@@ -180,10 +180,10 @@ namespace renderlib
    void SetUniform(const char* name, int value);
    void SetUniform(const char* name, float value);
    void SetUniform(const char* name, float x, float y);
-   void SetUniform(const char* name, glm::mat4x4 value);
-   void SetUniform(const char* name, glm::mat3x3 value);
-   void SetUniform(const char* name, glm::vec4 value);
-   void SetUniform(const char* name, glm::vec3 value);
+//   void SetUniform(const char* name, glm::mat4x4 value);
+//   void SetUniform(const char* name, glm::mat3x3 value);
+//   void SetUniform(const char* name, glm::vec4 value);
+//   void SetUniform(const char* name, glm::vec3 value);
    void SetUniform(const char* name, vmath::Matrix4 value);
 	void SetUniform(const char* name, vmath::Matrix3 value);
 	void SetUniform(const char* name, vmath::Vector3 value);
@@ -192,6 +192,7 @@ namespace renderlib
    //TexturePod LoadTexture(const char* path);
    SurfacePod CreateSurface(int width, int height);
    void CreateTriangleVbo(GLuint * vbo, GLuint * vao);
+   void CreateCubeVbo(GLuint * vbo, GLuint * vao);
    void CreatePointVbo(GLuint prog, GLuint * vbo, GLuint * vao);
    GLuint CreatePointVbo(float x, float y, float z);
 }

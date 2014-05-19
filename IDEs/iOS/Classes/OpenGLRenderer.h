@@ -10,5 +10,6 @@
 - (void) resizeWithWidth:(GLuint)width AndHeight:(GLuint)height;
 - (void) render;
 - (void) dealloc;
-
+- (BOOL)resizeFromLayer:(CAEAGLLayer*)layer;
+- (OpenGLRenderer* ) initWithContext:(EAGLContext *) context AndDrawable:(id<EAGLDrawable>)drawable;
 @end

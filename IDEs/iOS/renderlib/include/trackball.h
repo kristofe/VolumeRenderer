@@ -3,7 +3,7 @@
 #include "OpenGLHelper.h"
 
 using namespace renderlib;
-using namespace glm;
+//using namespace glm;
 using namespace vmath;
 class Trackball {
     public:

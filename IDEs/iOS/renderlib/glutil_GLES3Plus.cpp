@@ -6,17 +6,17 @@
 #endif
 
 #include "include/OpenGLHelper.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtc/quaternion.hpp"
-#include "glm/gtx/quaternion.hpp"
-#include "glm/gtx/euler_angles.hpp"
-#include "glm/gtx/norm.hpp"
+//#include "glm/glm.hpp"
+//#include "glm/gtc/type_ptr.hpp"
+//#include "glm/gtc/quaternion.hpp"
+//#include "glm/gtx/quaternion.hpp"
+//#include "glm/gtx/euler_angles.hpp"
+//#include "glm/gtx/norm.hpp"
 #include "shadersource.h"
 #include "vmath.hpp"
 
 namespace renderlib{
-using namespace glm;
+//using namespace glm;
 using namespace vmath;
 
 GLUtil::GLUtil()
@@ -910,6 +910,7 @@ void CreatePointVbo(GLuint prog, GLuint * vbo, GLuint *vao)
     glVertexAttribPointer(vertLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glEnableVertexAttribArray(vertLoc);
 }
+    
 void CreateTriangleVbo(GLuint * vbo, GLuint *vao)
 {
     float p[] = {
@@ -925,6 +926,22 @@ void CreateTriangleVbo(GLuint * vbo, GLuint *vao)
     glBufferData(GL_ARRAY_BUFFER, sizeof(p), p, GL_STATIC_DRAW);
 }
 
+void CreateCubeVbo(GLuint * vbo, GLuint *vao)
+{
+    float p[] = {
+        -1.0, -1.0, 0.0,
+        1.0, -1.0, 0.0,
+        0.0, 1.0, 0.0
+    };
+    glGenVertexArrays(1,vao);
+    glBindVertexArray(*vao);
+    
+    glGenBuffers(1, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(p), p, GL_STATIC_DRAW);
+}
+    
+    
 GLuint CreatePointVbo(float x, float y, float z)
 {
     float p[] = {x, y, z};
@@ -951,35 +968,35 @@ void SetUniform(const char* name, float value)
     glUniform1f(location, value);
 }
 
-void SetUniform(const char* name, glm::mat4 value)
-{
-    GLuint program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
-    GLint location = glGetUniformLocation(program, name);
-	glUniformMatrix4fv(location, 1, 0, glm::value_ptr(value));
-}
+//void SetUniform(const char* name, glm::mat4 value)
+//{
+//    GLuint program;
+//    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+//    GLint location = glGetUniformLocation(program, name);
+//	glUniformMatrix4fv(location, 1, 0, glm::value_ptr(value));
+//}
 
-void SetUniform(const char* name, glm::mat3 nm)
-{
-    GLuint program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
-    GLint location = glGetUniformLocation(program, name);
-    /*
-    float packed[9] = {
-        nm.getRow(0).getX(), nm.getRow(1).getX(), nm.getRow(2).getX(),
-        nm.getRow(0).getY(), nm.getRow(1).getY(), nm.getRow(2).getY(),
-        nm.getRow(0).getZ(), nm.getRow(1).getZ(), nm.getRow(2).getZ() };
-        */
-	glUniformMatrix3fv(location, 1, 0, glm::value_ptr(nm));
-}
+//void SetUniform(const char* name, glm::mat3 nm)
+//{
+//    GLuint program;
+//    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+//    GLint location = glGetUniformLocation(program, name);
+//    /*
+//    float packed[9] = {
+//        nm.getRow(0).getX(), nm.getRow(1).getX(), nm.getRow(2).getX(),
+//        nm.getRow(0).getY(), nm.getRow(1).getY(), nm.getRow(2).getY(),
+//        nm.getRow(0).getZ(), nm.getRow(1).getZ(), nm.getRow(2).getZ() };
+//        */
+//	glUniformMatrix3fv(location, 1, 0, glm::value_ptr(nm));
+//}
 
-void SetUniform(const char* name, glm::vec3 value)
-{
-    GLuint program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
-    GLint location = glGetUniformLocation(program, name);
-    glUniform3f(location, value.x, value.y, value.z);
-}
+//void SetUniform(const char* name, glm::vec3 value)
+//{
+//    GLuint program;
+//    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+//    GLint location = glGetUniformLocation(program, name);
+//    glUniform3f(location, value.x, value.y, value.z);
+//}
 
 void SetUniform(const char* name, float x, float y)
 {
@@ -989,13 +1006,13 @@ void SetUniform(const char* name, float x, float y)
     glUniform2f(location, x, y);
 }
 
-void SetUniform(const char* name, glm::vec4 value)
-{
-    GLuint program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
-    GLint location = glGetUniformLocation(program, name);
-    glUniform4f(location, value.x, value.y, value.z, value.w);
-}
+//void SetUniform(const char* name, glm::vec4 value)
+//{
+//    GLuint program;
+//    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+//    GLint location = glGetUniformLocation(program, name);
+//    glUniform4f(location, value.x, value.y, value.z, value.w);
+//}
 
 void SetUniform(const char* name, Matrix4 value)
 {
