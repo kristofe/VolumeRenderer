@@ -84,7 +84,7 @@ struct ProgramHandles {
     GLuint SinglePass;
 };
 //Prototypes
-//static ProgramHandles Programs;
+static ProgramHandles Programs;
 //static GLuint TriangleVbo;
 //static GLuint TriangleVao;
 //static GLuint CubeVbo;
@@ -98,7 +98,7 @@ static Point3 EyePosition;
 static int winWidth = 500;
 static int winHeight = 500;
 
-//static GLuint CloudTexture;
+static GLuint CloudTexture;
 static float fieldOfView = 0.7f;
 static Trackball* trackball;
 static int mouseX, mouseY;
@@ -109,6 +109,78 @@ typedef struct {
   GLfloat x, y, z, r, g, b;
 } Triangle;
 
+
+const float unit = 1.0f;
+/*
+{-unit, -unit, unit, 0.f, 0.f, 1.f},//0
+{-unit,  unit, unit, 0.f, 1.f, 1.f},//1
+{ unit,  unit, unit, 1.f, 1.f, 1.f},//2
+{ unit, -unit, unit, 1.f, 0.f, 1.f},//3
+
+{-unit, -unit, -unit, 0.f, 0.f, 0.f},//4
+{-unit,  unit, -unit, 0.f, 1.f, 0.f},//5
+{ unit,  unit, -unit, 1.f, 1.f, 0.f},//6
+{ unit, -unit, -unit, 1.f, 0.f, 0.f},//7
+ */
+Triangle cube[6 * 6] = {
+  //Front Face
+  {-unit, -unit, unit, 0.f, 0.f, 1.f},//0
+  { unit,  unit, unit, 1.f, 1.f, 1.f},//2
+  {-unit,  unit, unit, 0.f, 1.f, 1.f},//1
+  { unit, -unit, unit, 1.f, 0.f, 1.f},//3
+  { unit,  unit, unit, 1.f, 1.f, 1.f},//2
+  {-unit, -unit, unit, 0.f, 0.f, 1.f},//0
+  
+  //Back Face
+  { unit, -unit, -unit, 1.f, 0.f, 0.f},//7
+  {-unit,  unit, -unit, 0.f, 1.f, 0.f},//5
+  { unit,  unit, -unit, 1.f, 1.f, 0.f},//6
+  {-unit, -unit, -unit, 0.f, 0.f, 0.f},//4
+  {-unit,  unit, -unit, 0.f, 1.f, 0.f},//5
+  { unit, -unit, -unit, 1.f, 0.f, 0.f},//7
+  
+  //Top Face
+  {-unit,  unit, unit, 0.f, 1.f, 1.f},//1
+  { unit,  unit, -unit, 1.f, 1.f, 0.f},//6
+  {-unit,  unit, -unit, 0.f, 1.f, 0.f},//5
+  { unit,  unit, unit, 1.f, 1.f, 1.f},//2
+  { unit,  unit, -unit, 1.f, 1.f, 0.f},//6
+  {-unit,  unit, unit, 0.f, 1.f, 1.f},//1
+  
+  //Bottom Face
+  {-unit, -unit, -unit, 0.f, 0.f, 0.f},//4
+  { unit, -unit, unit, 1.f, 0.f, 1.f},//3
+  {-unit, -unit, unit, 0.f, 0.f, 1.f},//0
+  { unit, -unit, -unit, 1.f, 0.f, 0.f},//7
+  { unit, -unit, unit, 1.f, 0.f, 1.f},//3
+  {-unit, -unit, -unit, 0.f, 0.f, 0.f},//4
+  
+  //Left Face
+  {-unit, -unit, -unit, 0.f, 0.f, 0.f},//4
+  {-unit,  unit, unit, 0.f, 1.f, 1.f},//1
+  {-unit,  unit, -unit, 0.f, 1.f, 0.f},//5
+  {-unit, -unit, unit, 0.f, 0.f, 1.f},//0
+  {-unit,  unit, unit, 0.f, 1.f, 1.f},//1
+  {-unit, -unit, -unit, 0.f, 0.f, 0.f},//4
+  
+  //Right Face
+  { unit, -unit, unit, 1.f, 0.f, 1.f},//3
+  { unit,  unit, -unit, 1.f, 1.f, 0.f},//6
+  { unit,  unit, unit, 1.f, 1.f, 1.f},//2
+  { unit, -unit, -unit, 1.f, 0.f, 0.f},//7
+  { unit,  unit, -unit, 1.f, 1.f, 0.f},//6
+  { unit, -unit, unit, 1.f, 0.f, 1.f},//3
+  
+};
+
+Triangle quad[6] = {
+  {-unit, -unit, 0.0f, 0.f, 0.f, 0.f},
+  { unit,  unit, 0.0f, 1.f, 1.f, 0.f},
+  {-unit,  unit, 0.0f, 0.f, 1.f, 0.f},
+  { unit, -unit, 0.0f, 1.f, 0.f, 0.f},
+  { unit,  unit, 0.0f, 1.f, 1.f, 0.f},
+  {-unit, -unit, 0.0f, 0.f, 0.f, 0.f},
+};
 Triangle triangle[3] = {
   {-0.6f, -0.4f, 0.f, 1.f, 0.f, 0.f},
   {0.6f, -0.4f, 0.f,0.f, 1.f, 0.f},
@@ -123,6 +195,36 @@ GLuint gVAO = 0;
 GLuint gVBO = 0;
 GLProgram program1;
 
+
+void loadCubeVBO()
+{
+  // make and bind the VAO
+  glGenVertexArrays(1, &gVAO);
+  glBindVertexArray(gVAO);
+  
+  // make and bind the VBO
+  glGenBuffers(1, &gVBO);
+  glBindBuffer(GL_ARRAY_BUFFER, gVBO);
+  
+  glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+  
+  // connect the xyz to the "vert" attribute of the vertex shader
+//  GLint vertSlot = program1.getAttributeLocation("vert");
+  GLint vertSlot = program1.getAttributeLocation("Position");
+  glEnableVertexAttribArray(vertSlot);
+  glVertexAttribPointer(vertSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle),
+                        BUFFER_OFFSET(0));
+  
+  std::cout << "Setup Vert Slot = " << vertSlot << std::endl; std::cout.flush();
+  GLint colorSlot = program1.getAttributeLocation("color");
+  glEnableVertexAttribArray(colorSlot);
+  glVertexAttribPointer(colorSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle),
+                        BUFFER_OFFSET(sizeof(GLfloat)*3));
+  std::cout << "Setup Color Slot = " << colorSlot << std::endl; std::cout.flush();
+  std::cout << "Done setting up triangle" << std::endl; std::cout.flush();
+  
+  GetGLError();
+}
 void loadTriangleAndProgram()
 {
   //Load Program
@@ -132,41 +234,12 @@ void loadTriangleAndProgram()
   program1.loadShaders(path, "VS", "FS", "");
   
   GetGLError();
-  // make and bind the VAO
-  glGenVertexArrays(1, &gVAO);
-  glBindVertexArray(gVAO);
+
+  loadCubeVBO();
   
-  // make and bind the VBO
-  glGenBuffers(1, &gVBO);
-  glBindBuffer(GL_ARRAY_BUFFER, gVBO);
-  
-  glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
-  
-  // connect the xyz to the "vert" attribute of the vertex shader
-  GLint vertSlot = program1.getAttributeLocation("vert");
-  glEnableVertexAttribArray(vertSlot);
-  glVertexAttribPointer(vertSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle),
-                        BUFFER_OFFSET(0));
-  
-  GetGLError();
-  std::cout << "Setup Vert Slot = " << vertSlot << std::endl; std::cout.flush();
-  GetGLError();
-  
-  GLint colorSlot = program1.getAttributeLocation("color");
-  GetGLError();
-  glEnableVertexAttribArray(colorSlot);
-  glVertexAttribPointer(colorSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Triangle),
-                        BUFFER_OFFSET(sizeof(GLfloat)*3));
-  GetGLError();
-  
-  std::cout << "Setup Color Slot = " << colorSlot << std::endl; std::cout.flush();
-  GetGLError();
-  
-  
-  //    GLint modelViewSlot = program1.getUniformLocation("modelview");
-  //    std::cout << "Setup modelViewl Uniform Slot = " << modelViewSlot << std::endl; std::cout.flush();
-  std::cout << "Done setting up triangle" << std::endl; std::cout.flush();
-  
+  CloudTexture = CreatePyroclasticVolume(128, 0.025f);
+//  GetFullFilePathFromResource("volume_texture_uint16.raw", path);
+//  CloudTexture = load3DScan(path, 512,512,512);
   
   GetGLError();
 }
@@ -175,41 +248,42 @@ void drawTriangle()
 {
   float secs = GetTicks() * 0.001f;
   glClearColor(0.1f, 0.2f, 0.4f, 0);
-//  glClearColor(sinf(secs / 1.0f) * 0.5f + 0.5f, 0.2f, 0.4f, 0);
   glClear(GL_COLOR_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
-  glDisable(GL_CULL_FACE);
+//  glDisable(GL_CULL_FACE);
+  //glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   
-  // BUG: THERE IS AN OPENGL GL_ERROR 1282 if glEnableVertexAttribArray is
-  // called in this function
-  Matrix4 rotMat = Matrix4::rotation(secs, Vector3(0,0,1));
+//  Vector3 axis(1.0f,1.f,1.f);
+//  Vector3 scale(0.5f,0.5f,0.5f);
+//  Matrix4 scaleMat = Matrix4::identity();
+//  scaleMat = scaleMat.scale(scale);
+//  Matrix4 rotMat = Matrix4::rotation(secs, normalize(axis));
+//  Matrix4 mat = scaleMat * rotMat;
+  Matrix4 mat = Matrix4::identity();
   
   
   // bind the program (the shaders)
   glUseProgram(program1.getID());
-  GetGLError();
   
-  SetUniform("modelview", rotMat);
-  GetGLError();
+  SetUniform("modelview", mat);
+  SetUniform("time", secs);
+  SetUniform("Density", 0);
   
   // bind the VAO (the triangle)
   glBindVertexArray(gVAO);
-  GetGLError();
   
   
   // draw the VAO
-  glDrawArrays(GL_TRIANGLES, 0, sizeof(triangle)/sizeof(Triangle));
-  
-  GetGLError();
+//  glDrawArrays(GL_TRIANGLES, 0, sizeof(triangle)/sizeof(Triangle));
+//  glDrawArrays(GL_TRIANGLES, 0, sizeof(quad)/sizeof(Triangle));
+  glDrawArrays(GL_TRIANGLES, 0, sizeof(cube)/sizeof(Triangle));
   
   // unbind the VAO
-  glBindVertexArray(0);
-  
-  
-  // unbind the program
-  glUseProgram(0);
+  //glBindVertexArray(0);
   GetGLError();
-//  GLUtil::checkGLErrors();
 }
 
 
@@ -254,6 +328,12 @@ void drawTriangle()
 //    glViewport(0, 0, winWidth, winHeight);
 //    glClear(GL_COLOR_BUFFER_BIT);
 //}
+
+void resizeViewport(GLuint w, GLuint h)
+{
+  winWidth = w;
+  winHeight = h;
+}
 
 #include <iostream>
 #include <fstream>
@@ -402,28 +482,29 @@ static GLuint CreatePyroclasticVolume(int n, float r)
 
 void initialize()
 {
-    loadTriangleAndProgram();
+//    loadTriangleAndProgram();
+  
+    trackball = new Trackball(winWidth * 1.0f, winHeight * 1.0f, winWidth * 0.5f);
+  
+    //Test volume render shaders
+    std::string path;
+    GetFullFilePathFromResource("SinglePassRayMarch.glsl", path);
+    GetGLError();
+    program1.loadShaders(path, "VS", "FS_CTSCAN", "");
+    //CreateCubeVbo(Programs.SinglePass, &CubeVbo, &CubeVao);
+    loadCubeVBO();
+
+    GetGLError();
     
-//    trackball = new Trackball(winWidth * 1.0f, winHeight * 1.0f, winWidth * 0.5f);
-//  
-//    //Test volume render shaders
-//    std::string path;
-//    GetFullFilePathFromResource("SinglePassRayMarch.glsl", path);
-//    GetGLError();
-//    Programs.SinglePass = GLUtil::complileAndLinkProgram(path, "VS", "FS_CTSCAN", "");
-//    //CreateCubeVbo(Programs.SinglePass, &CubeVbo, &CubeVao);
-//
-//    GetGLError();
-//    
-//    CloudTexture = CreatePyroclasticVolume(128, 0.025f);
-//    //GetFullFilePathFromResource("volume_texture_uint16.raw", path);
-//    //CloudTexture = load3DScan(path, 512,512,512);
-//    GetGLError();
-//    
-//    glDisable(GL_DEPTH_TEST);
-//    glEnable(GL_BLEND);
-//    glDisable(GL_CULL_FACE);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    CloudTexture = CreatePyroclasticVolume(64, 0.025f);
+    //GetFullFilePathFromResource("volume_texture_uint16.raw", path);
+    //CloudTexture = load3DScan(path, 512,512,512);
+    GetGLError();
+    
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
@@ -450,22 +531,24 @@ static void loadUniforms()
 
 void render()
 {
-  drawTriangle();
-//    glClearColor(0.1f, 0.2f, 0.4f, 0);
-//    glClear(GL_COLOR_BUFFER_BIT);
-//    glUseProgram(Programs.SinglePass);
-//    glBindTexture(GL_TEXTURE_3D, CloudTexture);
+//  drawTriangle();
+    glClearColor(0.1f, 0.2f, 0.4f, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBindTexture(GL_TEXTURE_3D, CloudTexture);
 //    glBindVertexArray(CubeCenterVao);
 //    glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
-//  
-//    loadUniforms();
+  
+    glUseProgram(program1.getID());
+    //glBindBuffer(GL_ARRAY_BUFFER, gVBO);
+    loadUniforms();
+    glBindVertexArray(gVAO);
 //    glDrawArrays(GL_POINTS, 0, 1);
-//    GetGLError();
+    glDrawArrays(GL_TRIANGLES, 0, sizeof(cube)/sizeof(Triangle));
+    GetGLError();
 }
 
 void update(double seconds)
 {
-  return;
 //    float dt = seconds;
     unsigned int microseconds = seconds * 1000 * 1000;
     
@@ -478,7 +561,10 @@ void update(double seconds)
     Vector3 up(0, 1, 0); Point3 target(0);
     ViewMatrix = Matrix4::lookAt(EyePosition, target, up);
     
-    Matrix4 modelMatrix(transpose(trackball->GetRotation()), Vector3(0));
+    //Matrix4 modelMatrix(transpose(trackball->GetRotation()), Vector3(0));
+    Vector3 axis(1.0f,1.f,1.f);
+    Matrix4 modelMatrix = Matrix4::rotation(seconds, normalize(axis));
+
     ModelviewMatrix = ViewMatrix * modelMatrix;
     
     float n = 1.0f;

@@ -16,5 +16,5 @@ void initialize();
 static void loadUniforms();
 void render();
 void update(double seconds);
-
+void resizeViewport(GLuint w, GLuint h);
 #endif

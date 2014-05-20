@@ -6,25 +6,25 @@ precision highp float;
 in vec3 vert;
 in vec3 color;
 uniform mat4 modelview;
-out vec4 incolor;
+uniform float time;
+out vec3 inuv;
 
 void main() {
-    // does not alter the vertices at all
-    gl_Position = modelview * vec4(vert, 1);
-    //gl_Position = vec4(vert, 1);
-    //gl_Color = vec4(color,1);
-    incolor = vec4(color,1);
+  gl_Position = modelview * vec4(vert, 1);
+  inuv = vec3(color.xy,sin(time)*0.5 + 0.5);
 }
 
 -- FS
 #ifdef GL_ES
 precision highp float;
 #endif
-in vec4 incolor;
+in vec3 inuv;
 out vec4 finalColor;
+uniform mediump sampler3D Density;
 
 void main() {
-    //set every drawn pixel to white
-    //finalColor = vec4(1.0, 1.0, 1.0, 1.0);
-    finalColor = incolor;
+
+  //vec3 color = texture(Density, inuv).xxx;
+  //finalColor = vec4(1.0, 1.0, 1.0,color.x);
+  finalColor = vec4(inuv,1.0);
 }
