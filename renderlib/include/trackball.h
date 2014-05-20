@@ -1,9 +1,9 @@
 #ifndef RENDERLIB_TRACKBALL_H
 #define RENDERLIB_TRACKBALL_H
-#include "glutil.h"
+#include "OpenGLHelper.h"
 
 using namespace renderlib;
-using namespace glm;
+//using namespace glm;
 using namespace vmath;
 class Trackball {
     public:

@@ -1,7 +1,7 @@
 #ifndef SHADERSOURCE_H
 #define SHADERSOURCE_H
 
-#include "glutil.h"
+#include "OpenGLHelper.h"
 #include <map>
 
 namespace renderlib{

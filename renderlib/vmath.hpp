@@ -50,23 +50,39 @@ class Quat;
 class Matrix3;
 class Matrix4;
 class Transform3;
-
+  
+const float kEpsilon = 1.0e-6f;
+//-------------------------------------------------------------------------------
+inline bool IsZero( float a )
+{
+  return ( fabsf(a) < kEpsilon );
+  
+}
+//-------------------------------------------------------------------------------
+inline bool AreEqual( float a, float b )
+{
+  return ( IsZero(a-b) );
+  
+}
+  
 // A 3-D vector in array-of-structures format
 //
 class Vector3
 {
-    float mX;
-    float mY;
-    float mZ;
+public:
+    float x;
+    float y;
+    float z;
 #ifndef __GNUC__
     float d;
 #endif
-
-public:
     // Default constructor; does no initialization
     // 
     inline Vector3( ) { };
 
+    // MY STUFF
+    inline void Set(float _x, float _y, float _z);
+  
     // Copy a 3-D vector
     // 
     inline Vector3( const Vector3 & vec );
@@ -322,12 +338,11 @@ inline void print( const Vector3 & vec, const char * name );
 //
 class Vector4
 {
-    float mX;
-    float mY;
-    float mZ;
-    float mW;
-
 public:
+    float x;
+    float y;
+    float z;
+    float w;
     // Default constructor; does no initialization
     // 
     inline Vector4( ) { };
@@ -360,6 +375,8 @@ public:
     // 
     explicit inline Vector4( float scalar );
 
+    inline void Set( float x, float y, float z, float w );
+  
     // Assign one 4-D vector to another
     // 
     inline Vector4 & operator =( const Vector4 & vec );
@@ -599,9 +616,9 @@ inline void print( const Vector4 & vec, const char * name );
 //
 class Point3
 {
-    float mX;
-    float mY;
-    float mZ;
+    float x;
+    float y;
+    float z;
 #ifndef __GNUC__
     float d;
 #endif
@@ -811,10 +828,10 @@ inline void print( const Point3 & pnt, const char * name );
 //
 class Quat
 {
-    float mX;
-    float mY;
-    float mZ;
-    float mW;
+    float x;
+    float y;
+    float z;
+    float w;
 
 public:
     // Default constructor; does no initialization
@@ -849,6 +866,8 @@ public:
     // 
     inline Quat & operator =( const Quat & quat );
 
+    inline void Set( float _x, float _y, float _z, float _w = 1.0f);
+  
     // Set the x, y, and z elements of a quaternion
     // NOTE: 
     // This function does not change the w element.
@@ -1504,6 +1523,12 @@ public:
     // 
     static inline const Matrix4 orthographic( float left, float right, float bottom, float top, float zNear, float zFar );
 
+    inline bool IsIdentity() const;
+    inline const void GetColumns( Vector4& col1, Vector4& col2, Vector4& col3, Vector4& col4);
+    inline const void GetColumns( Vector3& col1, Vector3& col2, Vector3& col3, Vector3& col4);
+    inline void SetPosition( const Vector3& pos);
+    inline Vector3 TransformPoint(const Vector3& other) const;
+    inline void SetColumns(const Vector4& col1, const Vector4& col2, const Vector4& col3, const Vector4& col4);
 };
 // Multiply a 4x4 matrix by a scalar
 // 
@@ -1847,35 +1872,43 @@ inline void print( const Transform3 & tfrm, const char * name );
 
 namespace Vectormath {
 namespace Aos {
+  
 
 inline Vector3::Vector3( const Vector3 & vec )
 {
-    mX = vec.mX;
-    mY = vec.mY;
-    mZ = vec.mZ;
+    x = vec.x;
+    y = vec.y;
+    z = vec.z;
 }
 
 inline Vector3::Vector3( float _x, float _y, float _z )
 {
-    mX = _x;
-    mY = _y;
-    mZ = _z;
+    x = _x;
+    y = _y;
+    z = _z;
 }
 
 inline Vector3::Vector3( const Point3 & pnt )
 {
-    mX = pnt.getX();
-    mY = pnt.getY();
-    mZ = pnt.getZ();
+    x = pnt.getX();
+    y = pnt.getY();
+    z = pnt.getZ();
 }
 
 inline Vector3::Vector3( float scalar )
 {
-    mX = scalar;
-    mY = scalar;
-    mZ = scalar;
+    x = scalar;
+    y = scalar;
+    z = scalar;
 }
 
+inline  void Vector3::Set( float _x, float _y, float _z )
+{
+  x = _x;
+  y = _y;
+  z = _z;
+}
+  
 inline const Vector3 Vector3::xAxis( )
 {
     return Vector3( 1.0f, 0.0f, 0.0f );
@@ -1914,99 +1947,99 @@ inline const Vector3 slerp( float t, const Vector3 & unitVec0, const Vector3 & u
 
 inline Vector3 & Vector3::operator =( const Vector3 & vec )
 {
-    mX = vec.mX;
-    mY = vec.mY;
-    mZ = vec.mZ;
+    x = vec.x;
+    y = vec.y;
+    z = vec.z;
     return *this;
 }
 
 inline Vector3 & Vector3::setX( float _x )
 {
-    mX = _x;
+    x = _x;
     return *this;
 }
 
 inline float Vector3::getX( ) const
 {
-    return mX;
+    return x;
 }
 
 inline Vector3 & Vector3::setY( float _y )
 {
-    mY = _y;
+    y = _y;
     return *this;
 }
 
 inline float Vector3::getY( ) const
 {
-    return mY;
+    return y;
 }
 
 inline Vector3 & Vector3::setZ( float _z )
 {
-    mZ = _z;
+    z = _z;
     return *this;
 }
 
 inline float Vector3::getZ( ) const
 {
-    return mZ;
+    return z;
 }
 
 inline Vector3 & Vector3::setElem( int idx, float value )
 {
-    *(&mX + idx) = value;
+    *(&x + idx) = value;
     return *this;
 }
 
 inline float Vector3::getElem( int idx ) const
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline float & Vector3::operator []( int idx )
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline float Vector3::operator []( int idx ) const
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline const Vector3 Vector3::operator +( const Vector3 & vec ) const
 {
     return Vector3(
-        ( mX + vec.mX ),
-        ( mY + vec.mY ),
-        ( mZ + vec.mZ )
+        ( x + vec.x ),
+        ( y + vec.y ),
+        ( z + vec.z )
     );
 }
 
 inline const Vector3 Vector3::operator -( const Vector3 & vec ) const
 {
     return Vector3(
-        ( mX - vec.mX ),
-        ( mY - vec.mY ),
-        ( mZ - vec.mZ )
+        ( x - vec.x ),
+        ( y - vec.y ),
+        ( z - vec.z )
     );
 }
 
 inline const Point3 Vector3::operator +( const Point3 & pnt ) const
 {
     return Point3(
-        ( mX + pnt.getX() ),
-        ( mY + pnt.getY() ),
-        ( mZ + pnt.getZ() )
+        ( x + pnt.getX() ),
+        ( y + pnt.getY() ),
+        ( z + pnt.getZ() )
     );
 }
 
 inline const Vector3 Vector3::operator *( float scalar ) const
 {
     return Vector3(
-        ( mX * scalar ),
-        ( mY * scalar ),
-        ( mZ * scalar )
+        ( x * scalar ),
+        ( y * scalar ),
+        ( z * scalar )
     );
 }
 
@@ -2031,9 +2064,9 @@ inline Vector3 & Vector3::operator *=( float scalar )
 inline const Vector3 Vector3::operator /( float scalar ) const
 {
     return Vector3(
-        ( mX / scalar ),
-        ( mY / scalar ),
-        ( mZ / scalar )
+        ( x / scalar ),
+        ( y / scalar ),
+        ( z / scalar )
     );
 }
 
@@ -2046,9 +2079,9 @@ inline Vector3 & Vector3::operator /=( float scalar )
 inline const Vector3 Vector3::operator -( ) const
 {
     return Vector3(
-        -mX,
-        -mY,
-        -mZ
+        -x,
+        -y,
+        -z
     );
 }
 
@@ -2231,18 +2264,18 @@ inline void print( const Vector3 & vec, const char * name )
 
 inline Vector4::Vector4( const Vector4 & vec )
 {
-    mX = vec.mX;
-    mY = vec.mY;
-    mZ = vec.mZ;
-    mW = vec.mW;
+    x = vec.x;
+    y = vec.y;
+    z = vec.z;
+    w = vec.w;
 }
 
 inline Vector4::Vector4( float _x, float _y, float _z, float _w )
 {
-    mX = _x;
-    mY = _y;
-    mZ = _z;
-    mW = _w;
+    x = _x;
+    y = _y;
+    z = _z;
+    w = _w;
 }
 
 inline Vector4::Vector4( const Vector3 & xyz, float _w )
@@ -2253,36 +2286,44 @@ inline Vector4::Vector4( const Vector3 & xyz, float _w )
 
 inline Vector4::Vector4( const Vector3 & vec )
 {
-    mX = vec.getX();
-    mY = vec.getY();
-    mZ = vec.getZ();
-    mW = 0.0f;
+    x = vec.getX();
+    y = vec.getY();
+    z = vec.getZ();
+    w = 0.0f;
 }
 
 inline Vector4::Vector4( const Point3 & pnt )
 {
-    mX = pnt.getX();
-    mY = pnt.getY();
-    mZ = pnt.getZ();
-    mW = 1.0f;
+    x = pnt.getX();
+    y = pnt.getY();
+    z = pnt.getZ();
+    w = 1.0f;
 }
 
 inline Vector4::Vector4( const Quat & quat )
 {
-    mX = quat.getX();
-    mY = quat.getY();
-    mZ = quat.getZ();
-    mW = quat.getW();
+    x = quat.getX();
+    y = quat.getY();
+    z = quat.getZ();
+    w = quat.getW();
 }
 
 inline Vector4::Vector4( float scalar )
 {
-    mX = scalar;
-    mY = scalar;
-    mZ = scalar;
-    mW = scalar;
+    x = scalar;
+    y = scalar;
+    z = scalar;
+    w = scalar;
 }
-
+  
+inline void Vector4::Set( float _x, float _y, float _z, float _w )
+{
+  x = _x;
+  y = _y;
+  z = _z;
+  w = _w;
+}
+  
 inline const Vector4 Vector4::xAxis( )
 {
     return Vector4( 1.0f, 0.0f, 0.0f, 0.0f );
@@ -2326,118 +2367,118 @@ inline const Vector4 slerp( float t, const Vector4 & unitVec0, const Vector4 & u
 
 inline Vector4 & Vector4::operator =( const Vector4 & vec )
 {
-    mX = vec.mX;
-    mY = vec.mY;
-    mZ = vec.mZ;
-    mW = vec.mW;
+    x = vec.x;
+    y = vec.y;
+    z = vec.z;
+    w = vec.w;
     return *this;
 }
 
 inline Vector4 & Vector4::setXYZ( const Vector3 & vec )
 {
-    mX = vec.getX();
-    mY = vec.getY();
-    mZ = vec.getZ();
+    x = vec.getX();
+    y = vec.getY();
+    z = vec.getZ();
     return *this;
 }
 
 inline const Vector3 Vector4::getXYZ( ) const
 {
-    return Vector3( mX, mY, mZ );
+    return Vector3( x, y, z );
 }
 
 inline Vector4 & Vector4::setX( float _x )
 {
-    mX = _x;
+    x = _x;
     return *this;
 }
 
 inline float Vector4::getX( ) const
 {
-    return mX;
+    return x;
 }
 
 inline Vector4 & Vector4::setY( float _y )
 {
-    mY = _y;
+    y = _y;
     return *this;
 }
 
 inline float Vector4::getY( ) const
 {
-    return mY;
+    return y;
 }
 
 inline Vector4 & Vector4::setZ( float _z )
 {
-    mZ = _z;
+    z = _z;
     return *this;
 }
 
 inline float Vector4::getZ( ) const
 {
-    return mZ;
+    return z;
 }
 
 inline Vector4 & Vector4::setW( float _w )
 {
-    mW = _w;
+    w = _w;
     return *this;
 }
 
 inline float Vector4::getW( ) const
 {
-    return mW;
+    return w;
 }
 
 inline Vector4 & Vector4::setElem( int idx, float value )
 {
-    *(&mX + idx) = value;
+    *(&x + idx) = value;
     return *this;
 }
 
 inline float Vector4::getElem( int idx ) const
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline float & Vector4::operator []( int idx )
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline float Vector4::operator []( int idx ) const
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline const Vector4 Vector4::operator +( const Vector4 & vec ) const
 {
     return Vector4(
-        ( mX + vec.mX ),
-        ( mY + vec.mY ),
-        ( mZ + vec.mZ ),
-        ( mW + vec.mW )
+        ( x + vec.x ),
+        ( y + vec.y ),
+        ( z + vec.z ),
+        ( w + vec.w )
     );
 }
 
 inline const Vector4 Vector4::operator -( const Vector4 & vec ) const
 {
     return Vector4(
-        ( mX - vec.mX ),
-        ( mY - vec.mY ),
-        ( mZ - vec.mZ ),
-        ( mW - vec.mW )
+        ( x - vec.x ),
+        ( y - vec.y ),
+        ( z - vec.z ),
+        ( w - vec.w )
     );
 }
 
 inline const Vector4 Vector4::operator *( float scalar ) const
 {
     return Vector4(
-        ( mX * scalar ),
-        ( mY * scalar ),
-        ( mZ * scalar ),
-        ( mW * scalar )
+        ( x * scalar ),
+        ( y * scalar ),
+        ( z * scalar ),
+        ( w * scalar )
     );
 }
 
@@ -2462,10 +2503,10 @@ inline Vector4 & Vector4::operator *=( float scalar )
 inline const Vector4 Vector4::operator /( float scalar ) const
 {
     return Vector4(
-        ( mX / scalar ),
-        ( mY / scalar ),
-        ( mZ / scalar ),
-        ( mW / scalar )
+        ( x / scalar ),
+        ( y / scalar ),
+        ( z / scalar ),
+        ( w / scalar )
     );
 }
 
@@ -2478,10 +2519,10 @@ inline Vector4 & Vector4::operator /=( float scalar )
 inline const Vector4 Vector4::operator -( ) const
 {
     return Vector4(
-        -mX,
-        -mY,
-        -mZ,
-        -mW
+        -x,
+        -y,
+        -z,
+        -w
     );
 }
 
@@ -2671,30 +2712,30 @@ inline void print( const Vector4 & vec, const char * name )
 
 inline Point3::Point3( const Point3 & pnt )
 {
-    mX = pnt.mX;
-    mY = pnt.mY;
-    mZ = pnt.mZ;
+    x = pnt.x;
+    y = pnt.y;
+    z = pnt.z;
 }
 
 inline Point3::Point3( float _x, float _y, float _z )
 {
-    mX = _x;
-    mY = _y;
-    mZ = _z;
+    x = _x;
+    y = _y;
+    z = _z;
 }
 
 inline Point3::Point3( const Vector3 & vec )
 {
-    mX = vec.getX();
-    mY = vec.getY();
-    mZ = vec.getZ();
+    x = vec.getX();
+    y = vec.getY();
+    z = vec.getZ();
 }
 
 inline Point3::Point3( float scalar )
 {
-    mX = scalar;
-    mY = scalar;
-    mZ = scalar;
+    x = scalar;
+    y = scalar;
+    z = scalar;
 }
 
 inline const Point3 lerp( float t, const Point3 & pnt0, const Point3 & pnt1 )
@@ -2704,90 +2745,90 @@ inline const Point3 lerp( float t, const Point3 & pnt0, const Point3 & pnt1 )
 
 inline Point3 & Point3::operator =( const Point3 & pnt )
 {
-    mX = pnt.mX;
-    mY = pnt.mY;
-    mZ = pnt.mZ;
+    x = pnt.x;
+    y = pnt.y;
+    z = pnt.z;
     return *this;
 }
 
 inline Point3 & Point3::setX( float _x )
 {
-    mX = _x;
+    x = _x;
     return *this;
 }
 
 inline float Point3::getX( ) const
 {
-    return mX;
+    return x;
 }
 
 inline Point3 & Point3::setY( float _y )
 {
-    mY = _y;
+    y = _y;
     return *this;
 }
 
 inline float Point3::getY( ) const
 {
-    return mY;
+    return y;
 }
 
 inline Point3 & Point3::setZ( float _z )
 {
-    mZ = _z;
+    z = _z;
     return *this;
 }
 
 inline float Point3::getZ( ) const
 {
-    return mZ;
+    return z;
 }
 
 inline Point3 & Point3::setElem( int idx, float value )
 {
-    *(&mX + idx) = value;
+    *(&x + idx) = value;
     return *this;
 }
 
 inline float Point3::getElem( int idx ) const
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline float & Point3::operator []( int idx )
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline float Point3::operator []( int idx ) const
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline const Vector3 Point3::operator -( const Point3 & pnt ) const
 {
     return Vector3(
-        ( mX - pnt.mX ),
-        ( mY - pnt.mY ),
-        ( mZ - pnt.mZ )
+        ( x - pnt.x ),
+        ( y - pnt.y ),
+        ( z - pnt.z )
     );
 }
 
 inline const Point3 Point3::operator +( const Vector3 & vec ) const
 {
     return Point3(
-        ( mX + vec.getX() ),
-        ( mY + vec.getY() ),
-        ( mZ + vec.getZ() )
+        ( x + vec.getX() ),
+        ( y + vec.getY() ),
+        ( z + vec.getZ() )
     );
 }
 
 inline const Point3 Point3::operator -( const Vector3 & vec ) const
 {
     return Point3(
-        ( mX - vec.getX() ),
-        ( mY - vec.getY() ),
-        ( mZ - vec.getZ() )
+        ( x - vec.getX() ),
+        ( y - vec.getY() ),
+        ( z - vec.getZ() )
     );
 }
 
@@ -3019,18 +3060,18 @@ namespace Aos {
 
 inline Quat::Quat( const Quat & quat )
 {
-    mX = quat.mX;
-    mY = quat.mY;
-    mZ = quat.mZ;
-    mW = quat.mW;
+    x = quat.x;
+    y = quat.y;
+    z = quat.z;
+    w = quat.w;
 }
 
 inline Quat::Quat( float _x, float _y, float _z, float _w )
 {
-    mX = _x;
-    mY = _y;
-    mZ = _z;
-    mW = _w;
+    x = _x;
+    y = _y;
+    z = _z;
+    w = _w;
 }
 
 inline Quat::Quat( const Vector3 & xyz, float _w )
@@ -3041,20 +3082,28 @@ inline Quat::Quat( const Vector3 & xyz, float _w )
 
 inline Quat::Quat( const Vector4 & vec )
 {
-    mX = vec.getX();
-    mY = vec.getY();
-    mZ = vec.getZ();
-    mW = vec.getW();
+    x = vec.getX();
+    y = vec.getY();
+    z = vec.getZ();
+    w = vec.getW();
 }
 
 inline Quat::Quat( float scalar )
 {
-    mX = scalar;
-    mY = scalar;
-    mZ = scalar;
-    mW = scalar;
+    x = scalar;
+    y = scalar;
+    z = scalar;
+    w = scalar;
 }
-
+  
+inline void Quat::Set( float _x, float _y, float _z, float _w)
+{
+  x = _x;
+  y = _y;
+  z = _z;
+  w = _w;
+}
+  
 inline const Quat Quat::identity( )
 {
     return Quat( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -3098,118 +3147,118 @@ inline const Quat squad( float t, const Quat & unitQuat0, const Quat & unitQuat1
 
 inline Quat & Quat::operator =( const Quat & quat )
 {
-    mX = quat.mX;
-    mY = quat.mY;
-    mZ = quat.mZ;
-    mW = quat.mW;
+    x = quat.x;
+    y = quat.y;
+    z = quat.z;
+    w = quat.w;
     return *this;
 }
 
 inline Quat & Quat::setXYZ( const Vector3 & vec )
 {
-    mX = vec.getX();
-    mY = vec.getY();
-    mZ = vec.getZ();
+    x = vec.getX();
+    y = vec.getY();
+    z = vec.getZ();
     return *this;
 }
 
 inline const Vector3 Quat::getXYZ( ) const
 {
-    return Vector3( mX, mY, mZ );
+    return Vector3( x, y, z );
 }
 
 inline Quat & Quat::setX( float _x )
 {
-    mX = _x;
+    x = _x;
     return *this;
 }
 
 inline float Quat::getX( ) const
 {
-    return mX;
+    return x;
 }
 
 inline Quat & Quat::setY( float _y )
 {
-    mY = _y;
+    y = _y;
     return *this;
 }
 
 inline float Quat::getY( ) const
 {
-    return mY;
+    return y;
 }
 
 inline Quat & Quat::setZ( float _z )
 {
-    mZ = _z;
+    z = _z;
     return *this;
 }
 
 inline float Quat::getZ( ) const
 {
-    return mZ;
+    return z;
 }
 
 inline Quat & Quat::setW( float _w )
 {
-    mW = _w;
+    w = _w;
     return *this;
 }
 
 inline float Quat::getW( ) const
 {
-    return mW;
+    return w;
 }
 
 inline Quat & Quat::setElem( int idx, float value )
 {
-    *(&mX + idx) = value;
+    *(&x + idx) = value;
     return *this;
 }
 
 inline float Quat::getElem( int idx ) const
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline float & Quat::operator []( int idx )
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline float Quat::operator []( int idx ) const
 {
-    return *(&mX + idx);
+    return *(&x + idx);
 }
 
 inline const Quat Quat::operator +( const Quat & quat ) const
 {
     return Quat(
-        ( mX + quat.mX ),
-        ( mY + quat.mY ),
-        ( mZ + quat.mZ ),
-        ( mW + quat.mW )
+        ( x + quat.x ),
+        ( y + quat.y ),
+        ( z + quat.z ),
+        ( w + quat.w )
     );
 }
 
 inline const Quat Quat::operator -( const Quat & quat ) const
 {
     return Quat(
-        ( mX - quat.mX ),
-        ( mY - quat.mY ),
-        ( mZ - quat.mZ ),
-        ( mW - quat.mW )
+        ( x - quat.x ),
+        ( y - quat.y ),
+        ( z - quat.z ),
+        ( w - quat.w )
     );
 }
 
 inline const Quat Quat::operator *( float scalar ) const
 {
     return Quat(
-        ( mX * scalar ),
-        ( mY * scalar ),
-        ( mZ * scalar ),
-        ( mW * scalar )
+        ( x * scalar ),
+        ( y * scalar ),
+        ( z * scalar ),
+        ( w * scalar )
     );
 }
 
@@ -3234,10 +3283,10 @@ inline Quat & Quat::operator *=( float scalar )
 inline const Quat Quat::operator /( float scalar ) const
 {
     return Quat(
-        ( mX / scalar ),
-        ( mY / scalar ),
-        ( mZ / scalar ),
-        ( mW / scalar )
+        ( x / scalar ),
+        ( y / scalar ),
+        ( z / scalar ),
+        ( w / scalar )
     );
 }
 
@@ -3250,10 +3299,10 @@ inline Quat & Quat::operator /=( float scalar )
 inline const Quat Quat::operator -( ) const
 {
     return Quat(
-        -mX,
-        -mY,
-        -mZ,
-        -mW
+        -x,
+        -y,
+        -z,
+        -w
     );
 }
 
@@ -3347,10 +3396,10 @@ inline const Quat Quat::rotationZ( float radians )
 inline const Quat Quat::operator *( const Quat & quat ) const
 {
     return Quat(
-        ( ( ( ( mW * quat.mX ) + ( mX * quat.mW ) ) + ( mY * quat.mZ ) ) - ( mZ * quat.mY ) ),
-        ( ( ( ( mW * quat.mY ) + ( mY * quat.mW ) ) + ( mZ * quat.mX ) ) - ( mX * quat.mZ ) ),
-        ( ( ( ( mW * quat.mZ ) + ( mZ * quat.mW ) ) + ( mX * quat.mY ) ) - ( mY * quat.mX ) ),
-        ( ( ( ( mW * quat.mW ) - ( mX * quat.mX ) ) - ( mY * quat.mY ) ) - ( mZ * quat.mZ ) )
+        ( ( ( ( w * quat.x ) + ( x * quat.w ) ) + ( y * quat.z ) ) - ( z * quat.y ) ),
+        ( ( ( ( w * quat.y ) + ( y * quat.w ) ) + ( z * quat.x ) ) - ( x * quat.z ) ),
+        ( ( ( ( w * quat.z ) + ( z * quat.w ) ) + ( x * quat.y ) ) - ( y * quat.x ) ),
+        ( ( ( ( w * quat.w ) - ( x * quat.x ) ) - ( y * quat.y ) ) - ( z * quat.z ) )
     );
 }
 
@@ -3980,6 +4029,88 @@ inline const Vector4 Matrix4::getCol( int col ) const
     return *(&mCol0 + col);
 }
 
+  
+inline const void Matrix4::GetColumns( Vector4& col1, Vector4& col2, Vector4& col3, Vector4& col4)
+{
+  col1.x = mCol0.x;
+  col1.y = mCol0.y;
+  col1.z = mCol0.z;
+  col1.w = mCol0.w;
+  
+  col2.x = mCol1.x;
+  col2.y = mCol1.y;
+  col2.z = mCol1.z;
+  col2.w = mCol1.w;
+  
+  col3.x = mCol2.x;
+  col3.y = mCol2.y;
+  col3.z = mCol2.z;
+  col3.w = mCol2.w;
+  
+  col4.x = mCol3.x;
+  col4.y = mCol3.y;
+  col4.z = mCol3.z;
+  col4.w = mCol3.w;
+}
+                                        
+inline const void Matrix4::GetColumns( Vector3& col1, Vector3& col2, Vector3& col3, Vector3& col4)
+{
+  col1.x = mCol0.x;
+  col1.y = mCol0.y;
+  col1.z = mCol0.z;
+  
+  col2.x = mCol1.x;
+  col2.y = mCol1.y;
+  col2.z = mCol1.z;
+  
+  col3.x = mCol2.x;
+  col3.y = mCol2.y;
+  col3.z = mCol2.z;
+  
+  col4.x = mCol3.x;
+  col4.y = mCol3.y;
+  col4.z = mCol3.z;
+}
+  
+inline void Matrix4::SetColumns( const Vector4& col1, const Vector4& col2,
+                              const Vector4& col3, const Vector4& col4)
+  {
+     mCol0.x = col1.x;
+     mCol0.y = col1.y;
+     mCol0.z = col1.z;
+     mCol0.w = col1.w;
+    
+     mCol1.x = col2.x;
+     mCol1.y = col2.y;
+     mCol1.z = col2.z;
+     mCol1.w = col2.w;
+    
+    
+     mCol2.x = col3.x;
+     mCol2.y = col3.y;
+     mCol2.z = col3.z;
+     mCol2.w = col3.w;
+    
+    
+     mCol3.x = col4.x;
+     mCol3.y = col4.y;
+     mCol3.z = col4.z;
+     mCol3.w = col4.w;
+    
+    
+  }
+inline Vector3 Matrix4::TransformPoint( const Vector3& other ) const
+{
+  Vector3 result;
+  
+  result.x = mCol0.x*other.x + mCol1.x*other.y + mCol2.x*other.z + mCol3.x;
+  result.y = mCol0.y*other.x + mCol1.y*other.y + mCol2.y*other.z + mCol3.y;
+  result.z = mCol0.z*other.x + mCol1.z*other.y + mCol2.z*other.z + mCol3.z;
+  
+  return result;
+  
+}
+
 inline const Vector4 Matrix4::getRow( int row ) const
 {
     return Vector4( mCol0.getElem( row ), mCol1.getElem( row ), mCol2.getElem( row ), mCol3.getElem( row ) );
@@ -4512,6 +4643,52 @@ inline const Matrix4 select( const Matrix4 & mat0, const Matrix4 & mat1, bool se
         select( mat0.getCol3(), mat1.getCol3(), select1 )
     );
 }
+  
+bool Matrix4::IsIdentity() const
+{
+  float m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33;
+  m00 = getCol0().getX();
+  m01 = getCol0().getY();
+  m02 = getCol0().getZ();
+  m03 = getCol0().getW();
+  m10 = getCol1().getX();
+  m11 = getCol1().getY();
+  m12 = getCol1().getZ();
+  m13= getCol1().getW();
+  m20= getCol2().getX();
+  m21= getCol2().getY();
+  m22= getCol2().getZ();
+  m23= getCol2().getW();
+  m30= getCol3().getX();
+  m31= getCol3().getY();
+  m32= getCol3().getZ();
+  m33= getCol3().getW();
+  
+  return AreEqual( 1.0f, m00 )
+  && AreEqual( 1.0f, m11 )
+  && AreEqual( 1.0f, m22 )
+  && AreEqual( 1.0f, m33 )
+  && IsZero( m01 )
+  && IsZero( m02 )
+  && IsZero( m03 )
+  && IsZero( m10 )
+  && IsZero( m12 )
+  && IsZero( m13 )
+  && IsZero( m20 )
+  && IsZero( m21 )
+  && IsZero( m23 )
+  && IsZero( m30 )
+  && IsZero( m31 )
+  && IsZero( m32 );
+  
+}
+
+inline void Matrix4::SetPosition( const Vector3& pos )
+{
+  mCol3.x = pos.x;
+  mCol3.y = pos.y;
+  mCol3.z = pos.z;
+}
 
 #ifdef _VECTORMATH_DEBUG
 
@@ -4996,10 +5173,10 @@ inline Quat::Quat( const Matrix3 & tfrm )
         qw = tmpz;
     }
 
-    mX = qx;
-    mY = qy;
-    mZ = qz;
-    mW = qw;
+    x = qx;
+    y = qy;
+    z = qz;
+    w = qw;
 }
 
 inline const Matrix3 outer( const Vector3 & tfrm0, const Vector3 & tfrm1 )

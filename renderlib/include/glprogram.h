@@ -1,7 +1,7 @@
 #ifndef GLPROGRAM_H
 #define GLPROGRAM_H
 
-#include "glutil.h"
+#include "OpenGLHelper.h"
 #include <map>
 
 namespace renderlib{
@@ -11,10 +11,20 @@ class GLProgram
 //Methods
 public:
   GLProgram(){};
-
+    
+  GLProgram(const std::string& fileName,
+            const std::string& vsKey,
+            const std::string& fsKey,
+            const std::string& gsKey)
+  {
+    _programID = GLUtil::compileProgram(fileName, vsKey, fsKey, gsKey);
+    GLUtil::linkAndVerifyProgram(_programID);
+    enableVertexAttributes();
+  }
+  
   GLProgram(std::string& vsFileName, std::string& fsFileName)
   {
-      _programID =  GLUtil::loadShaders(vsFileName, fsFileName, "");
+      _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, "");
       enableVertexAttributes();
   }
 
@@ -22,14 +32,24 @@ public:
             const std::string& fsFileName,
             const std::string& gsFileName)
   {
-      _programID =  GLUtil::loadShaders(vsFileName, fsFileName, gsFileName);
+      _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, gsFileName);
       enableVertexAttributes();
 
+  }
+  void loadShaders(
+            const std::string& fileName,
+            const std::string& vsKey,
+            const std::string& fsKey,
+            const std::string& gsKey)
+  {
+    _programID = GLUtil::compileProgram(fileName, vsKey, fsKey, gsKey);
+    GLUtil::linkAndVerifyProgram(_programID);
+    enableVertexAttributes();
   }
 
   void loadShaders(const std::string& vsFileName, const std::string& fsFileName)
   {
-      _programID =  GLUtil::loadShaders(vsFileName, fsFileName, "");
+      _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, "");
       enableVertexAttributes();
   }
 
@@ -37,7 +57,7 @@ public:
                    const std::string& fsFileName,
                    const std::string& gsFileName)
   {
-      _programID =  GLUtil::loadShaders(vsFileName, fsFileName, gsFileName);
+      _programID =  GLUtil::complileAndLinkProgram(vsFileName, fsFileName, gsFileName);
       enableVertexAttributes();
   }
 

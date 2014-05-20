@@ -66,7 +66,7 @@ void Trackball::MouseMove(int x, int y)
 
     if (m_active) {
         float deltaDistance = (y - m_startY) * 0.01f;
-        if (std::abs(deltaDistance) > 0.03f && microseconds > 0) {
+        if (abs(deltaDistance) > 0.03f && microseconds > 0) {
             m_distancePerSecond = 1000000.0f * deltaDistance / microseconds;
         } else {
             m_distancePerSecond = 0;
@@ -155,13 +155,13 @@ void Trackball::Update(unsigned int microseconds)
                 m_inertia.DistancePerSecond = 0;
         }
 
-        if (std::abs(m_inertia.DistancePerSecond) < 0.0001) {
+        if (abs(m_inertia.DistancePerSecond) < 0.0001) {
             m_distancePerSecond = 0;
         } else {
             m_zoom += m_distancePerSecond * 0.001f;
         }
 
-        if (std::abs(m_inertia.DistancePerSecond) < 0.0001 && m_inertia.RadiansPerSecond < 0)
+        if (abs(m_inertia.DistancePerSecond) < 0.0001 && m_inertia.RadiansPerSecond < 0)
             m_inertia.Active = false;
     }
 }

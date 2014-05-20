@@ -1,6 +1,7 @@
 -- VS
-
-#version 150
+#ifdef GL_ES
+precision highp float;
+#endif
 
 in vec4 Position;
 out vec4 vPosition;
@@ -13,8 +14,6 @@ void main()
 }
 
 -- GS
-
-#version 150
 
 layout(points) in;
 layout(triangle_strip, max_vertices = 24) out;
@@ -69,8 +68,6 @@ void main()
 }
 
 -- FS_CLOUD
-
-#version 150
 
 out vec4 FragColor;
 
@@ -171,12 +168,13 @@ void main()
     
 }
 -- FS_CTSCAN
-
-#version 150
+#ifdef GL_ES
+precision highp float;
+#endif
 
 out vec4 FragColor;
 
-uniform sampler3D Density;
+uniform mediump sampler3D Density;
 uniform vec3 LightPosition = vec3(0.25, 1.0, 3.0);
 uniform vec3 LightIntensity = vec3(15.0);
 uniform float Absorption = 1.0;
@@ -276,6 +274,6 @@ void main()
     }
 
     FragColor.rgb = Lo;
-    FragColor.a = 1-T;
+    FragColor.a = 1.0-T;
     
 }
