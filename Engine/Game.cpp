@@ -134,10 +134,10 @@ void Game::LateUpdate(){
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////
-void Game::MouseDown(float u, float v, int button){
+void Game::MouseDown(float u, float v, int button, int clickCount){
 	for(int i = 0; i < (int)mActiveScenes.size(); ++i)
 	{
-		mActiveScenes[i]->MouseDown(u,v,button);
+		mActiveScenes[i]->MouseDown(u,v,button, clickCount);
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////

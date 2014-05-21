@@ -9,18 +9,18 @@
 #include "Platform.h"
 #include "Game.h"
 #include "Globals.h"
-
+#include "vmath.hpp"
 #include "Scene.h"
 #include "Camera.h"
-#include "RenderPlane.h"
-#include "WaveGrid.h"
-#include "StamFluidSolver.h"
-#include "MetaballGrid.h"
+//#include "RenderPlane.h"
+//#include "WaveGrid.h"
+//#include "StamFluidSolver.h"
+//#include "MetaballGrid.h"
 #include "TextureFont.h"
 #include "TextureText.h"
 #include "RendererFPSDisplay.h"
-#include "AnimatedTexture.h"
-#include "PipelineTools.h"
+//#include "AnimatedTexture.h"
+//#include "PipelineTools.h"
 #include "PersistentDataManager.h"
 ////////////////////////////////////////////////////////////////////////////////
 Scene::Scene()
@@ -160,7 +160,7 @@ void Scene::MouseUp(float u, float v, int button){
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////
-void Scene::MouseDown(float u, float v, int button){
+void Scene::MouseDown(float u, float v, int button, int clickCount){
 	if(!mPaused){
 		std::map<GameID,GameObject*>::iterator it = mGameObjects.begin();
 		while(it != mGameObjects.end())

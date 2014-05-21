@@ -26,10 +26,10 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-
 #pragma once
 
 #include <math.h>
+
 
 #ifdef _VECTORMATH_DEBUG
 #include <stdio.h>
@@ -42,7 +42,7 @@ namespace Aos {
 //-----------------------------------------------------------------------------
 // Forward Declarations
 //
-
+class Vector2;
 class Vector3;
 class Vector4;
 class Point3;
@@ -50,6 +50,7 @@ class Quat;
 class Matrix3;
 class Matrix4;
 class Transform3;
+class Color;
   
 const float kEpsilon = 1.0e-6f;
 //-------------------------------------------------------------------------------
@@ -64,6 +65,77 @@ inline bool AreEqual( float a, float b )
   return ( IsZero(a-b) );
   
 }
+class Color
+{
+public:
+  // constructor/destructor
+  inline Color() {r=g=b=a=1.0f;}
+  inline Color( float _r, float _g, float _b, float _a ) :
+  r(_r), g(_g), b(_b), a(_a)
+  {
+  }
+  inline ~Color() {}
+  
+  // copy operations
+  Color(const Color& other);
+  Color& operator=(const Color& other);
+  
+  
+  // accessors
+  inline float& operator[]( unsigned int i )         { return (&r)[i]; }
+  inline float operator[]( unsigned int i ) const    { return (&r)[i]; }
+  
+  
+  // comparison
+  bool operator==( const Color& other ) const;
+  bool operator!=( const Color& other ) const;
+  
+  
+  // manipulators
+  inline void Set( float _r, float _g, float _b, float _a );
+  
+  // operators
+  
+  // addition/subtraction
+  Color operator+( const Color& other ) const;
+  Color& operator+=( const Color& other );
+  Color operator-( const Color& other ) const;
+  Color& operator-=( const Color& other );
+  
+  // scalar multiplication
+  Color    operator*( float scalar );
+  friend Color    operator*( float scalar, const Color& vector );
+  Color&          operator*=( float scalar );
+  Color    operator/( float scalar );
+  Color&          operator/=( float scalar );
+  
+  Color				Lerp(float t, const Color& b);
+  friend Color		Lerp(float t, const Color& a, const Color& b);
+  
+  // useful defaults
+  static Color    red;
+  static Color    green;
+  static Color    blue;
+  static Color    black;
+  static Color    white;
+  
+  // member variables
+  float r, g, b, a;
+  
+protected:
+  
+private:
+};
+
+//KDS Added Vector2 with no behavior
+class Vector2
+{
+public:
+  float x;
+  float y;
+
+  void Set(float _x, float _y){ x = _x; y = _y;}
+};
   
 // A 3-D vector in array-of-structures format
 //
@@ -5221,6 +5293,160 @@ inline const Matrix3 crossMatrixMul( const Vector3 & vec, const Matrix3 & mat )
     return Matrix3( cross( vec, mat.getCol0() ), cross( vec, mat.getCol1() ), cross( vec, mat.getCol2() ) );
 }
 
+inline void Color::Set( float _r, float _g, float _b, float _a )
+{
+  r = _r; g = _g; b = _b; a = _a;
+}   // End of Color::Set()
+
+Color Color::red( 1.0f, 0.0f, 0.0f, 1.0f );
+Color Color::green( 0.0f, 1.0f, 0.0f, 1.0f );
+Color Color::blue( 0.0f, 0.0f, 1.0f, 1.0f );
+Color Color::black( 0.0f, 0.0f, 0.0f, 1.0f );
+Color Color::white( 1.0f, 1.0f, 1.0f, 1.0f );
+
+Color::Color(const Color& other) :
+r( other.r ),
+g( other.g ),
+b( other.b ),
+a( other.a )
+{
+	
+}   // End of Color::Color()
+
+
+Color& Color::operator=(const Color& other)
+{
+  // if same object
+  if ( this == &other )
+    return *this;
+	
+  r = other.r;
+  g = other.g;
+  b = other.b;
+  a = other.a;
+  
+  return *this;
+	
+}   // End of Color::operator=()
+
+inline bool Color::operator==( const Color& other ) const
+{
+
+  if ( AreEqual( other.r, r )
+      && AreEqual( other.g, g )
+      && AreEqual( other.b, b )
+      && AreEqual( other.a, a ) )
+    return true;
+	
+  return false;
+}   // End of Color::operator==()
+
+inline bool Color::operator!=( const Color& other ) const
+{
+
+  if ( AreEqual( other.r, r )
+      && AreEqual( other.g, g )
+      && AreEqual( other.b, b )
+      && AreEqual( other.a, a ) )
+    return false;
+	
+  return true;
+}   // End of Color::operator!=()
+
+
+inline Color Color::operator+( const Color& other ) const
+{
+  return Color( r + other.r, g + other.g, b + other.b, a + other.a );
+	
+}   // End of Color::operator+()
+
+inline Color& Color::operator+=( const Color& other )
+{
+  r += other.r;
+  g += other.g;
+  b += other.b;
+  a += other.a;
+	
+  return *this;
+	
+}   // End of Color::operator+=()
+
+inline Color Color::operator-( const Color& other ) const
+{
+  return Color( r - other.r, g - other.g, b - other.b, a - other.a );
+	
+}   // End of Color::operator-()
+
+
+inline Color& Color::operator-=( const Color& other )
+{
+  r -= other.r;
+  g -= other.g;
+  b -= other.b;
+  a -= other.a;
+	
+  return *this;
+	
+}   // End of Color::operator-=()
+
+
+inline Color   Color::operator*( float scalar )
+{
+  return Color( scalar*r, scalar*g, scalar*b,
+               scalar*a );
+	
+}   // End of operator*()
+
+
+inline Color   operator*( float scalar, const Color& vector )
+{
+  return Color( scalar*vector.r, scalar*vector.g, scalar*vector.b,
+               scalar*vector.a );
+	
+}   // End of operator*()
+
+
+inline Color& Color::operator*=( float scalar )
+{
+  r *= scalar;
+  g *= scalar;
+  b *= scalar;
+  a *= scalar;
+	
+  return *this;
+	
+}   // End of Color::operator*()
+
+
+inline Color   Color::operator/( float scalar )
+{
+  return Color( r/scalar, g/scalar, b/scalar, a/scalar );
+	
+}   // End of operator*()
+
+
+inline Color& Color::operator/=( float scalar )
+{
+  r /= scalar;
+  g /= scalar;
+  b /= scalar;
+  a /= scalar;
+	
+  return *this;
+	
+}   // End of Color::operator/=()
+
+inline Color Lerp( float t, const Color& a, const Color& b )
+{
+	return ((1.0f-t)*a) + (t*b);
+  
+}
+
+inline Color	Color::Lerp(float t,const Color& b)
+{
+	return ((1.0f-t)*(*this)) + (t*b);
+}
+  
 } // namespace Aos
 } // namespace Vectormath
 

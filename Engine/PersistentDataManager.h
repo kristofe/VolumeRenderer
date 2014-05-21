@@ -130,15 +130,15 @@ public:
 	void AddTextOnlyChild(const char* key, const char* val);
 	void AddTextOnlyChild(const char* key, std::string val);
 	
-//	void AddVector2Child(Vector2& v, const char* name);
-//	Vector2 GetVector2Child(const char* name);
+	void AddVector2Child(Vector2& v, const char* name);
+	Vector2 GetVector2Child(const char* name);
 	void AddVector3Child(Vector3& v, const char* name);
 	Vector3 GetVector3Child(const char* name);
 	void AddVector4Child(Vector4& v, const char* name);
 	Vector4 GetVector4Child(const char* name);
 	void AddQuatChild(Quat& v, const char* name);
-//	Color GetColorChild(const char* name);
-//	void AddColorChild(Color& v, const char* name);
+	Color GetColorChild(const char* name);
+	void AddColorChild(Color& v, const char* name);
 	Quat GetQuatChild(const char* name);
 	void AddMatrix4Child(Matrix4& m, const char* name);
 	Matrix4 GetMatrix4Child(const char* name);

@@ -1,12 +1,36 @@
 #import <UIKit/UIKit.h>
 
 #import "OpenGLRenderer.h"
+#include "vmath.hpp"
+//#include "Renderer.h"
+#include "Game.h"
 
 // This class wraps the CAEAGLLayer from CoreAnimation into a convenient UIView subclass.
 // The view content is basically an EAGL surface you render your OpenGL scene into.
 // Note that setting the view non-opaque will only work if the EAGL surface has an alpha channel.
-@interface EAGLView : UIView
-{    
+@interface EAGLView : UIView<UIAccelerometerDelegate>
+{
+  vmath::Vector3				_orientation;
+  vmath::Vector3				_accelerometer;
+  //	NSTimer*				_renderTimer;
+	
+  //	Renderer*			_renderer;
+	Game*				_gameEngine;
+  
+  int      mButtonDown;
+  
+  float    mMouseX;
+  float    mMouseY;
+  float    mMouseDownX;
+  float    mMouseDownY;
+	
+	int		mFrameWidth;
+	int		mFrameHeight;
+	unsigned int mLastUpdateTime;
+	unsigned int mStartTime;
+	unsigned int mDeltaTime;
+	unsigned int mCurrentTime;
+  
 @private
 	OpenGLRenderer *m_renderer;
 	
@@ -29,4 +53,11 @@
 - (void) stopAnimation;
 - (void) drawView:(id)sender;
 
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void) update;
+- (void) reshapeWithWidth:(int)w Height:(int)h;
+- (void)didReceiveMemoryWarning:(UIApplication *)application;
 @end

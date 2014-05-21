@@ -30,7 +30,7 @@ public:
 	void LateUpdate();
 	void FixedUpdate();
 	//void Render();
-	void MouseDown(float u, float v, int button);
+	void MouseDown(float u, float v, int button, int clickCount = 1);
 	void MouseDragged(float u, float v,float lu,float lv, int button);
 	void MouseUp(float u, float v, int button);
 
