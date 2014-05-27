@@ -15,6 +15,7 @@
 		3A609E4711B9DB6000AA4C48 /* OpenGLRenderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3A609E3F11B9DB6000AA4C48 /* OpenGLRenderer.mm */; };
 		3AC5C4A816693B6C00FEE565 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3AC5C4A716693B6C00FEE565 /* Default-568h@2x.png */; };
 		4D198E871926B2A70050C06C /* Test3DTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D198E861926B2A70050C06C /* Test3DTexture.cpp */; };
+		4D1F9D5E1934E892008559A1 /* LayerManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1F9D5C1934E892008559A1 /* LayerManager.cpp */; };
 		4D2123EE19240D9E003532B4 /* EAGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4D2123E719240D9E003532B4 /* EAGLView.mm */; };
 		4D2123F019240D9E003532B4 /* VolumeRenderIOSAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4D2123EB19240D9E003532B4 /* VolumeRenderIOSAppDelegate.mm */; };
 		4D2123F119240D9E003532B4 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2123ED19240D9E003532B4 /* MainViewController.m */; };
@@ -103,6 +104,8 @@
 		3AC5C4A716693B6C00FEE565 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		4D198E861926B2A70050C06C /* Test3DTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Test3DTexture.cpp; sourceTree = "<group>"; };
 		4D198E881926B2DA0050C06C /* Test3DTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Test3DTexture.h; sourceTree = "<group>"; };
+		4D1F9D5C1934E892008559A1 /* LayerManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LayerManager.cpp; path = ../../Engine/LayerManager.cpp; sourceTree = "<group>"; };
+		4D1F9D5D1934E892008559A1 /* LayerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LayerManager.h; path = ../../Engine/LayerManager.h; sourceTree = "<group>"; };
 		4D2123E619240D9E003532B4 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EAGLView.h; sourceTree = "<group>"; };
 		4D2123E719240D9E003532B4 /* EAGLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EAGLView.mm; sourceTree = "<group>"; };
 		4D2123EA19240D9E003532B4 /* VolumeRenderIOSAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VolumeRenderIOSAppDelegate.h; sourceTree = "<group>"; };
@@ -420,6 +423,8 @@
 				4DF263B5192BE9B900B6BAB9 /* GameObjectFactory.h */,
 				4DF263E2192CFC6900B6BAB9 /* ImageUtils.cpp */,
 				4DF263E3192CFC6900B6BAB9 /* ImageUtils.h */,
+				4D1F9D5C1934E892008559A1 /* LayerManager.cpp */,
+				4D1F9D5D1934E892008559A1 /* LayerManager.h */,
 				4DF263CA192CF7A900B6BAB9 /* Material.cpp */,
 				4DF263CB192CF7A900B6BAB9 /* Material.h */,
 				4DF263A5192BD73C00B6BAB9 /* MessageManager.h */,
@@ -613,6 +618,7 @@
 				4DF263E4192CFC6900B6BAB9 /* ImageUtils.cpp in Sources */,
 				4DF263B6192BE9B900B6BAB9 /* GameObjectFactory.cpp in Sources */,
 				4DF2638F192BB7CD00B6BAB9 /* shadersource.cpp in Sources */,
+				4D1F9D5E1934E892008559A1 /* LayerManager.cpp in Sources */,
 				4DF26384192BB7CD00B6BAB9 /* glutil_GLES3Plus.cpp in Sources */,
 				4DF2642E192CFC7D00B6BAB9 /* pngwtran.c in Sources */,
 				4DF26390192BB7CD00B6BAB9 /* trackball.cpp in Sources */,

@@ -27,7 +27,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
-
+#ifndef __VECTORMATH_H
+#define __VECTORMATH_H
 #include <math.h>
 
 
@@ -77,8 +78,8 @@ public:
   inline ~Color() {}
   
   // copy operations
-  Color(const Color& other);
-  Color& operator=(const Color& other);
+  inline Color(const Color& other);
+  inline Color& operator=(const Color& other);
   
   
   // accessors
@@ -112,12 +113,18 @@ public:
   Color				Lerp(float t, const Color& b);
   friend Color		Lerp(float t, const Color& a, const Color& b);
   
+  static Color white(){ return Color(1.0f,1.0f,1.0f,1.0f);}
+  static Color red(){ return Color(1.0f,0.0f,0.0f,0.0f);}
+  static Color green(){ return Color(0.0f,1.0f,0.0f,0.0f);}
+  static Color blue(){ return Color(0.0f,0.0f,1.0f,0.0f);}
+  static Color black(){ return Color(0.0f,0.0f,0.0f,0.0f);}
+  
   // useful defaults
-  static Color    red;
-  static Color    green;
-  static Color    blue;
-  static Color    black;
-  static Color    white;
+//  static Color    red;
+//  static Color    green;
+//  static Color    blue;
+//  static Color    black;
+//  static Color    white;
   
   // member variables
   float r, g, b, a;
@@ -900,12 +907,13 @@ inline void print( const Point3 & pnt, const char * name );
 //
 class Quat
 {
+public:
     float x;
     float y;
     float z;
     float w;
 
-public:
+
     // Default constructor; does no initialization
     // 
     inline Quat( ) { };
@@ -1601,6 +1609,9 @@ public:
     inline void SetPosition( const Vector3& pos);
     inline Vector3 TransformPoint(const Vector3& other) const;
     inline void SetColumns(const Vector4& col1, const Vector4& col2, const Vector4& col3, const Vector4& col4);
+  
+    inline float getBy1D( int idx);
+    inline void setBy1D( int idx, float val );
 };
 // Multiply a 4x4 matrix by a scalar
 // 
@@ -4182,7 +4193,23 @@ inline Vector3 Matrix4::TransformPoint( const Vector3& other ) const
   return result;
   
 }
-
+  
+inline float Matrix4::getBy1D( int idx )
+{
+  int col = idx / 4;
+  int row = idx - (col*4);
+  Vector4 column = (*this)[col];
+  float val = column[row];
+  return val;
+}
+inline void Matrix4::setBy1D( int idx, float val )
+  {
+    int col = idx / 4;
+    int row = idx - (col*4);
+    Vector4& column = (*this)[col];
+    column[col] = val;
+  }
+  
 inline const Vector4 Matrix4::getRow( int row ) const
 {
     return Vector4( mCol0.getElem( row ), mCol1.getElem( row ), mCol2.getElem( row ), mCol3.getElem( row ) );
@@ -5298,13 +5325,13 @@ inline void Color::Set( float _r, float _g, float _b, float _a )
   r = _r; g = _g; b = _b; a = _a;
 }   // End of Color::Set()
 
-Color Color::red( 1.0f, 0.0f, 0.0f, 1.0f );
-Color Color::green( 0.0f, 1.0f, 0.0f, 1.0f );
-Color Color::blue( 0.0f, 0.0f, 1.0f, 1.0f );
-Color Color::black( 0.0f, 0.0f, 0.0f, 1.0f );
-Color Color::white( 1.0f, 1.0f, 1.0f, 1.0f );
+//Color Color::red( 1.0f, 0.0f, 0.0f, 1.0f );
+//Color Color::green( 0.0f, 1.0f, 0.0f, 1.0f );
+//Color Color::blue( 0.0f, 0.0f, 1.0f, 1.0f );
+//Color Color::black( 0.0f, 0.0f, 0.0f, 1.0f );
+//Color Color::white( 1.0f, 1.0f, 1.0f, 1.0f );
 
-Color::Color(const Color& other) :
+inline Color::Color(const Color& other) :
 r( other.r ),
 g( other.g ),
 b( other.b ),
@@ -5314,7 +5341,7 @@ a( other.a )
 }   // End of Color::Color()
 
 
-Color& Color::operator=(const Color& other)
+inline Color& Color::operator=(const Color& other)
 {
   // if same object
   if ( this == &other )
@@ -5502,3 +5529,5 @@ namespace vmath
         return normalize(q);
     }
 }
+
+#endif// __VECTORMATH_H

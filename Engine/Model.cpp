@@ -18,6 +18,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 Model::Model(){
+  mRendererMesh = 0;
 //	mDisplayModel = NULL;
 //	mChangeBufferModel = NULL;
 //	mUpdatesArePending = false;

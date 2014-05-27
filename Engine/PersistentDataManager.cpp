@@ -405,27 +405,27 @@ void PersistentData::RemoveChild(PersistentData* c)
 		
 }
 
-//void PersistentData::AddVector2Child(Vector2& v, const char* name)
-//{
-//	PersistentData* c = new PersistentData(name);
-//	c->SetProperty("x",v.x);
-//	c->SetProperty("y",v.y);
-//	AddChild(c);
-//}
-//
-//Vector2 PersistentData::GetVector2Child(const char* name)
-//{
-//	Vector2 v;
-//	std::string n = name;
-//	PersistentData* c = GetUniqueChild(n);
-//	if(c != NULL)
-//	{
-//		v.x = c->GetPropertyF("x");
-//		v.y = c->GetPropertyF("y");
-//	}
-//	return v;
-//}
-//
+void PersistentData::AddVector2Child(Vector2& v, const char* name)
+{
+	PersistentData* c = new PersistentData(name);
+	c->SetProperty("x",v.x);
+	c->SetProperty("y",v.y);
+	AddChild(c);
+}
+
+Vector2 PersistentData::GetVector2Child(const char* name)
+{
+	Vector2 v;
+	std::string n = name;
+	PersistentData* c = GetUniqueChild(n);
+	if(c != NULL)
+	{
+		v.x = c->GetPropertyF("x");
+		v.y = c->GetPropertyF("y");
+	}
+	return v;
+}
+
 void PersistentData::AddVector3Child(Vector3& v, const char* name)
 {
 	PersistentData* c = new PersistentData(name);
@@ -475,98 +475,99 @@ Vector4 PersistentData::GetVector4Child(const char* name)
 }
 
 
-//void PersistentData::AddColorChild(Color& v, const char* name)
-//{
-//	PersistentData* c = new PersistentData(name);
-//	c->SetProperty("r",v.r);
-//	c->SetProperty("g",v.g);
-//	c->SetProperty("b",v.b);
-//	c->SetProperty("a",v.a);
-//	AddChild(c);
-//}
-//
-//Color PersistentData::GetColorChild(const char* name)
-//{
-//	Color v;
-//	std::string n = name;
-//	PersistentData* c = GetUniqueChild(n);
-//	if(c != NULL)
-//	{
-//		v.r = c->GetPropertyF("r");
-//		v.g = c->GetPropertyF("g");
-//		v.b = c->GetPropertyF("b");
-//		v.a = c->GetPropertyF("a");
-//	}
-//	return v;
-//}
-//
-//void PersistentData::AddQuatChild(Quat& v, const char* name)
-//{
-//	PersistentData* c = new PersistentData(name);
-//	c->SetProperty("x",v.x);
-//	c->SetProperty("y",v.y);
-//	c->SetProperty("z",v.z);
-//	c->SetProperty("w",v.w);
-//	AddChild(c);
-//}
-//
-//Quat PersistentData::GetQuatChild(const char* name)
-//{
-//	Quat v;
-//	std::string n = name;
-//	PersistentData* c = GetUniqueChild(n);
-//	if(c != NULL)
-//	{
-//		v.x = c->GetPropertyF("x");
-//		v.y = c->GetPropertyF("y");
-//		v.z = c->GetPropertyF("z");
-//		v.w = c->GetPropertyF("w");
-//	}
-//	return v;
-//}
-//
-//void PersistentData::AddMatrix4Child(Matrix4& m, const char* name)
-//{
-//	//Stuff matrix into a comma separated list of 16 floats
-//	PersistentData* mtxNode = new PersistentData(name);
-//	std::string s;
-//	char buff[128];
-//	for(int i = 0; i < 15; ++i)
-//	{
-//		sprintf(buff,"%3.8f",m.mV[i]);
-//		s += buff;
-//		s+= ",";
-//	}
-//	sprintf(buff,"%3.8f",m.mV[15]);
-//	s += buff;
-//	mtxNode->SetTextProperty(s);
-//	AddChild(mtxNode);
-//}
-//
-//Matrix4 PersistentData::GetMatrix4Child(const char* name)
-//{
-//	Matrix4 m;
-//	std::string n = name;
-//	PersistentData* c = GetUniqueChild(n);
-//	if(c != NULL)
-//	{
-//		std::string s = c->GetText();
-//		std::vector<std::string> vals = SplitString(s, ',');
-//		int elemCount = (int)vals.size();
-//		if(elemCount != 16)
-//		{
-//			printf("!!!! PersistentData::GetMatrix44Child --> Error Reading a Matrix4... incorrect number of entries.  Should be 16 found %d.\n",elemCount);
-//		}
-//		for(int i = 0; i < elemCount; ++i)
-//		{
-//			std::string sVal = vals[i];
-//			float val = (float)atof(sVal.c_str());
+void PersistentData::AddColorChild(Color& v, const char* name)
+{
+	PersistentData* c = new PersistentData(name);
+	c->SetProperty("r",v.r);
+	c->SetProperty("g",v.g);
+	c->SetProperty("b",v.b);
+	c->SetProperty("a",v.a);
+	AddChild(c);
+}
+
+Color PersistentData::GetColorChild(const char* name)
+{
+	Color v;
+	std::string n = name;
+	PersistentData* c = GetUniqueChild(n);
+	if(c != NULL)
+	{
+		v.r = c->GetPropertyF("r");
+		v.g = c->GetPropertyF("g");
+		v.b = c->GetPropertyF("b");
+		v.a = c->GetPropertyF("a");
+	}
+	return v;
+}
+
+void PersistentData::AddQuatChild(Quat& v, const char* name)
+{
+	PersistentData* c = new PersistentData(name);
+	c->SetProperty("x",v.x);
+	c->SetProperty("y",v.y);
+	c->SetProperty("z",v.z);
+	c->SetProperty("w",v.w);
+	AddChild(c);
+}
+
+Quat PersistentData::GetQuatChild(const char* name)
+{
+	Quat v;
+	std::string n = name;
+	PersistentData* c = GetUniqueChild(n);
+	if(c != NULL)
+	{
+		v.x = c->GetPropertyF("x");
+		v.y = c->GetPropertyF("y");
+		v.z = c->GetPropertyF("z");
+		v.w = c->GetPropertyF("w");
+	}
+	return v;
+}
+
+void PersistentData::AddMatrix4Child(Matrix4& m, const char* name)
+{
+	//Stuff matrix into a comma separated list of 16 floats
+	PersistentData* mtxNode = new PersistentData(name);
+	std::string s;
+	char buff[128];
+	for(int i = 0; i < 15; ++i)
+	{
+		sprintf(buff,"%3.8f",m.getBy1D(i));
+		s += buff;
+		s+= ",";
+	}
+	sprintf(buff,"%3.8f",m.getBy1D(15));
+	s += buff;
+	mtxNode->SetTextProperty(s);
+	AddChild(mtxNode);
+}
+
+Matrix4 PersistentData::GetMatrix4Child(const char* name)
+{
+	Matrix4 m;
+	std::string n = name;
+	PersistentData* c = GetUniqueChild(n);
+	if(c != NULL)
+	{
+		std::string s = c->GetText();
+		std::vector<std::string> vals = SplitString(s, ',');
+		int elemCount = (int)vals.size();
+		if(elemCount != 16)
+		{
+			printf("!!!! PersistentData::GetMatrix44Child --> Error Reading a Matrix4... incorrect number of entries.  Should be 16 found %d.\n",elemCount);
+		}
+		for(int i = 0; i < elemCount; ++i)
+		{
+			std::string sVal = vals[i];
+			float val = (float)atof(sVal.c_str());
 //			m.mV[i] = val;
-//		}
-//	}
-//	 
-//	return m;
-//}
+      m.setBy1D(i,val);
+		}
+	}
+	 
+	return m;
+}
 
 PersistentData* PersistentData::GetUniqueChild(std::string& key)
 {

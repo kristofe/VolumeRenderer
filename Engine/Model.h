@@ -29,7 +29,7 @@ class Model
 	public:
 		Model();
 		Model(Mesh* meshData);
-		virtual ~Model();
+		virtual ~Model() {};
 		
 		//bool HasPendingUpdates();
 		//void Update(Mesh* meshData);

@@ -39,7 +39,7 @@ void Material::Configure(PersistentData& storageData)
 	mAmbient = storageData.GetColorChild("Ambient");
 	mEmissive = storageData.GetColorChild("Emissive");
 	mColorMask = storageData.GetColorChild("ColorMask");
-	if(mColorMask != Color::white)
+	if(mColorMask != Color::white())
 	{
 		mUseColorMask = true;
 	}
