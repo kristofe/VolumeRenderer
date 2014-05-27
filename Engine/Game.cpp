@@ -373,6 +373,7 @@ void Game::DumpDebugData()
 ////////////////////////////////////////////////////////////////////////////////
 void Game::Render()
 {
+    //FIXME: Game should be calling the renderer?
 	mRenderer->Render();
 }
 /*
