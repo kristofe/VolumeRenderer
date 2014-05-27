@@ -70,6 +70,7 @@ public:
 		return ++mLastGameID;
 	}
 	
+    void Render();
 	void DumpDebugData();
 	//void TestLua();
 	//static void TestLuaCallback();

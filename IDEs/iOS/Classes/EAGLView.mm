@@ -55,6 +55,8 @@
 			displayLinkSupported = TRUE;
     }
 	
+    _gameEngine = &(Game::GetInstance());
+    
     return self;
 }
 
