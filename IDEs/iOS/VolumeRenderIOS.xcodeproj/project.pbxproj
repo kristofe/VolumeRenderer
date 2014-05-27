@@ -21,6 +21,10 @@
 		4D2123F419240DE5003532B4 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4D2123F219240DE5003532B4 /* MainWindow-iPad.xib */; };
 		4D2123F519240DE5003532B4 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4D2123F319240DE5003532B4 /* MainWindow.xib */; };
 		4D5ED205192AA791000262F7 /* triangleShaders.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 4D5ED204192AA791000262F7 /* triangleShaders.glsl */; };
+		4D7D4AF81934E36A00F1AD7C /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7D4AF71934E36A00F1AD7C /* OpenAL.framework */; };
+		4D7D4AFA1934E37900F1AD7C /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7D4AF91934E37900F1AD7C /* AudioToolbox.framework */; };
+		4D7D4AFC1934E38300F1AD7C /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7D4AFB1934E38300F1AD7C /* CoreAudio.framework */; };
+		4D7D4AFF1934E45800F1AD7C /* SoundEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7D4AFD1934E45800F1AD7C /* SoundEngine.cpp */; };
 		4DA86649192D02EA0067E0BF /* RendererFPSDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DA86647192D02EA0067E0BF /* RendererFPSDisplay.cpp */; };
 		4DF26381192BB7CD00B6BAB9 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DF26350192BB7CD00B6BAB9 /* Globals.cpp */; };
 		4DF26382192BB7CD00B6BAB9 /* glprogram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DF26351192BB7CD00B6BAB9 /* glprogram.cpp */; };
@@ -108,6 +112,11 @@
 		4D2123F219240DE5003532B4 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "Resources/MainWindow-iPad.xib"; sourceTree = "<group>"; };
 		4D2123F319240DE5003532B4 /* MainWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainWindow.xib; path = Resources/MainWindow.xib; sourceTree = "<group>"; };
 		4D5ED204192AA791000262F7 /* triangleShaders.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = triangleShaders.glsl; path = ../../Shaders/triangleShaders.glsl; sourceTree = "<group>"; };
+		4D7D4AF71934E36A00F1AD7C /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		4D7D4AF91934E37900F1AD7C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		4D7D4AFB1934E38300F1AD7C /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		4D7D4AFD1934E45800F1AD7C /* SoundEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SoundEngine.cpp; path = Classes/SoundEngine.cpp; sourceTree = "<group>"; };
+		4D7D4AFE1934E45800F1AD7C /* SoundEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoundEngine.h; path = Classes/SoundEngine.h; sourceTree = "<group>"; };
 		4DA86647192D02EA0067E0BF /* RendererFPSDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RendererFPSDisplay.cpp; path = ../../Engine/RendererFPSDisplay.cpp; sourceTree = "<group>"; };
 		4DA86648192D02EA0067E0BF /* RendererFPSDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RendererFPSDisplay.h; path = ../../Engine/RendererFPSDisplay.h; sourceTree = "<group>"; };
 		4DF26350192BB7CD00B6BAB9 /* Globals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Globals.cpp; path = ../../renderlib/Globals.cpp; sourceTree = "<group>"; };
@@ -236,6 +245,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D7D4AFC1934E38300F1AD7C /* CoreAudio.framework in Frameworks */,
+				4D7D4AFA1934E37900F1AD7C /* AudioToolbox.framework in Frameworks */,
+				4D7D4AF81934E36A00F1AD7C /* OpenAL.framework in Frameworks */,
 				3A5714C917848D020060B117 /* QuartzCore.framework in Frameworks */,
 				3A5714C717848CE90060B117 /* CoreGraphics.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
@@ -302,6 +314,9 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4D7D4AFB1934E38300F1AD7C /* CoreAudio.framework */,
+				4D7D4AF91934E37900F1AD7C /* AudioToolbox.framework */,
+				4D7D4AF71934E36A00F1AD7C /* OpenAL.framework */,
 				3A5714C817848D020060B117 /* QuartzCore.framework */,
 				3A5714C617848CE90060B117 /* CoreGraphics.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
@@ -432,6 +447,8 @@
 				4DF263B8192BEA2C00B6BAB9 /* SceneObject.h */,
 				4DF26398192BCFE200B6BAB9 /* SimBase.cpp */,
 				4DF26399192BCFE200B6BAB9 /* SimBase.h */,
+				4D7D4AFD1934E45800F1AD7C /* SoundEngine.cpp */,
+				4D7D4AFE1934E45800F1AD7C /* SoundEngine.h */,
 				4DF263C7192CF6D100B6BAB9 /* Texture.cpp */,
 				4DF263C8192CF6D100B6BAB9 /* Texture.h */,
 				4DF263D0192CF93D00B6BAB9 /* TextureFont.cpp */,
@@ -609,6 +626,7 @@
 				4DF263B3192BE88000B6BAB9 /* tinyxmlparser.cpp in Sources */,
 				4DF26420192CFC7D00B6BAB9 /* pngerror.c in Sources */,
 				4DF26417192CFC7D00B6BAB9 /* compress.c in Sources */,
+				4D7D4AFF1934E45800F1AD7C /* SoundEngine.cpp in Sources */,
 				4DF2641E192CFC7D00B6BAB9 /* inftrees.c in Sources */,
 				4DF2642C192CFC7D00B6BAB9 /* pngwio.c in Sources */,
 				4DF263B2192BE88000B6BAB9 /* tinyxmlerror.cpp in Sources */,
