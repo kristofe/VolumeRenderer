@@ -138,12 +138,12 @@ public:
 		};
 		virtual ~Renderer();
 		
-		virtual void Init() = 0;
-		virtual void Shutdown() = 0;
+		virtual void Init() {};
+		virtual void Shutdown() {};
 		//virtual void RasterizeRenderTargets() = 0;
-		virtual void Render() = 0;
-		virtual void UseCamera(Camera* c) = 0;
-		virtual void SetupStringToEnumDB() = 0;
+		virtual void Render() {};
+		virtual void UseCamera(Camera* c) {};
+		virtual void SetupStringToEnumDB() {};
 		virtual unsigned int GetEnumForString(std::string str);
 		virtual void SetGameEngine(Game* engine) { mGameEngine = engine;};
 		virtual int	 GetWindowWidth(){return mWidth;};
@@ -152,10 +152,10 @@ public:
 		virtual unsigned int GetFrameBufferID(){return mFrameBufferID;};
 		virtual unsigned int GetRenderBufferID(){return mRenderBufferID;};
 
-		virtual void SetupGPUState(Mesh& mesh,Material& mat)=0;
-		virtual void RestoreGPUState(Mesh& mesh,Material& mat)=0;
-		virtual void UploadTextureDataToGPU(Texture& tex)=0;
-		virtual void DeleteTextureFromGPU(Texture& tex)=0;
+		virtual void SetupGPUState(Mesh& mesh,Material& mat){};
+		virtual void RestoreGPUState(Mesh& mesh,Material& mat){};
+		virtual void UploadTextureDataToGPU(Texture& tex){};
+		virtual void DeleteTextureFromGPU(Texture& tex){};
 
 		virtual void AddRenderObject(GameID renderObjectID);
 		virtual void RemoveRenderObject(GameID renderObjectID);
@@ -218,11 +218,11 @@ public:
 		virtual void HandlePendingRenderTargetRemovals();
 		virtual void HandlePendingCameraRemovals();
 	
-		virtual void CreateFrameBufferObject(RenderTarget& rt)=0;
-		virtual int GetCurrrentFrameBufferObjectID()=0;
-		virtual int GetCurrrentRenderBufferObjectID()=0;
-		virtual void BindFrameBuffer(int renderBufferID)=0;
-		virtual void BindRenderBuffer(int renderBufferID)=0;
+		virtual void CreateFrameBufferObject(RenderTarget& rt){};
+		virtual int GetCurrrentFrameBufferObjectID(){};
+		virtual int GetCurrrentRenderBufferObjectID(){};
+		virtual void BindFrameBuffer(int renderBufferID){};
+		virtual void BindRenderBuffer(int renderBufferID){};
 	private:
 		virtual void DeleteRendererObject(GameID id);
 		

@@ -14,6 +14,7 @@
 #include "MessageManager.h"
 #include "LayerManager.h"
 #include "TimerManager.h"
+#include "Renderer.h"
 //#include "PhysicsManager.h"
 #include "Platform.h"
 
