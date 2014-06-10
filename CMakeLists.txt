@@ -8,6 +8,8 @@ set(SOURCES
    renderlib/shadersource.cpp
    renderlib/perlin.c
    renderlib/trackball.cpp
+   renderlib/SingleRenderTarget.cpp
+   renderlib/Texture.cpp
 #   glew/src/glew.c
 )
 
@@ -21,6 +23,8 @@ set(HEADERS
   renderlib/include/vertex.h
   renderlib/include/color.h
   renderlib/include/trackball.h
+  renderlib/include/SingleRenderTarget.h
+  renderlib/include/Texture.h
   renderlib/shadersource.h
   renderlib/vmath.hpp
   renderlib/perlin.h
@@ -61,6 +65,7 @@ set(GLFWLIB_PATH "/Users/kristofe/Documents/Projects/glfw-3.0.1/CMake/src")
 
 
 #add_subdirectory(renderlib) #requires the directory to have a CMakeLists.txt file
+include_directories(renderlib)
 include_directories(renderlib/include)
 include_directories(renderlib/glm)
 link_directories(${GLFWLIB_PATH})

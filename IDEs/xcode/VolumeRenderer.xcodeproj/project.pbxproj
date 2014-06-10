@@ -16,6 +16,7 @@
 		4D40D044194757C500DFE20C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4D40D042194757C500DFE20C /* InfoPlist.strings */; };
 		4D40D04A194757D200DFE20C /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4D40D046194757D200DFE20C /* Main_iPad.storyboard */; };
 		4D40D04B194757D200DFE20C /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4D40D048194757D200DFE20C /* Main_iPhone.storyboard */; };
+		4D40D04E194760CE00DFE20C /* SingleRenderTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D40D04C194760CE00DFE20C /* SingleRenderTarget.cpp */; };
 		4DD02F3419426B3A0017CD7E /* SinglePassRayMarch.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 4DD02F3219426B3A0017CD7E /* SinglePassRayMarch.glsl */; };
 		4DD02F3519426B3A0017CD7E /* triangleShaders.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 4DD02F3319426B3A0017CD7E /* triangleShaders.glsl */; };
 		4DD02F6B19426B490017CD7E /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DD02F3A19426B490017CD7E /* Globals.cpp */; };
@@ -46,6 +47,8 @@
 		4D40D043194757C500DFE20C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 		4D40D047194757D200DFE20C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main_iPad.storyboard; sourceTree = "<group>"; };
 		4D40D049194757D200DFE20C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main_iPhone.storyboard; sourceTree = "<group>"; };
+		4D40D04C194760CE00DFE20C /* SingleRenderTarget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleRenderTarget.cpp; sourceTree = "<group>"; };
+		4D40D04D194760CE00DFE20C /* SingleRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleRenderTarget.h; sourceTree = "<group>"; };
 		4DD02F3219426B3A0017CD7E /* SinglePassRayMarch.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SinglePassRayMarch.glsl; path = ../../Shaders/SinglePassRayMarch.glsl; sourceTree = "<group>"; };
 		4DD02F3319426B3A0017CD7E /* triangleShaders.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = triangleShaders.glsl; path = ../../Shaders/triangleShaders.glsl; sourceTree = "<group>"; };
 		4DD02F3A19426B490017CD7E /* Globals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Globals.cpp; sourceTree = "<group>"; };
@@ -130,6 +133,8 @@
 				4DD02F6619426B490017CD7E /* shadersource.h */,
 				4DD02F6719426B490017CD7E /* trackball.cpp */,
 				4DD02F6919426B490017CD7E /* vmath.hpp */,
+				4D40D04C194760CE00DFE20C /* SingleRenderTarget.cpp */,
+				4D40D04D194760CE00DFE20C /* SingleRenderTarget.h */,
 			);
 			name = renderlib;
 			path = ../../renderlib;
@@ -325,6 +330,7 @@
 				4DD02F7019426B490017CD7E /* Platform_iPhone.mm in Sources */,
 				4DD02F6F19426B490017CD7E /* perlin.c in Sources */,
 				4D40D0381947576B00DFE20C /* AppDelegate.m in Sources */,
+				4D40D04E194760CE00DFE20C /* SingleRenderTarget.cpp in Sources */,
 				4DD02F6E19426B490017CD7E /* glutil_GLES3Plus.cpp in Sources */,
 				4DD02F7919426B490017CD7E /* shadersource.cpp in Sources */,
 				4D40D03F1947579F00DFE20C /* main.m in Sources */,
