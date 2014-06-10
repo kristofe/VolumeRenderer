@@ -3,7 +3,7 @@ project(VolumeRenderer)
 
 set(SOURCES
    main.cpp
-   renderlib/glutil.cpp
+   renderlib/glutil_GL3Plus.cpp
    renderlib/glprogram.cpp
    renderlib/shadersource.cpp
    renderlib/perlin.c
@@ -22,7 +22,6 @@ set(HEADERS
   renderlib/include/color.h
   renderlib/include/trackball.h
   renderlib/shadersource.h
-  renderlib/glm/glm.hpp
   renderlib/vmath.hpp
   renderlib/perlin.h
 )
@@ -40,6 +39,7 @@ set(SHADERS
 if(APPLE)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter -std=c++11")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter")
+add_definitions(-DTARGETMAC)
 ENDIF(APPLE)
 
 if(WIN32)

@@ -42,12 +42,12 @@ void Trackball::MouseUp(int x, int y)
     Quat q = Quat::rotation(m_startPos, m_currentPos);
     m_quat = rotate(q, m_quat);
 
-    if (m_radiansPerSecond > 0 || m_distancePerSecond != 0) {
-        m_inertia.Active = true;
-        m_inertia.RadiansPerSecond = m_radiansPerSecond;
-        m_inertia.DistancePerSecond = m_distancePerSecond;
-        m_inertia.Axis = m_axis;
-    }
+//    if (m_radiansPerSecond > 0 || m_distancePerSecond != 0) {
+//        m_inertia.Active = true;
+//        m_inertia.RadiansPerSecond = m_radiansPerSecond;
+//        m_inertia.DistancePerSecond = m_distancePerSecond;
+//        m_inertia.Axis = m_axis;
+//    }
 }
 
 void Trackball::MouseMove(int x, int y)
@@ -56,7 +56,7 @@ void Trackball::MouseMove(int x, int y)
 
     float radians = acos(dot(m_previousPos, m_currentPos));
     unsigned int microseconds = m_currentTime - m_previousTime;
-    
+
     if (radians > 0.01f && microseconds > 0) {
         m_radiansPerSecond = 1000000.0f * radians / microseconds;
         m_axis = normalize(cross(m_previousPos, m_currentPos));
@@ -99,13 +99,13 @@ Vector3 Trackball::MapToSphere(int x, int y)
     float fy = 0; // y - m_height / 2.0f;
 
     float lenSqr = fx*fx+fy*fy;
-    
+
     if (lenSqr > SafeRadius*SafeRadius) {
         float theta = atan2(fy, fx);
         fx = SafeRadius * cos(theta);
         fy = SafeRadius * sin(theta);
     }
-    
+
     lenSqr = fx*fx+fy*fy;
     float z = sqrt(m_radius*m_radius - lenSqr);
     return Vector3(fx, fy, z) / m_radius;
@@ -118,7 +118,7 @@ void Trackball::Update(unsigned int microseconds)
     if (m_voyageHome.Active) {
         m_voyageHome.microseconds += microseconds;
         float t = m_voyageHome.microseconds / 200000.0f;
-        
+
         if (t > 1) {
             m_quat = Quat::identity();
             m_startZoom = m_zoom = 0;
@@ -148,7 +148,7 @@ void Trackball::Update(unsigned int microseconds)
             if (m_inertia.DistancePerSecond < 0)
                 m_inertia.DistancePerSecond = 0;
         }
-        
+
         if (m_inertia.DistancePerSecond < 0) {
             m_inertia.DistancePerSecond += 1.0f;
             if (m_inertia.DistancePerSecond > 0)

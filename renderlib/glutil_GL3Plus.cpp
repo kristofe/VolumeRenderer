@@ -5,40 +5,46 @@
 #include <varargs.h>
 #endif
 
+#include <sstream>
 #include "include/OpenGLHelper.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtc/quaternion.hpp"
-#include "glm/gtx/quaternion.hpp"
-#include "glm/gtx/euler_angles.hpp"
-#include "glm/gtx/norm.hpp"
+//#include "glm/glm.hpp"
+//#include "glm/gtc/type_ptr.hpp"
+//#include "glm/gtc/quaternion.hpp"
+//#include "glm/gtx/quaternion.hpp"
+//#include "glm/gtx/euler_angles.hpp"
+//#include "glm/gtx/norm.hpp"
 #include "shadersource.h"
 #include "vmath.hpp"
+#include "glutil.h"
 
 namespace renderlib{
-    using namespace glm;
+    //using namespace glm;
     using namespace vmath;
-    
+
     GLUtil::GLUtil()
     {
     }
     std::string GLUtil::getVersionString()
     {
         float  glLanguageVersion;
-        
-        sscanf((char *)glGetString(GL_SHADING_LANGUAGE_VERSION), "OpenGL GLSL %f", &glLanguageVersion);
-        
+
+        printf("GL_SHADING_LANGUAGE_VERSION: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+        sscanf((char *)glGetString(GL_SHADING_LANGUAGE_VERSION), "%f", &glLanguageVersion);
+        if(glLanguageVersion == 0.0f)
+        {
+          sscanf((char *)glGetString(GL_SHADING_LANGUAGE_VERSION), "OpenGL GLSL %f", &glLanguageVersion);
+        }
+
         // GL_SHADING_LANGUAGE_VERSION returns the version standard version form
         //  with decimals, but the GLSL version preprocessor directive simply
         //  uses integers (thus 1.10 should 110 and 1.40 should be 140, etc.)
         //  We multiply the floating point number by 100 to get a proper
         //  number for the GLSL preprocessor directive
         GLuint version = 100 * glLanguageVersion;
-        std::string versionString = "#version ";
-        versionString += version;
-        versionString += " \n";
-        
-        return versionString;
+        std::stringstream versionString;
+        versionString << "#version " << version << " \n";
+
+        return versionString.str();
     }
 
     GLuint GLUtil::complileAndLinkProgram(
@@ -51,23 +57,23 @@ namespace renderlib{
         linkAndVerifyProgram(prg);
         return prg;
     }
-    
-    
+
+
     GLuint GLUtil::complileAndLinkProgram(const std::string& vsFileName,
                                const std::string& fsFileName,
                                const std::string& gsFileName)
     {
-        
+
         std::string vsSource = getShaderSource(vsFileName);
         std::string fsSource = getShaderSource(fsFileName);
-        
+
         GLint prg = compileProgram(vsSource, fsSource, "");
         linkAndVerifyProgram(prg);
         return prg;
-        
-        
+
+
     }
-    
+
     GLuint GLUtil::compileShader(const std::string& name,
                                const std::string& source,
                                GLenum shaderType)
@@ -76,10 +82,10 @@ namespace renderlib{
         GLuint shaderHandle = glCreateShader(shaderType);
         glShaderSource(shaderHandle,1, &src, 0);
         glCompileShader(shaderHandle);
-        
+
         GLint compileSuccess;
         glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compileSuccess);
-        
+
         if(compileSuccess == GL_FALSE)
         {
             printf("Error(s) in shader %s:\n", name.c_str());
@@ -94,25 +100,25 @@ namespace renderlib{
         }
         return shaderHandle;
     }
-    
+
     GLuint GLUtil::compileProgram(
                                   const std::string& fileName,
                                   const std::string& vsKey,
                                   const std::string& fsKey,
                                   const std::string& gsKey)
     {
-        
+
         ShaderSource ss;
         ss.parseFile(fileName, "--");
-        
+
         std::string vsSource = ss.getShader(vsKey);
         std::string fsSource = ss.getShader(fsKey);
         std::string gsSource = ss.getShader(gsKey);
-        
-        
+
+
         return compileProgram(vsSource, fsSource, gsSource);
     }
-    
+
     GLuint GLUtil::compileProgram(const std::string& vsSource,
                                   const std::string& fsSource,
                                   const std::string& gsSource)
@@ -121,31 +127,32 @@ namespace renderlib{
         //Insert the version into the source
         std::string vsSourceVersioned = verString + vsSource;
         std::string fsSourceVersioned = verString + fsSource;
-        
+
         GLuint vertexShader = compileShader("vertex shader",vsSourceVersioned,
                                           GL_VERTEX_SHADER);
         GLuint fragmentShader = compileShader("fragment shader",fsSourceVersioned,
                                             GL_FRAGMENT_SHADER);
-        
+
         GLuint programHandle = glCreateProgram();
         glAttachShader(programHandle, vertexShader);
         glAttachShader(programHandle, fragmentShader);
-        
-        //        if(gsSource.length() > 0)
-        //        {
-        //            GLuint geometryShader = buildShader("geometry shader",gsSource,
-        //                                                GL_GEOMETRY_SHADER);
-        //            glAttachShader(programHandle, geometryShader);
-        //        }
-        
-        
+
+        if(gsSource.length() > 0)
+        {
+            std::string gsSourceVersioned = verString + gsSource;
+            GLuint geometryShader = compileShader("geometry shader",gsSourceVersioned,
+                                                GL_GEOMETRY_SHADER);
+            glAttachShader(programHandle, geometryShader);
+        }
+
+
         return programHandle;
     }
-    
+
     GLuint GLUtil::linkAndVerifyProgram(GLuint programHandle)
     {
         glLinkProgram(programHandle);
-        
+
         GLint linkSuccess;
         glGetProgramiv(programHandle, GL_LINK_STATUS, &linkSuccess);
         if(linkSuccess == GL_FALSE)
@@ -160,11 +167,12 @@ namespace renderlib{
         {
             printf("Successfully created vertexprogram!\n");
         }
-        
+
         glLinkProgram(programHandle);
-        
+
+        /*
         glValidateProgram(programHandle);
-        
+
         GLint status;
         glGetProgramiv(programHandle, GL_VALIDATE_STATUS, &status);
         if (status == 0)
@@ -180,18 +188,19 @@ namespace renderlib{
             }
             return 0;
         }
-        
-        
+        */
+
+
         printActiveAttributes(programHandle);
         printActiveUniforms(programHandle);
         return programHandle;
     }
-    
+
     void GLUtil::printActiveUniforms(GLuint programHandle)
     {
         GLint uniformCount;
         glGetProgramiv(programHandle, GL_ACTIVE_UNIFORMS, &uniformCount);
-        
+
         printf("Active Uniform Count: %d\n", uniformCount);
         if(uniformCount > 0)
         {
@@ -219,7 +228,7 @@ namespace renderlib{
             }
         }
     }
-    
+
     void GLUtil::getActiveUniforms(
                                    GLuint programHandle,
                                    std::map<std::string, ShaderUniformData>* dict
@@ -227,7 +236,7 @@ namespace renderlib{
     {
         GLint uniformCount;
         glGetProgramiv(programHandle, GL_ACTIVE_UNIFORMS, &uniformCount);
-        
+
         printf("Active Uniform Count: %d\n", uniformCount);
         if(uniformCount > 0)
         {
@@ -267,7 +276,7 @@ namespace renderlib{
             }
         }
     }
-    
+
     void GLUtil::printActiveAttributes(GLuint programHandle)
     {
         GLint attributeCount;
@@ -299,7 +308,7 @@ namespace renderlib{
             }
         }
     }
-    
+
     void GLUtil::getActiveAttributes(
                                      GLuint programHandle,
                                      std::map<std::string, ShaderAttributeData>* dict
@@ -346,7 +355,7 @@ namespace renderlib{
             }
         }
     }
-    
+
     //WebGL version
     /*
      GLint linkSuccess;
@@ -364,7 +373,7 @@ namespace renderlib{
      printf("Successfully created vertexprogram!\n");
      }
      */
-    
+
     std::string GLUtil::getShaderSource(const std::string& filename)
     {
         std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
@@ -381,7 +390,7 @@ namespace renderlib{
         }
         return "";
     }
-    
+
     std::string GLUtil::getOpenGLInfo()
     {
         std::stringstream s;
@@ -390,10 +399,10 @@ namespace renderlib{
         s << "GL_VERSION: " << glGetString(GL_VERSION) << std::endl;
         s << "GL_SHADING_LANGUAGE_VERSION: " <<
         glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-        
+
         return s.str();
     }
-    
+
     int GLUtil::checkGLErrors()
     {
         int errCount = 0;
@@ -404,19 +413,19 @@ namespace renderlib{
             //Do something with `currError`.
             std::cout << "GL ERROR: " << GLUtil::glEnumToString(currError) << std::endl;
             std::cout.flush();
-            
+
             ++errCount;
         }
-        
+
         return errCount;
     }
-    
+
     std::string GLUtil::glEnumToString(GLenum e)
     {
         std::string str = "UNKNOWN";
         switch(e)
         {
-                
+
                 //Data Types
             case GL_FLOAT:
                 str =  "GL_FLOAT";
@@ -481,7 +490,7 @@ namespace renderlib{
             case GL_UNSIGNED_INT_VEC4:
                 str =  "GL_UNSIGNED_INT_VEC4";
                 break;
-                
+
                 //Error Codes
             case GL_NO_ERROR:
                 str =  "GL_NO_ERROR";
@@ -501,67 +510,67 @@ namespace renderlib{
             case GL_OUT_OF_MEMORY:
                 str =  "GL_OUT_OF_MEMORY";
                 break;
-                
-                
-                
-                
+
+
+
+
             case GL_SAMPLER_2D:
                 str = "GL_SAMPLER_2D";
                 break;
-                
+
             case GL_SAMPLER_3D:
                 str = "GL_SAMPLER_3D";
                 break;
-                
+
             case GL_SAMPLER_CUBE:
                 str = "GL_SAMPLER_CUBE";
                 break;
-                
+
             case GL_SAMPLER_2D_SHADOW:
                 str = "GL_SAMPLER_2D_SHADOW";
                 break;
-                
+
             case GL_SAMPLER_2D_ARRAY:
                 str = "GL_SAMPLER_2D_ARRAY";
                 break;
-                
+
             case GL_SAMPLER_2D_ARRAY_SHADOW:
                 str = "GL_SAMPLER_2D_ARRAY_SHADOW";
                 break;
-                
+
             case GL_INT_SAMPLER_2D:
                 str = "GL_INT_SAMPLER_2D";
                 break;
-                
+
             case GL_INT_SAMPLER_3D:
                 str = "GL_INT_SAMPLER_3D";
                 break;
-                
+
             case GL_INT_SAMPLER_CUBE:
                 str = "GL_INT_SAMPLER_CUBE";
                 break;
-                
+
             case GL_INT_SAMPLER_2D_ARRAY:
                 str = "GL_INT_SAMPLER_2D_ARRAY";
                 break;
-                
+
             case GL_UNSIGNED_INT_SAMPLER_2D:
                 str = "GL_UNSIGNED_INT_SAMPLER_2D";
                 break;
-                
+
             case GL_UNSIGNED_INT_SAMPLER_3D:
                 str = "GL_UNSIGNED_INT_SAMPLER_3D";
                 break;
-                
+
             case GL_UNSIGNED_INT_SAMPLER_CUBE:
                 str = "GL_UNSIGNED_INT_SAMPLER_CUBE";
                 break;
         }
-        
+
         return str;
     }
-    
-    
+
+
     struct ProgramsRec {
         GLuint Advect;
         GLuint Jacobi;
@@ -570,7 +579,7 @@ namespace renderlib{
         GLuint ApplyImpulse;
         GLuint ApplyBuoyancy;
     } Programs;
-    
+
     /*
      void CreateObstacles(SurfacePod dest, int width, int height)
      {
@@ -578,13 +587,13 @@ namespace renderlib{
      glViewport(0, 0, width, height);
      glClearColor(0, 0, 0, 0);
      glClear(GL_COLOR_BUFFER_BIT);
-     
+
      GLuint vao;
      glGenVertexArrays(1, &vao);
      glBindVertexArray(vao);
      GLuint program = LoadProgram("Fluid.Vertex", 0, "Fluid.Fill");
      glUseProgram(program);
-     
+
      const int DrawBorder = 1;
      if (DrawBorder) {
      #define T 0.9999f
@@ -601,7 +610,7 @@ namespace renderlib{
      glDrawArrays(GL_LINE_STRIP, 0, 5);
      glDeleteBuffers(1, &vbo);
      }
-     
+
      const int DrawCircle = 1;
      if (DrawCircle) {
      const int slices = 64;
@@ -613,11 +622,11 @@ namespace renderlib{
      for (int i = 0; i < slices; i++) {
      *pPositions++ = 0;
      *pPositions++ = 0;
-     
+
      *pPositions++ = 0.25f * cos(theta) * height / width;
      *pPositions++ = 0.25f * sin(theta);
      theta += dtheta;
-     
+
      *pPositions++ = 0.25f * cos(theta) * height / width;
      *pPositions++ = 0.25f * sin(theta);
      }
@@ -632,11 +641,11 @@ namespace renderlib{
      glDrawArrays(GL_TRIANGLES, 0, slices * 3);
      glDeleteBuffers(1, &vbo);
      }
-     
+
      // Cleanup
      glDeleteProgram(program);
      glDeleteVertexArrays(1, &vao);
-     
+
      }
      */
     void fatalError(const char* pStr, va_list a)
@@ -649,21 +658,21 @@ namespace renderlib{
         //__builtin_trap();
         exit(1);
     }
-    
-    
+
+
     void checkCondition(int condition, ...)
     {
         va_list a;
         const char* pStr;
-        
+
         if (condition)
             return;
-        
+
         va_start(a, condition);
         pStr = va_arg(a, const char*);
         fatalError(pStr, a);
     }
-    
+
     SlabPod CreateSlab(GLsizei width, GLsizei height)
     {
         SlabPod slab;
@@ -671,13 +680,13 @@ namespace renderlib{
         slab.Pong = CreateSurface(width, height);
         return slab;
     }
-    
+
     SurfacePod CreateSurface(GLsizei width, GLsizei height)
     {
         GLuint fboHandle;
         glGenFramebuffers(1, &fboHandle);
         glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
-        
+
         GLuint textureHandle;
         glGenTextures(1, &textureHandle);
         glBindTexture(GL_TEXTURE_2D, textureHandle);
@@ -687,23 +696,23 @@ namespace renderlib{
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_HALF_FLOAT, 0);
         checkCondition(GL_NO_ERROR == glGetError(), "Unable to create normals texture");
-        
+
         GLuint colorbuffer;
         glGenRenderbuffers(1, &colorbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureHandle, 0);
         checkCondition(GL_NO_ERROR == glGetError(), "Unable to attach color buffer");
-        
+
         checkCondition(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER), "Unable to create FBO.");
         SurfacePod surface = { fboHandle, textureHandle };
-        
+
         glClearColor(0, 0, 0, 0);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        
+
         return surface;
     }
-    
+
     static void ResetState()
     {
         glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, 0);
@@ -712,7 +721,7 @@ namespace renderlib{
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glDisable(GL_BLEND);
     }
-    
+
     /*
      void InitSlabOps()
      {
@@ -724,14 +733,14 @@ namespace renderlib{
      Programs.ApplyBuoyancy = LoadProgram("Fluid.Vertex", 0, "Fluid.Buoyancy");
      }
      */
-    
+
     void SwapSurfaces(SlabPod* slab)
     {
         SurfacePod temp = slab->Ping;
         slab->Ping = slab->Pong;
         slab->Pong = temp;
     }
-    
+
     void ClearSurface(SurfacePod s, float v)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, s.FboHandle);
@@ -743,19 +752,19 @@ namespace renderlib{
      {
      GLuint p = Programs.Advect;
      glUseProgram(p);
-     
+
      GLint inverseSize = glGetUniformLocation(p, "InverseSize");
      GLint timeStep = glGetUniformLocation(p, "TimeStep");
      GLint dissLoc = glGetUniformLocation(p, "Dissipation");
      GLint sourceTexture = glGetUniformLocation(p, "SourceTexture");
      GLint obstaclesTexture = glGetUniformLocation(p, "Obstacles");
-     
+
      glUniform2f(inverseSize, 1.0f / GridWidth, 1.0f / GridHeight);
      glUniform1f(timeStep, TimeStep);
      glUniform1f(dissLoc, dissipation);
      glUniform1i(sourceTexture, 1);
      glUniform1i(obstaclesTexture, 2);
-     
+
      glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
      glActiveTexture(GL_TEXTURE0);
      glBindTexture(GL_TEXTURE_2D, velocity.TextureHandle);
@@ -766,22 +775,22 @@ namespace renderlib{
      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
      ResetState();
      }
-     
+
      void Jacobi(SurfacePod pressure, SurfacePod divergence, SurfacePod obstacles, SurfacePod dest)
      {
      GLuint p = Programs.Jacobi;
      glUseProgram(p);
-     
+
      GLint alpha = glGetUniformLocation(p, "Alpha");
      GLint inverseBeta = glGetUniformLocation(p, "InverseBeta");
      GLint dSampler = glGetUniformLocation(p, "Divergence");
      GLint oSampler = glGetUniformLocation(p, "Obstacles");
-     
+
      glUniform1f(alpha, -CellSize * CellSize);
      glUniform1f(inverseBeta, 0.25f);
      glUniform1i(dSampler, 1);
      glUniform1i(oSampler, 2);
-     
+
      glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
      glActiveTexture(GL_TEXTURE0);
      glBindTexture(GL_TEXTURE_2D, pressure.TextureHandle);
@@ -792,12 +801,12 @@ namespace renderlib{
      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
      ResetState();
      }
-     
+
      void SubtractGradient(SurfacePod velocity, SurfacePod pressure, SurfacePod obstacles, SurfacePod dest)
      {
      GLuint p = Programs.SubtractGradient;
      glUseProgram(p);
-     
+
      GLint gradientScale = glGetUniformLocation(p, "GradientScale");
      glUniform1f(gradientScale, GradientScale);
      GLint halfCell = glGetUniformLocation(p, "HalfInverseCellSize");
@@ -806,7 +815,7 @@ namespace renderlib{
      glUniform1i(sampler, 1);
      sampler = glGetUniformLocation(p, "Obstacles");
      glUniform1i(sampler, 2);
-     
+
      glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
      glActiveTexture(GL_TEXTURE0);
      glBindTexture(GL_TEXTURE_2D, velocity.TextureHandle);
@@ -817,17 +826,17 @@ namespace renderlib{
      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
      ResetState();
      }
-     
+
      void ComputeDivergence(SurfacePod velocity, SurfacePod obstacles, SurfacePod dest)
      {
      GLuint p = Programs.ComputeDivergence;
      glUseProgram(p);
-     
+
      GLint halfCell = glGetUniformLocation(p, "HalfInverseCellSize");
      glUniform1f(halfCell, 0.5f / CellSize);
      GLint sampler = glGetUniformLocation(p, "Obstacles");
      glUniform1i(sampler, 1);
-     
+
      glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
      glActiveTexture(GL_TEXTURE0);
      glBindTexture(GL_TEXTURE_2D, velocity.TextureHandle);
@@ -836,45 +845,45 @@ namespace renderlib{
      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
      ResetState();
      }
-     
+
      void ApplyImpulse(SurfacePod dest, Vector2 position, float value)
      {
      GLuint p = Programs.ApplyImpulse;
      glUseProgram(p);
-     
+
      GLint pointLoc = glGetUniformLocation(p, "Point");
      GLint radiusLoc = glGetUniformLocation(p, "Radius");
      GLint fillColorLoc = glGetUniformLocation(p, "FillColor");
-     
+
      glUniform2f(pointLoc, (float) position.X, (float) position.Y);
      glUniform1f(radiusLoc, SplatRadius);
      glUniform3f(fillColorLoc, value, value, value);
-     
+
      glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
      glEnable(GL_BLEND);
      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
      ResetState();
      }
-     
+
      void ApplyBuoyancy(SurfacePod velocity, SurfacePod temperature, SurfacePod density, SurfacePod dest)
      {
      GLuint p = Programs.ApplyBuoyancy;
      glUseProgram(p);
-     
+
      GLint tempSampler = glGetUniformLocation(p, "Temperature");
      GLint inkSampler = glGetUniformLocation(p, "Density");
      GLint ambTemp = glGetUniformLocation(p, "AmbientTemperature");
      GLint timeStep = glGetUniformLocation(p, "TimeStep");
      GLint sigma = glGetUniformLocation(p, "Sigma");
      GLint kappa = glGetUniformLocation(p, "Kappa");
-     
+
      glUniform1i(tempSampler, 1);
      glUniform1i(inkSampler, 2);
      glUniform1f(ambTemp, AmbientTemperature);
      glUniform1f(timeStep, TimeStep);
      glUniform1f(sigma, SmokeBuoyancy);
      glUniform1f(kappa, SmokeWeight);
-     
+
      glBindFramebuffer(GL_FRAMEBUFFER, dest.FboHandle);
      glActiveTexture(GL_TEXTURE0);
      glBindTexture(GL_TEXTURE_2D, velocity.TextureHandle);
@@ -896,19 +905,29 @@ namespace renderlib{
          0.0, 1.0, 0.0
          };
          */
-        
+
         glGenVertexArrays(1,vao);
+        GetGLError();
         glBindVertexArray(*vao);
-		
+        GetGLError();
+
         glGenBuffers(1, vbo);
         glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+        GetGLError();
         glBufferData(GL_ARRAY_BUFFER, sizeof(p), p, GL_STATIC_DRAW);
-        
+        GetGLError();
+
         GLint vertLoc = glGetAttribLocation(prog, "Position");
+        printf("position attribute at: %d\n", vertLoc);
+        GetGLError();
         glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+        GetGLError();
         glVertexAttribPointer(vertLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+        GetGLError();
         glEnableVertexAttribArray(vertLoc);
+        GetGLError();
     }
+
     void CreateTriangleVbo(GLuint * vbo, GLuint *vao)
     {
         float p[] = {
@@ -918,12 +937,12 @@ namespace renderlib{
         };
         glGenVertexArrays(1,vao);
         glBindVertexArray(*vao);
-        
+
         glGenBuffers(1, vbo);
         glBindBuffer(GL_ARRAY_BUFFER, *vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(p), p, GL_STATIC_DRAW);
     }
-    
+
     GLuint CreatePointVbo(float x, float y, float z)
     {
         float p[] = {x, y, z};
@@ -933,7 +952,7 @@ namespace renderlib{
         glBufferData(GL_ARRAY_BUFFER, sizeof(p), &p[0], GL_STATIC_DRAW);
         return vbo;
     }
-    
+
     void SetUniform(const char* name, int value)
     {
         GLuint program;
@@ -941,7 +960,7 @@ namespace renderlib{
         GLint location = glGetUniformLocation(program, name);
         glUniform1i(location, value);
     }
-    
+
     void SetUniform(const char* name, float value)
     {
         GLuint program;
@@ -949,7 +968,8 @@ namespace renderlib{
         GLint location = glGetUniformLocation(program, name);
         glUniform1f(location, value);
     }
-    
+
+    /*
     void SetUniform(const char* name, glm::mat4 value)
     {
         GLuint program;
@@ -957,21 +977,19 @@ namespace renderlib{
         GLint location = glGetUniformLocation(program, name);
         glUniformMatrix4fv(location, 1, 0, glm::value_ptr(value));
     }
-    
+
     void SetUniform(const char* name, glm::mat3 nm)
     {
         GLuint program;
         glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
         GLint location = glGetUniformLocation(program, name);
-        /*
-         float packed[9] = {
-         nm.getRow(0).getX(), nm.getRow(1).getX(), nm.getRow(2).getX(),
-         nm.getRow(0).getY(), nm.getRow(1).getY(), nm.getRow(2).getY(),
-         nm.getRow(0).getZ(), nm.getRow(1).getZ(), nm.getRow(2).getZ() };
-         */
+//         float packed[9] = {
+//         nm.getRow(0).getX(), nm.getRow(1).getX(), nm.getRow(2).getX(),
+//         nm.getRow(0).getY(), nm.getRow(1).getY(), nm.getRow(2).getY(),
+//         nm.getRow(0).getZ(), nm.getRow(1).getZ(), nm.getRow(2).getZ() };
         glUniformMatrix3fv(location, 1, 0, glm::value_ptr(nm));
     }
-    
+
     void SetUniform(const char* name, glm::vec3 value)
     {
         GLuint program;
@@ -979,15 +997,7 @@ namespace renderlib{
         GLint location = glGetUniformLocation(program, name);
         glUniform3f(location, value.x, value.y, value.z);
     }
-    
-    void SetUniform(const char* name, float x, float y)
-    {
-        GLuint program;
-        glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
-        GLint location = glGetUniformLocation(program, name);
-        glUniform2f(location, x, y);
-    }
-    
+
     void SetUniform(const char* name, glm::vec4 value)
     {
         GLuint program;
@@ -995,7 +1005,16 @@ namespace renderlib{
         GLint location = glGetUniformLocation(program, name);
         glUniform4f(location, value.x, value.y, value.z, value.w);
     }
-    
+    */
+
+    void SetUniform(const char* name, float x, float y)
+    {
+        GLuint program;
+        glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+        GLint location = glGetUniformLocation(program, name);
+        glUniform2f(location, x, y);
+    }
+
     void SetUniform(const char* name, Matrix4 value)
     {
         GLuint program;
@@ -1003,7 +1022,7 @@ namespace renderlib{
         GLint location = glGetUniformLocation(program, name);
         glUniformMatrix4fv(location, 1, 0, (float*) &value);
     }
-    
+
     void SetUniform(const char* name, Matrix3 nm)
     {
         GLuint program;
@@ -1015,7 +1034,7 @@ namespace renderlib{
             nm.getRow(0).getZ(), nm.getRow(1).getZ(), nm.getRow(2).getZ() };
         glUniformMatrix3fv(location, 1, 0, &packed[0]);
     }
-    
+
     void SetUniform(const char* name, Vector3 value)
     {
         GLuint program;
@@ -1023,7 +1042,7 @@ namespace renderlib{
         GLint location = glGetUniformLocation(program, name);
         glUniform3f(location, value.getX(), value.getY(), value.getZ());
     }
-    
+
     void SetUniform(const char* name, Vector4 value)
     {
         GLuint program;
@@ -1031,7 +1050,7 @@ namespace renderlib{
         GLint location = glGetUniformLocation(program, name);
         glUniform4f(location, value.getX(), value.getY(), value.getZ(), value.getW());
     }
-    
+
     void SetUniform(const char* name, Point3 value)
     {
         GLuint program;
@@ -1039,25 +1058,25 @@ namespace renderlib{
         GLint location = glGetUniformLocation(program, name);
         glUniform3f(location, value.getX(), value.getY(), value.getZ());
     }
-    
+
     /*
      #include <glm/gtc/quaternion.hpp>
      #include <glm/gtx/quaternion.hpp>
      #include <glm/gtx/euler_angles.hpp>
      #include <glm/gtx/norm.hpp>
      using namespace glm;
-     
+
      #include "quaternion_utils.hpp"
-     
-     
+
+
      // Returns a quaternion such that q*start = dest
      quat RotationBetweenVectors(vec3 start, vec3 dest){
      start = normalize(start);
      dest = normalize(dest);
-     
+
      float cosTheta = dot(start, dest);
      vec3 rotationAxis;
-     
+
      if (cosTheta < -1 + 0.001f){
      // special case when vectors in opposite directions :
      // there is no "ideal" rotation axis
@@ -1067,43 +1086,43 @@ namespace renderlib{
      rotationAxis = cross(vec3(0.0f, 0.0f, 1.0f), start);
      if (length2(rotationAxis) < 0.01 ) // bad luck, they were parallel, try again!
      rotationAxis = cross(vec3(1.0f, 0.0f, 0.0f), start);
-     
+
      rotationAxis = normalize(rotationAxis);
      return angleAxis(180.0f, rotationAxis);
      }
-     
+
      // Implementation from Stan Melax's Game Programming Gems 1 article
      rotationAxis = cross(start, dest);
-     
+
      float s = sqrt( (1+cosTheta)*2 );
      float invs = 1 / s;
-     
+
      return quat(
      s * 0.5f,
      rotationAxis.x * invs,
      rotationAxis.y * invs,
      rotationAxis.z * invs
      );
-     
-     
+
+
      }
-     
-     
-     
+
+
+
      // Returns a quaternion that will make your object looking towards 'direction'.
      // Similar to RotationBetweenVectors, but also controls the vertical orientation.
      // This assumes that at rest, the object faces +Z.
      // Beware, the first parameter is a direction, not the target point !
      quat LookAt(vec3 direction, vec3 desiredUp){
-     
+
      if (length2(direction) < 0.0001f )
      return quat();
-     
+
      // Recompute desiredUp so that it's perpendicular to the direction
      // You can skip that part if you really want to force desiredUp
      vec3 right = cross(direction, desiredUp);
      desiredUp = cross(right, direction);
-     
+
      // Find the rotation between the front of the object (that we assume towards +Z,
      // but this depends on your model) and the desired direction
      quat rot1 = RotationBetweenVectors(vec3(0.0f, 0.0f, 1.0f), direction);
@@ -1111,53 +1130,53 @@ namespace renderlib{
      // Find the rotation between the "up" of the rotated object, and the desired up
      vec3 newUp = rot1 * vec3(0.0f, 1.0f, 0.0f);
      quat rot2 = RotationBetweenVectors(newUp, desiredUp);
-     
+
      // Apply them
      return rot2 * rot1; // remember, in reverse order.
      }
-     
-     
-     
+
+
+
      // Like SLERP, but forbids rotation greater than maxAngle (in radians)
      // In conjunction to LookAt, can make your characters
      quat RotateTowards(quat q1, quat q2, float maxAngle){
-     
+
      if( maxAngle < 0.001f ){
      // No rotation allowed. Prevent dividing by 0 later.
      return q1;
      }
-     
+
      float cosTheta = dot(q1, q2);
-     
+
      // q1 and q2 are already equal.
      // Force q2 just to be sure
      if(cosTheta > 0.9999f){
      return q2;
      }
-     
+
      // Avoid taking the long path around the sphere
      if (cosTheta < 0){
      q1 = q1*-1.0f;
      cosTheta *= -1.0f;
      }
-     
+
      float angle = acos(cosTheta);
-     
+
      // If there is only a 2° difference, and we are allowed 5°,
      // then we arrived.
      if (angle < maxAngle){
      return q2;
      }
-     
+
      // This is just like slerp(), but with a custom t
      float t = maxAngle / angle;
      angle = maxAngle;
-     
+
      quat res = (sin((1.0f - t) * angle) * q1 + sin(t * angle) * q2) / sin(angle);
      res = normalize(res);
      return res;
-     
+
      }
      */
-    
+
 } //namespace renderlib

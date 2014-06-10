@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <cmath>
 #include "GLFW/glfw3.h" // - lib is in /usr/local/lib/libglfw3.a
 #include "test.h"
 #include "glutil.h"
@@ -45,8 +46,8 @@ static Matrix4 ViewMatrix;
 static Matrix4 ModelviewProjection;
 static Point3 EyePosition;
 
-static int winWidth = 500;
-static int winHeight = 500;
+static int winWidth = 800;
+static int winHeight = 800;
 
 static GLuint CloudTexture;
 static SurfacePod IntervalsFbo[2];
@@ -55,6 +56,9 @@ static float fieldOfView = 0.7f;
 static Trackball* trackball;
 static int mouseX, mouseY;
 static bool mouseDown = false;
+static bool mouseRightDown = false;
+static float minDensity = 0.4f;
+static float maxDensity = 1.0f;
 //static glm::mat4 modelMatrix;
 
 
@@ -87,28 +91,60 @@ static void mouseButtonHandler(GLFWwindow* window, int button, int action, int m
 {
   if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
   {
-	  mouseDown = true;
-    trackball->MouseDown(mouseX, mouseY);
+      mouseDown = true;
+      trackball->MouseDown(mouseX, mouseY);
   }
   else if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
   {
-	  mouseDown = false;
-	  trackball->MouseUp(mouseX, mouseY);
+      mouseDown = false;
+      trackball->MouseUp(mouseX, mouseY);
   }
   else if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS)
   {
-    trackball->ReturnHome();
+      mouseRightDown = true;
+      //trackball->ReturnHome();
+  }
+  else if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_RELEASE)
+  {
+
+      mouseRightDown = false;
   }
 }
 
 static void mousePositionHandler(GLFWwindow* window, double x, double y)
 {
 	if(mouseX != (int)x || mouseY != (int)y){
-	  mouseX = (int)x;
-	  mouseY = (int)y;
 	  if(mouseDown)
-		  trackball->MouseMove(x, y);
-	}
+    {
+      mouseX = (int)x;
+      mouseY = (int)y;
+      trackball->MouseMove(x, y);
+    }
+  }
+  }
+
+static void mouseScrollHandler(GLFWwindow* window, double xoffset, double yoffset)
+{
+    float diff = yoffset;
+    minDensity = minDensity + diff/winHeight * 4.0f;
+    if(minDensity >= 1.0f || minDensity > maxDensity)
+    {
+      minDensity = maxDensity - 0.001f;
+    }
+    if(minDensity <= 0.0f)
+    {
+      minDensity = 0.0f;
+    }
+    diff = xoffset;
+    maxDensity = maxDensity + diff/winWidth;
+    if(maxDensity <= 0.0f || maxDensity < minDensity)
+    {
+      maxDensity = minDensity + 0.001f;
+    }
+    if(maxDensity > 1.0f)
+    {
+      maxDensity = 1.0f;
+    }
 }
 
 void resizeViewport(GLFWwindow* window){
@@ -116,6 +152,13 @@ void resizeViewport(GLFWwindow* window){
   glViewport(0, 0, winWidth, winHeight);
   glClear(GL_COLOR_BUFFER_BIT);
 }
+
+static void windowResizeHandler(GLFWwindow* window, int width, int height)
+{
+  resizeViewport(window);
+}
+
+
 
 #include <iostream>
 #include <fstream>
@@ -136,13 +179,18 @@ static GLuint load3DScan(const std::string& filename,int dx, int dy, int dz)
     unsigned short *data = new unsigned short[array_size];
 
     int position = 0;
-	size_t chunkSize = sizeof(unsigned short)*512;
+    size_t chunkSize = sizeof(unsigned short)*512;
 
-	std::ifstream fin(filename.c_str(), std::ios::in|std::ios::binary);
+    printf("position ");
+    std::ifstream fin(filename.c_str(), std::ios::in|std::ios::binary);
     while(fin.read((char*)&data[position],chunkSize))
-		position += 512;
+    {
+      position += 512;
+//      printf("%d ", position);
+    }
+    printf("\n");
 
-	fin.close();
+    fin.close();
 
     glTexImage3D(GL_TEXTURE_3D, 0,
                  GL_RED,
@@ -208,11 +256,14 @@ static GLuint CreatePyroclasticVolume(int n, float r)
 void initialize()
 {
     trackball = new Trackball(winWidth * 1.0f, winHeight * 1.0f, winWidth * 0.5f);
-    Programs.SinglePass = GLUtil::loadProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_CTSCAN", "GS");
+    Programs.SinglePass = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_CTSCAN", "GS");
+    GetGLError();
     CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
+    GetGLError();
 
-    //CloudTexture = CreatePyroclasticVolume(128, 0.025f);
     CloudTexture = load3DScan("Data/512x512x512x_uint16.raw", 512,512,512);
+    //CloudTexture = CreatePyroclasticVolume(128, 0.025f);
+    GetGLError();
 
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -223,20 +274,34 @@ void initialize()
 
 static void loadUniforms()
 {
-	SetUniform("ModelviewProjection", ModelviewProjection);
+    GetGLError();
+    SetUniform("ModelviewProjection", ModelviewProjection);
+    GetGLError();
     SetUniform("Modelview", ModelviewMatrix);
+    GetGLError();
     SetUniform("ViewMatrix", ViewMatrix);
+    GetGLError();
     SetUniform("ProjectionMatrix", ProjectionMatrix);
+    GetGLError();
     SetUniform("RayStartPoints", 1);
+    GetGLError();
     SetUniform("RayStopPoints", 2);
+    GetGLError();
     SetUniform("EyePosition", EyePosition);
+    GetGLError();
 
     Vector4 rayOrigin(transpose(ModelviewMatrix) * EyePosition);
     SetUniform("RayOrigin", rayOrigin.getXYZ());
+    GetGLError();
 
     float focalLength = 1.0f / std::tan(fieldOfView / 2);
     SetUniform("FocalLength", focalLength);
+    GetGLError();
     SetUniform("WindowSize", float(winWidth), float(winHeight));
+    GetGLError();
+    SetUniform("minDensity", minDensity);
+    SetUniform("maxDensity", maxDensity);
+
 }
 
 void render()
@@ -245,7 +310,7 @@ void render()
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(Programs.SinglePass);
     glBindTexture(GL_TEXTURE_3D, CloudTexture);
-	glBindVertexArray(CubeCenterVao);
+        glBindVertexArray(CubeCenterVao);
     glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
 
     loadUniforms();
@@ -256,14 +321,14 @@ void render()
 static void update(double seconds)
 {
     float dt = seconds;
-	  unsigned int microseconds = seconds * 1000 * 1000;
-    
+          unsigned int microseconds = seconds * 1000 * 1000;
 
-	/////////
+
+        /////////
     trackball->Update(microseconds);
 
     EyePosition = Point3(0, 0, 5 + trackball->GetZoom());
-    
+
     Vector3 up(0, 1, 0); Point3 target(0);
     ViewMatrix = Matrix4::lookAt(EyePosition, target, up);
 
@@ -289,8 +354,8 @@ int main(void)
 
 
   hintOpenGL32CoreProfile();
-  winWidth = 500;
-  winHeight = 500;
+  winWidth = 800;
+  winHeight = 800;
 
   window = glfwCreateWindow(winWidth, winHeight, "Volume Renderer", NULL, NULL);
 
@@ -306,16 +371,18 @@ int main(void)
   glfwSetKeyCallback(window, keyHandler);
   glfwSetCursorPosCallback(window, mousePositionHandler);
   glfwSetMouseButtonCallback(window, mouseButtonHandler);
+  glfwSetScrollCallback(window, mouseScrollHandler);
+  glfwSetWindowSizeCallback(window, windowResizeHandler);
 
 
 #if!__APPLE__
        // initialise GLEW
-	glewExperimental = GL_TRUE; //stops glew crashing on OSX :-/
-	if(glewInit() != GLEW_OK)
-	{
-		fprintf(stderr,"glewInit failed");
-		return -1;
-	}
+        glewExperimental = GL_TRUE; //stops glew crashing on OSX :-/
+        if(glewInit() != GLEW_OK)
+        {
+                fprintf(stderr,"glewInit failed");
+                return -1;
+        }
 #endif
 
   std::cout << GLUtil::getOpenGLInfo() << std::endl;std::cout.flush();
@@ -325,7 +392,7 @@ int main(void)
 
   while (!glfwWindowShouldClose(window))
   {
-	update(glfwGetTime());
+        update(glfwGetTime());
     render();
 
     glfwSwapBuffers(window);

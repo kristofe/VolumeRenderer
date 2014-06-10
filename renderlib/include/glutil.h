@@ -18,6 +18,60 @@
 //These have to be included after utils.h because of the
 // MACRO DISALLOW_COPY_AND_ASSIGN
 
+static inline const char * GetGLErrorString(GLenum error)
+{
+	const char *str;
+	switch( error )
+	{
+		case GL_NO_ERROR:
+			str = "GL_NO_ERROR";
+			break;
+		case GL_INVALID_ENUM:
+			str = "GL_INVALID_ENUM";
+			break;
+		case GL_INVALID_VALUE:
+			str = "GL_INVALID_VALUE";
+			break;
+		case GL_INVALID_OPERATION:
+			str = "GL_INVALID_OPERATION";
+			break;
+#if defined __gl_h_ || defined __gl3_h_
+		case GL_OUT_OF_MEMORY:
+			str = "GL_OUT_OF_MEMORY";
+			break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+			str = "GL_INVALID_FRAMEBUFFER_OPERATION";
+			break;
+#endif
+#if defined __gl_h_
+		case GL_STACK_OVERFLOW:
+			str = "GL_STACK_OVERFLOW";
+			break;
+		case GL_STACK_UNDERFLOW:
+			str = "GL_STACK_UNDERFLOW";
+			break;
+		case GL_TABLE_TOO_LARGE:
+			str = "GL_TABLE_TOO_LARGE";
+			break;
+#endif
+		default:
+			str = "(ERROR: Unknown Error Enum)";
+			break;
+	}
+	return str;
+}
+#define GetGLError()									\
+{														\
+GLenum err = glGetError();							\
+while (err != GL_NO_ERROR) {						\
+printf("GLError %s set in File:%s Line:%d\n",	\
+GetGLErrorString(err),					\
+__FILE__,								\
+__LINE__);								\
+err = glGetError();								\
+}													\
+}
+
 namespace renderlib
 {
   using namespace vmath;
@@ -91,14 +145,14 @@ namespace renderlib
    public:
      GLUtil();
      static std::string getVersionString();
- 
+
      static GLuint compileShader(const std::string& name,
                                const std::string& source, GLenum shaderType);
 
 
      static std::string getShaderSource(const std::string& filename);
 
-    
+
      static GLuint complileAndLinkProgram(const std::string& fileName,
                                const std::string& vsKey,
                                const std::string& fsKey,
@@ -107,19 +161,19 @@ namespace renderlib
      static GLuint complileAndLinkProgram(const std::string& vsFileName,
                                const std::string& fsFileName,
                                const std::string& gsFileName);
-     
+
 
     static GLuint compileProgram(const std::string& vsSource,
                                  const std::string& fsSource,
                                  const std::string& gsSource);
-       
+
     static GLuint compileProgram(const std::string& fileName,
                                  const std::string& vsKey,
                                  const std::string& fsKey,
                                  const std::string& gsKey);
-       
+
     static GLuint linkAndVerifyProgram(GLuint programHandle);
-   
+
      static void printActiveUniforms(GLuint programHandle);
      static void getActiveUniforms(
                             GLuint programHandle,
@@ -185,10 +239,10 @@ namespace renderlib
 //   void SetUniform(const char* name, glm::vec4 value);
 //   void SetUniform(const char* name, glm::vec3 value);
    void SetUniform(const char* name, vmath::Matrix4 value);
-	void SetUniform(const char* name, vmath::Matrix3 value);
-	void SetUniform(const char* name, vmath::Vector3 value);
-	void SetUniform(const char* name, vmath::Point3 value);
-	void SetUniform(const char* name, vmath::Vector4 value);
+        void SetUniform(const char* name, vmath::Matrix3 value);
+        void SetUniform(const char* name, vmath::Vector3 value);
+        void SetUniform(const char* name, vmath::Point3 value);
+        void SetUniform(const char* name, vmath::Vector4 value);
    //TexturePod LoadTexture(const char* path);
    SurfacePod CreateSurface(int width, int height);
    void CreateTriangleVbo(GLuint * vbo, GLuint * vao);

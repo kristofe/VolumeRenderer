@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef VolumeRenderIOS_OpenGL_h
-#define VolumeRenderIOS_OpenGL_h
+#ifndef OpenGLHelper_H
+#define OpenGLHelper_H
 
 #ifdef TARGETIPHONE
     #include <OpenGLES/ES3/gl.h>
@@ -15,7 +15,8 @@
     #include "glutil.h"
 #elif TARGETMAC
     #include <OpenGL/gl3.h>
-    #include "gl_desktop_util.h"
+    //#include "gl_desktop_util.h"
+    #include "glutil.h"
 #elif WIN32
     #include <GL/glew.h>
     #include "glutil.h"
@@ -23,4 +24,4 @@
 
 
 
-#endif //VolumeRenderIOS_OpenGL_h
+#endif //OpenGLHelper_H

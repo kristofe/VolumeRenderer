@@ -85,7 +85,7 @@ const int numSamples = 128;
 const float stepSize = maxDist/float(numSamples);
 const int numLightSamples = 16;
 const float lscale = maxDist / float(numLightSamples);
-const float densityFactor = 5.0; 
+const float densityFactor = 5.0;
 
 struct Ray {
     vec3 Origin;
@@ -114,7 +114,7 @@ bool IntersectBox(Ray r, AABB aabb, out float t0, out float t1)
 void main()
 {
     //FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    
+
     vec3 rayDirection;
     rayDirection.xy = 2.0 * gl_FragCoord.xy / WindowSize - 1.0;
     rayDirection.z = -FocalLength;
@@ -165,7 +165,7 @@ void main()
 
     FragColor.rgb = Lo;
     FragColor.a = 1-T;
-    
+
 }
 -- FS_CTSCAN
 #ifdef GL_ES
@@ -182,13 +182,14 @@ uniform mat4 Modelview;
 uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
-
+uniform float maxDensity = 1.0;
+uniform float minDensity = 0.4;
 const float maxDist = sqrt(2.0);
-const int numSamples = 96;
+const int numSamples = 512;
 const float stepSize = maxDist/float(numSamples);
-const int numLightSamples = 4;
+const int numLightSamples = 0;
 const float lscale = maxDist / float(numLightSamples);
-const float densityFactor = 1.5; 
+const float densityFactor = 1.5;
 
 struct Ray {
     vec3 Origin;
@@ -216,7 +217,7 @@ bool IntersectBox(Ray r, AABB aabb, out float t0, out float t1)
 
 void main()
 {
-    
+
     vec3 rayDirection;
     rayDirection.xy = 2.0 * gl_FragCoord.xy / WindowSize - 1.0;
     rayDirection.z = -FocalLength;
@@ -250,7 +251,7 @@ void main()
           break;
         }
         */
-        if (density <= 0.425)
+        if (density <= minDensity || density > maxDensity)
             continue;
 
         T *= 1.0-density*stepSize*Absorption;
@@ -270,10 +271,10 @@ void main()
 
         vec3 Li = LightIntensity*Tl;
         Lo += Li*T*density*stepSize;
-        
+
     }
 
     FragColor.rgb = Lo;
     FragColor.a = 1.0-T;
-    
+
 }
