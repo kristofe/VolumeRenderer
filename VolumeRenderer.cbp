@@ -24,7 +24,13 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
+            <Add option="-DTARGETMAC" />
             <Add option="-DGLEW_STATIC" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/usr/include" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/c++/v1" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/5.1/include" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include" />
             <Add directory="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/glm" />
             <Add directory="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/include" />
          </Compiler>
@@ -42,7 +48,13 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
+            <Add option="-DTARGETMAC" />
             <Add option="-DGLEW_STATIC" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/usr/include" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/c++/v1" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/5.1/include" />
+            <Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include" />
             <Add directory="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/glm" />
             <Add directory="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/include" />
          </Compiler>
@@ -68,15 +80,13 @@
       </Unit>
       <Unit filename="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/glprogram.cpp">
       </Unit>
-      <Unit filename="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/glutil.cpp">
+      <Unit filename="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/glutil_GL3Plus.cpp">
       </Unit>
       <Unit filename="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/perlin.c">
       </Unit>
       <Unit filename="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/shadersource.cpp">
       </Unit>
       <Unit filename="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/trackball.cpp">
-      </Unit>
-      <Unit filename="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/glm/glm.hpp">
       </Unit>
       <Unit filename="/Users/kristofe/Documents/Projects/VolumeRenderer/renderlib/include/color.h">
       </Unit>
