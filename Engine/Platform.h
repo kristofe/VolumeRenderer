@@ -16,6 +16,8 @@
 #include "Platform_Mac.h"
 #endif
 #ifdef WIN32
-how about this
 	#include "Platform_Win32.h"
 #endif
+
+#include "PlatformAll.h"
+

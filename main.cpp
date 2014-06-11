@@ -29,6 +29,8 @@ extern "C" {
 #include "renderlib/perlin.h"
 }
 
+#include "Platform.h"
+
 using namespace renderlib;
 using namespace vmath;
 
@@ -181,14 +183,17 @@ static GLuint load3DScan(const std::string& filename,int dx, int dy, int dz)
     int position = 0;
     size_t chunkSize = sizeof(unsigned short)*512;
 
-    printf("position ");
     std::ifstream fin(filename.c_str(), std::ios::in|std::ios::binary);
+    if(fin.fail())
+    {
+      std::cout << "Could not find " << filename << std::endl;
+    }
     while(fin.read((char*)&data[position],chunkSize))
     {
       position += 512;
-//      printf("%d ", position);
+
     }
-    printf("\n");
+
 
     fin.close();
 
@@ -256,7 +261,8 @@ static GLuint CreatePyroclasticVolume(int n, float r)
 void initialize()
 {
     trackball = new Trackball(winWidth * 1.0f, winHeight * 1.0f, winWidth * 0.5f);
-    Programs.SinglePass = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_CTSCAN", "GS");
+    //Programs.SinglePass = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_CTSCAN", "GS");
+    Programs.SinglePass = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_ISO", "GS");
     GetGLError();
     CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
     GetGLError();
@@ -301,6 +307,7 @@ static void loadUniforms()
     GetGLError();
     SetUniform("minDensity", minDensity);
     SetUniform("maxDensity", maxDensity);
+    SetUniform("isoValue", minDensity);
 
 }
 
@@ -351,7 +358,8 @@ int main(void)
     exit(EXIT_FAILURE);
 
 
-
+  std::cout << GetCurrentDir() << std::endl;
+  ChangeParentDir("data");
 
   hintOpenGL32CoreProfile();
   winWidth = 800;
@@ -392,7 +400,7 @@ int main(void)
 
   while (!glfwWindowShouldClose(window))
   {
-        update(glfwGetTime());
+    update(glfwGetTime());
     render();
 
     glfwSwapBuffers(window);

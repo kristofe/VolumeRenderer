@@ -28,6 +28,8 @@ set(HEADERS
   renderlib/shadersource.h
   renderlib/vmath.hpp
   renderlib/perlin.h
+  Engine/Platform.h
+  Engine/PlatformAll.h
 )
 
 set(SHADERS
@@ -44,6 +46,7 @@ if(APPLE)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter -std=c++11")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter")
 add_definitions(-DTARGETMAC)
+include_directories(Engine/PlatformClasses/Apple/MacClasses)
 ENDIF(APPLE)
 
 if(WIN32)
@@ -65,6 +68,7 @@ set(GLFWLIB_PATH "/Users/kristofe/Documents/Projects/glfw-3.0.1/CMake/src")
 
 
 #add_subdirectory(renderlib) #requires the directory to have a CMakeLists.txt file
+include_directories(Engine)
 include_directories(renderlib)
 include_directories(renderlib/include)
 include_directories(renderlib/glm)
