@@ -185,11 +185,11 @@ uniform vec3 RayOrigin;
 uniform float maxDensity = 1.0;
 uniform float minDensity = 0.4;
 const float maxDist = sqrt(2.0);
-const int numSamples = 64;
+const int numSamples = 512;
 const float stepSize = maxDist/float(numSamples);
 const int numLightSamples = 0;
 const float lscale = maxDist / float(numLightSamples);
-const float densityFactor = 1.5;
+const float densityFactor = 1.75;
 
 struct Ray {
     vec3 Origin;
@@ -297,7 +297,7 @@ uniform vec3 RayOrigin;
 uniform float maxDensity = 1.0;
 uniform float minDensity = 0.4;
 const float maxDist = sqrt(2.0);
-const int numSamples = 256;
+const int numSamples = 1024;
 const float stepSize = maxDist/float(numSamples);
 const int numLightSamples = 0;
 const float lscale = maxDist / float(numLightSamples);
@@ -369,7 +369,8 @@ vec4 PhongLighting(vec3 L, vec3 N, vec3 V, float specPower, vec3 diffuseColor)
 	float diffuse = max(dot(L,N),0.0);
 	vec3 halfVec = normalize(L+V);
 	float specular = pow(max(0.00001,dot(halfVec,N)),specPower);
-	return vec4((diffuse*diffuseColor + specular),1.0);
+	//return vec4((diffuse*diffuseColor + specular),1.0);
+	return vec4(diffuse,diffuse, diffuse,1.0);
 }
 
 
@@ -449,7 +450,7 @@ void main()
       //with diffuse and specular components. Try changing this call to this
       //vFragColor =  PhongLighting(L,N,V,250,  tc); to get a multi colour
       //iso-surface
-      FragColor =  PhongLighting(L,N,V,250, vec3(0.5));
+      FragColor =  PhongLighting(L,N,V,1000, vec3(0.3));
       return;
     }
 

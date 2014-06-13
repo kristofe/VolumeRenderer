@@ -34,14 +34,14 @@ extern "C" {
 using namespace renderlib;
 using namespace vmath;
 
-struct ProgramHandles {
-    GLuint SinglePass;
-};
 //Prototypes
-static ProgramHandles Programs;
+
 static GLuint CreatePyroclasticVolume(int n, float r);
 static GLuint CubeCenterVbo;
 static GLuint CubeCenterVao;
+static GLuint densityProgram;
+static GLuint isoProgram;
+static GLuint currentProgram;
 static Matrix4 ProjectionMatrix;
 static Matrix4 ModelviewMatrix;
 static Matrix4 ViewMatrix;
@@ -52,8 +52,6 @@ static int winWidth = 800;
 static int winHeight = 800;
 
 static GLuint CloudTexture;
-static SurfacePod IntervalsFbo[2];
-static bool SinglePass = true;
 static float fieldOfView = 0.7f;
 static Trackball* trackball;
 static int mouseX, mouseY;
@@ -85,8 +83,12 @@ static void keyHandler(GLFWwindow* window, int key, int scancode, int action, in
     glfwSetWindowShouldClose(window, GL_TRUE);
   }
 
-  if (key == '1' && action == GLFW_PRESS) fieldOfView += 0.05f;
-  if (key == '2' && action == GLFW_PRESS) fieldOfView -= 0.05f;
+  if (key == '1' && action == GLFW_PRESS)
+  {
+    currentProgram = currentProgram == isoProgram?densityProgram:isoProgram;
+  }
+//  if (key == '1' && action == GLFW_PRESS) fieldOfView += 0.05f;
+//  if (key == '2' && action == GLFW_PRESS) fieldOfView -= 0.05f;
 }
 
 static void mouseButtonHandler(GLFWwindow* window, int button, int action, int mods)
@@ -261,10 +263,11 @@ static GLuint CreatePyroclasticVolume(int n, float r)
 void initialize()
 {
     trackball = new Trackball(winWidth * 1.0f, winHeight * 1.0f, winWidth * 0.5f);
-    //Programs.SinglePass = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_CTSCAN", "GS");
-    Programs.SinglePass = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_ISO", "GS");
+    densityProgram = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_CTSCAN", "GS");
+    isoProgram = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_ISO", "GS");
+    currentProgram = isoProgram;
     GetGLError();
-    CreatePointVbo(Programs.SinglePass, &CubeCenterVbo, &CubeCenterVao);
+    CreatePointVbo(currentProgram, &CubeCenterVbo, &CubeCenterVao);
     GetGLError();
 
     CloudTexture = load3DScan("Data/512x512x512x_uint16.raw", 512,512,512);
@@ -315,7 +318,7 @@ void render()
 {
     glClearColor(0.1f, 0.2f, 0.4f, 0);
     glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(Programs.SinglePass);
+    glUseProgram(currentProgram);
     glBindTexture(GL_TEXTURE_3D, CloudTexture);
         glBindVertexArray(CubeCenterVao);
     glBindBuffer(GL_ARRAY_BUFFER, CubeCenterVbo);
