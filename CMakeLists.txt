@@ -31,7 +31,6 @@ set(HEADERS
   renderlib/perlin.h
   Engine/Platform.h
   Engine/PlatformAll.h
-  Engine/Renderer.h
 )
 
 set(SHADERS
