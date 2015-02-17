@@ -15,9 +15,9 @@
 #include "Texture.h"
 
 namespace renderlib{
-  
+
 using namespace vmath;
-  
+
 class SimpleRenderTarget
 {
 public:
@@ -28,7 +28,7 @@ public:
     FLOAT16,
     FLOAT32
   };
-  
+
 public:
   SimpleRenderTarget(int width, int height, DataType dataType);
   void initDebugData(int min, int max);
@@ -36,17 +36,17 @@ public:
   void resize(int width, int height);
   inline void bind();
   inline void unbind();
-  
+
   //Debug Stuff
   //void debugDraw(Matrix4& projMat, float time);
   //void setupMaterial();
-  
+
   //C++ 11 way of hiding these methods
   //Default constructor, no copy constructor or copy assignment operato
   SimpleRenderTarget() = default;
   SimpleRenderTarget(const SimpleRenderTarget&) = delete;
   SimpleRenderTarget & operator=(const SimpleRenderTarget&) = delete;
-  
+
 protected:
   Texture texture;
   int width;
@@ -80,7 +80,7 @@ void SimpleRenderTarget::resize(int width, int height)
   if(this->width != width || this->height  != height){
     this->width = width;
     this->height = height;
-    texture.setupFBO(width, height, false);
+    //texture.setupFBO(width, height, false);
   }
 };
 
@@ -102,7 +102,7 @@ void SimpleRenderTarget::unbind()
 ///////////////////////////////////////////////////////////////////////////////
 /*
 void debugDraw(Matrix4& projMat, float time){
-  
+
   debugMaterial.bind(debugMesh);
   debugMaterial.setUniforms(
                                transform.matrix.m,
@@ -130,7 +130,7 @@ void setupMaterial()
   fsSource +="      vec3 color = texture2D(uTexture01, vUV).rgb;\n"
   fsSource +="      gl_FragColor = vec4(color, 1.0);\n"
   fsSource +="    }\n";
-  
+
   var vsSource="  precision mediump float;\n";
   vsSource +="    attribute vec3 aPosition;\n";
   vsSource +="    attribute vec2 aUV;\n";
@@ -144,16 +144,16 @@ void setupMaterial()
   vsSource +="        vUV = aUV.xy;\n";
   vsSource +="        gl_Position = vec4(aPosition,1.0);\n";
   vsSource +="    }\n";
-  
+
   this.debugMaterial.shader.initShaderWithSource(fsSource,vsSource);
   this.debugMaterial.zTest = false;
   this.debugMaterial.zWrite = false;
   this.debugMaterial.lineWidth = 1.0;
   this.debugMaterial.setTexture(this.texture);
-  
+
 };
  */
-  
+
 }//end namespace renderlib
 
 #endif /* defined(__VolumeRenderer__SingleRenderTarget__) */

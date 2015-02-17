@@ -20,6 +20,10 @@
 #elif WIN32
     #include <GL/glew.h>
     #include "glutil.h"
+#else
+    #define GLEW_STATIC
+    #include <GL/glew.h>
+    #include "glutil.h"
 #endif
 
 

@@ -10,11 +10,14 @@
 	#pragma comment(lib, "GLFW/glfw3dll.lib")
 	#pragma comment(lib, "opengl32.lib")
 	#include <GL/glew.h>
+#else
+	#include "renderlib/include/OpenGLHelper.h"
 #endif
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <cstring>
 #include <cmath>
 #include "GLFW/glfw3.h" // - lib is in /usr/local/lib/libglfw3.a
 #include "test.h"
@@ -216,9 +219,14 @@ static GLuint CreatePyroclasticVolume(int n, float r)
     glBindTexture(GL_TEXTURE_3D, handle);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+    /*
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    */
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     unsigned char *data = new unsigned char[n*n*n];
@@ -263,15 +271,15 @@ static GLuint CreatePyroclasticVolume(int n, float r)
 void initialize()
 {
     trackball = new Trackball(winWidth * 1.0f, winHeight * 1.0f, winWidth * 0.5f);
-    densityProgram = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_CTSCAN", "GS");
-    isoProgram = GLUtil::complileAndLinkProgram("shaders/SinglePassRayMarch.glsl", "VS", "FS_ISO", "GS");
-    currentProgram = isoProgram;
+    densityProgram = GLUtil::complileAndLinkProgram("Shaders/SinglePassRayMarch.glsl", "VS", "FS_CLOUD", "GS");
+    isoProgram = GLUtil::complileAndLinkProgram("Shaders/SinglePassRayMarch.glsl", "VS", "FS_ISO", "GS");
+    currentProgram = densityProgram;
     GetGLError();
     CreatePointVbo(currentProgram, &CubeCenterVbo, &CubeCenterVao);
     GetGLError();
 
-    CloudTexture = load3DScan("Data/512x512x512x_uint16.raw", 512,512,512);
-    //CloudTexture = CreatePyroclasticVolume(128, 0.025f);
+    //CloudTexture = load3DScan("Data/512x512x512x_uint16.raw", 512,512,512);
+    CloudTexture = CreatePyroclasticVolume(128, 0.025f);
     GetGLError();
 
     glDisable(GL_DEPTH_TEST);

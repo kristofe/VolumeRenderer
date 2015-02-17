@@ -16,7 +16,7 @@
 #include <list>
 //#include "Matrix.h"
 //#include "Thread.h"
-#include "PersistentDataManager.h"
+//#include "PersistentDataManager.h"
 #include "vmath.hpp"
 #include "GameObject.h"
 
@@ -43,7 +43,7 @@ struct RendererObjectRefCounter
 {
 	GameID	rendererID;
 	std::set<GameID> referencingObjects;
-	
+
 	void Serialize(PersistentData& storageData)
 	{
 		PersistentData* node = new PersistentData("RefCounter");
@@ -56,9 +56,9 @@ struct RendererObjectRefCounter
 			++roIt;
 		}
 		storageData.AddChild(node);
-		
+
 	};
-	
+
 	void DeSerialize(PersistentData& storageData)
 	{
 		rendererID	= static_cast<GameID> (storageData.GetPropertyU("GameID"));
@@ -72,9 +72,9 @@ struct RendererObjectRefCounter
 			referencingObjects.insert(id);
 			++it;
 		}
-		
+
 	};
-	
+
 	std::string DebugOutput()
 	{
 		char buf[512];
@@ -134,10 +134,10 @@ public:
 				mObjectVectors[OpaqueObjectsArray] = & mOpaqueRenderObjects;
 				mObjectVectors[TransparentObjectsArray] = & mTranparentRenderObjects;
 			mMainCamera = NULL;
-				
+
 		};
 		virtual ~Renderer();
-		
+
 		virtual void Init() {};
 		virtual void Shutdown() {};
 		//virtual void RasterizeRenderTargets() = 0;
@@ -159,12 +159,12 @@ public:
 
 		virtual void AddRenderObject(GameID renderObjectID);
 		virtual void RemoveRenderObject(GameID renderObjectID);
-	
+
 		virtual void AddCamera(Camera* cam);
 		virtual void RemoveCamera(Camera* cam);
 		virtual void SetMainCamera(Camera* cam){mMainCamera = cam;};
 		virtual Camera* GetMainCamera(){return mMainCamera;};
-	
+
 		virtual void AddRenderTarget(RenderTarget* renderTarget);
 		virtual void RemoveRenderTarget(RenderTarget* renderTarget);
 
@@ -193,31 +193,31 @@ public:
 		virtual void DeleteTextureFont(GameID id);
 		virtual TextureFont& GetTextureFont(GameID id);
 		virtual TextureFont& CreateTextureFont(std::string name);
-	
+
 		void Serialize(PersistentData& storageData);
 		void DeSerialize(PersistentData& storageData);
-	
-	
+
+
 		bool IsShaderCompilerAvailable(){return false;};
 		unsigned int LoadShader ( unsigned int type, const char *shaderSrc ){return 0;};
 		unsigned int LoadProgram ( const char *vertShaderSrc, const char *fragShaderSrc ){return 0;};
 		void GetActiveAttributeNamesAndLocations(unsigned int programObj, std::list<ShaderAttributeBinding>&  metaDataList){};
 		void GetActiveUniformNamesAndLocations(unsigned int programObj, std::list<ShaderUniformBinding>&  metaDataList){};
 		bool GetShaderCompilerInfo(bool hasCompiler, int* numBinaryFormats, int* formats){return false;};
-	
+
 		virtual std::string GetTypeString()
 		{
 			return "Renderer";
 		}
-	
+
 		virtual void DumpDebugData();
-		
+
 	protected:
 		virtual void HandlePendingRendererObjectDeletions();
 		virtual void HandlePendingRenderObjectRemovals();
 		virtual void HandlePendingRenderTargetRemovals();
 		virtual void HandlePendingCameraRemovals();
-	
+
 		virtual void CreateFrameBufferObject(RenderTarget& rt){};
 		virtual int GetCurrrentFrameBufferObjectID(){};
 		virtual int GetCurrrentRenderBufferObjectID(){};
@@ -225,7 +225,7 @@ public:
 		virtual void BindRenderBuffer(int renderBufferID){};
 	private:
 		virtual void DeleteRendererObject(GameID id);
-		
+
 
 	protected:
 		int mT0;
@@ -261,9 +261,9 @@ public:
 		RenderObjectVector			mTranparentRenderObjects;			//Don't serialize
 		RenderObjectVector*			mObjectVectors[ObjectsArrayCount];	//Don't serialize
 		ReferenceCounterDB			mRendererRefCountDB;
-		
+
 		std::map<std::string, unsigned int>		mStringToEnumDB;
-	
+
 		//GameID					mLastGameID;
 
 		MaterialObjectMap			mMaterials;
@@ -275,7 +275,7 @@ public:
 		std::list<GameID>			mPendingRendererObjectDeletions;
 		std::list<GameID>			mPendingRenderObjectRemovals;
 		std::list<RenderObject*>	mPendingRenderObjectRemovalPointers;
-	
+
 		//std::list<GameID>			mPendingRendererTargetDeletions;
 		std::list<RenderTarget*>	mPendingRenderTargetRemovals;
 		std::list<Camera*>			mPendingCameraRemovals;

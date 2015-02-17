@@ -15,7 +15,7 @@ public:
   std::string getShader(const std::string id);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ShaderSource);
+  //DISALLOW_COPY_AND_ASSIGN(ShaderSource);
 
 //Data Members
 

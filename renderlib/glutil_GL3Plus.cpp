@@ -668,9 +668,11 @@ namespace renderlib{
         if (condition)
             return;
 
+#if __APPLE__
         va_start(a, condition);
         pStr = va_arg(a, const char*);
         fatalError(pStr, a);
+#endif
     }
 
     SlabPod CreateSlab(GLsizei width, GLsizei height)

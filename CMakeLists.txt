@@ -25,17 +25,19 @@ set(HEADERS
   renderlib/include/trackball.h
   renderlib/include/SingleRenderTarget.h
   renderlib/include/Texture.h
+  renderlib/include/OpenGLHelper.h
   renderlib/shadersource.h
   renderlib/vmath.hpp
   renderlib/perlin.h
   Engine/Platform.h
   Engine/PlatformAll.h
+  Engine/Renderer.h
 )
 
 set(SHADERS
-  shaders/vertShader.glsl
-  shaders/fragShader.glsl
-  shaders/SinglePassRayMarch.glsl
+  Shaders/vertShader.glsl
+  Shaders/fragShader.glsl
+  Shaders/SinglePassRayMarch.glsl
 )
 
 
@@ -43,25 +45,24 @@ set(SHADERS
 # -Wall turns on all warnings
 # -Wextra turns on a lot of warnings (but not too pedantic)
 if(APPLE)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter -std=c++11")
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter")
-add_definitions(-DTARGETMAC)
-include_directories(Engine/PlatformClasses/Apple/MacClasses)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter -std=c++11")
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter")
+  add_definitions(-DTARGETMAC)
+  include_directories(Engine/PlatformClasses/Apple/MacClasses)
 ENDIF(APPLE)
 
 if(WIN32)
-include_directories(glew/include)
-LIST(APPEND SOURCES glew/src/glew.c)
+  include_directories(glew/include)
+  LIST(APPEND SOURCES glew/src/glew.c)
 ENDIF(WIN32)
 
-#SET(CMAKE_OSX_ARCHITECTURES "i386")
 
 
 if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-    message("adding debug flags")
-    add_definitions(-DDEBUG)
-    add_definitions(-D_DEBUG)
-    add_definitions(-DBREAK_ON_EXCEPTION)
+  message("adding debug flags")
+  add_definitions(-DDEBUG)
+  add_definitions(-D_DEBUG)
+  add_definitions(-DBREAK_ON_EXCEPTION)
 endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 set(GLFWLIB_PATH "/Users/kristofe/Documents/Projects/glfw-3.0.1/CMake/src")
@@ -73,6 +74,23 @@ include_directories(renderlib)
 include_directories(renderlib/include)
 include_directories(renderlib/glm)
 link_directories(${GLFWLIB_PATH})
+
+
+if(UNIX)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter -std=c++11")
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter")
+
+  include_directories(glew/include)
+  LIST(APPEND SOURCES glew/src/glew.c)
+
+  find_package(PkgConfig REQUIRED)
+  pkg_search_module(GLFW REQUIRED glfw3)
+  include_directories(${GLFW_INLUDE_DIRS})
+  SET(EXTRA_LIBS ${GLFW_STATIC_LIBRARIES})
+  add_definitions(-DTARGETUNIX)
+  message("In Unix ")
+
+endif(UNIX)
 
 if(APPLE)
    FIND_LIBRARY(IOKIT_LIBRARY IOKit)
